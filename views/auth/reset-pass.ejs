@@ -1,0 +1,48 @@
+<!-- Page Title and Breadcrumb -->
+<div class="bg-gray-100 py-7 px-4">
+  <div class="max-w-7xl mx-auto">
+    <h1 class="text-xl font-bold mb-2">Reset password</h1>
+    <nav class="text-sm text-gray-600">
+      <a href="/" class="hover:underline font-medium">Nutrixo</a> / <span>Reset Password</span>
+    </nav>
+  </div>
+</div>
+
+<!-- Reset Password Form -->
+<main class="flex-grow flex items-center justify-center px-4 py-10 min-h-[calc(100vh-12rem)] mt-[-110px]">
+  <div class="max-w-md w-full">
+    <form class="space-y-6" method="POST" action="/auth/reset-password">
+      
+      <div>
+        <label for="newPassword" class="block text-sm font-medium text-gray-700">New password</label>
+        <input
+          type="password"
+          id="newPassword"
+          name="newPassword"
+          required
+          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black"
+        />
+      </div>
+
+      <div>
+        <label for="confirmPassword" class="block text-sm font-medium text-gray-700">Confirm password</label>
+        <input
+          type="password"
+          id="confirmPassword"
+          name="confirmPassword"
+          required
+          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black"
+        />
+      </div>
+
+      <div>
+        <button
+          type="submit"
+          class="w-full bg-black text-white font-medium py-2 rounded-md hover:bg-gray-800 transition duration-200"
+        >
+          CHANGE PASSWORD
+        </button>
+      </div>
+    </form>
+  </div>
+</main>

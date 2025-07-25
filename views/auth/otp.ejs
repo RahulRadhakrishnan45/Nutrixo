@@ -1,0 +1,52 @@
+<!-- Page Title and Breadcrumb -->
+<div class="bg-gray-100 py-7 px-4">
+  <div class="max-w-7xl mx-auto">
+    <h1 class="text-xl font-bold mb-2">Verify OTP</h1>
+    <nav class="text-sm text-gray-600">
+      <a href="/" class="hover:underline font-medium">Nutrixo</a>
+      <span>/ Verify OTP</span>
+    </nav>
+  </div>
+</div>
+
+<!-- OTP Verification Form -->
+<main class="flex-grow flex items-center justify-center px-4 py-10 min-h-[calc(100vh-12rem)] mt-[-110px]">
+  <div class="max-w-md w-full">
+    <p class="text-gray-600 mb-6">
+      We’ve sent a 6-digit verification code to your email address.<br>
+      Please enter the code below to continue.
+    </p>
+
+    <!-- <% if (typeof error !== 'undefined') { %>
+      <div class="mb-4 text-red-600 text-sm font-medium"><%= error %></div>
+    <% } %> -->
+
+    <form class="space-y-6" method="POST" action="/auth/verify-otp">
+      <div>
+        <label for="otp" class="block text-sm font-medium text-gray-700">Enter OTP</label>
+        <input
+          type="text"
+          id="otp"
+          name="otp"
+          maxlength="6"
+          required
+          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black"
+        />
+      </div>
+
+      <div>
+        <button
+          type="submit"
+          class="w-full bg-black text-white font-medium py-2 rounded-md hover:bg-gray-800 transition duration-200"
+        >
+          VERIFY
+        </button>
+      </div>
+
+      <div class="text-sm text-center text-gray-600">
+        Didn’t receive the code?
+        <a href="/auth/resend-otp" class="text-blue-600 hover:underline font-medium">Resend OTP</a>
+      </div>
+    </form>
+  </div>
+</main>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title><%= typeof title !== 'undefined' ? title : 'Nutrixo' %></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="flex flex-col min-h-screen">
+
+  <% if (typeof isAdmin !== 'undefined' && isAdmin === true) { %>
+    <% if (typeof isAdminLogin !== 'undefined' && isAdminLogin === true) { %>
+      <!-- Admin Login Page (no sidebar) -->
+      <main class="flex-grow">
+        <%- body %>
+      </main>
+    <% } else { %>
+      <!-- Full Admin Layout with Sidebar -->
+      <div class="flex flex-grow">
+        <%- include('../partials/adminSidebar') %>
+        <main class="flex-grow">
+          <%- body %>
+        </main>
+      </div>
+    <% } %>
+  
+  <% } else { %>
+    <!-- Auth or User Layout -->
+    <% if (typeof isAuthPage !== 'undefined' && isAuthPage === true) { %>
+      <%- include('../partials/headerLogin') %>
+    <% } else { %>
+      <%- include('../partials/header') %>
+    <% } %>
+
+    <main class="flex-grow">
+      <%- body %>
+    </main>
+
+    <%- include('../partials/footer') %>
+  <% } %>
+
+</body>
+
+</html>
