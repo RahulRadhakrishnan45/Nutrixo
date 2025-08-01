@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title><%= typeof title !== 'undefined' ? title : 'Admin Dashboard' %></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex flex-col min-h-screen">
+  <div class="flex flex-grow">
+    <%- include('../partials/adminSidebar') %>
+    <main class="flex-grow">
+      <%- body %>
+    </main>
+  </div>
+</body>
+</html>
