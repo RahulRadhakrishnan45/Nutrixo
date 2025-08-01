@@ -1,18 +1,16 @@
-<aside class="sidebar">
-  <div class="logo">
-    <span>Admin</span>
+<aside class="sidebar bg-white w-64 min-h-screen shadow-md">
+  <!-- Logo & Admin text -->
+  <div class="flex flex-col items-center py-6">
+
+    <span class="text-blue-600 font-semibold text-lg">Admin</span>
   </div>
-  <ul class="nav-items">
+
+  <!-- Navigation Items -->
+  <ul class="nav-items flex flex-col gap-2 px-4">
+    <!-- Dashboard -->
     <li class="nav-item active flex items-center gap-3">
       <a href="/admin/dashboard" class="flex items-center gap-3">
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="7" height="7" />
           <rect x="14" y="3" width="7" height="7" />
           <rect x="14" y="14" width="7" height="7" />
@@ -22,16 +20,10 @@
       </a>
     </li>
 
+    <!-- Products -->
     <li class="nav-item flex items-center gap-3">
       <a href="/admin/products" class="flex items-center gap-3">
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
           <line x1="3" y1="6" x2="21" y2="6" />
           <path d="M16 10a4 4 0 0 1-8 0" />
@@ -40,36 +32,22 @@
       </a>
     </li>
 
+    <!-- Orders -->
     <li class="nav-item flex items-center gap-3">
       <a href="/admin/orders" class="flex items-center gap-3">
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="9" cy="21" r="1" />
           <circle cx="20" cy="21" r="1" />
-          <path
-            d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"
-          />
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
         </svg>
         <span>Orders</span>
       </a>
     </li>
 
+    <!-- Customers -->
     <li class="nav-item flex items-center gap-3">
       <a href="/admin/customers" class="flex items-center gap-3">
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
           <circle cx="12" cy="7" r="4" />
         </svg>
@@ -77,19 +55,11 @@
       </a>
     </li>
 
+    <!-- Report -->
     <li class="nav-item flex items-center gap-3">
       <a href="/admin/salesreport" class="flex items-center gap-3">
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path
-            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
-          />
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
           <polyline points="14 2 14 8 20 8" />
           <line x1="16" y1="13" x2="8" y2="13" />
           <line x1="16" y1="17" x2="8" y2="17" />
@@ -99,101 +69,75 @@
       </a>
     </li>
 
+    <!-- Coupons -->
     <li class="nav-item flex items-center gap-3">
       <a href="/admin/coupons" class="flex items-center gap-3">
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path
-            d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"
-          />
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
           <line x1="7" y1="7" x2="7.01" y2="7" />
         </svg>
         <span>Coupons</span>
       </a>
     </li>
 
+    <!-- Category -->
     <li class="nav-item flex items-center gap-3">
       <a href="/admin/category" class="flex items-center gap-3">
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
         </svg>
         <span>Category</span>
       </a>
     </li>
+
+    <!-- Banner Management -->
     <li class="nav-item flex items-center gap-3">
-      <a href="/admin/offer-management" class="flex items-center gap-3">
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <line x1="12" y1="1" x2="12" y2="23" />
-          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+      <a href="/admin/banner-management" class="flex items-center gap-3">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="16" rx="2" ry="2" />
+          <circle cx="8" cy="10" r="2" />
+          <path d="M21 15l-5-5L5 21" />
         </svg>
-        <span>Offer</span>
+        <span>Banner Management</span>
       </a>
     </li>
 
-    <li
-      class="nav-item flex items-center gap-3 cursor-pointer px-3 py-2 rounded-md hover:bg-gray-100"
-    >
-      <form
-        action="/admin/logout"
-        method="post"
-        class="m-0 p-0 flex items-center gap-3"
-      >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M15 12H3" />
-          <path d="M10 17l-5-5 5-5" />
-          <path d="M21 16V8a2 2 0 0 0-2-2h-4" />
+    <!-- Offer Management -->
+    <li class="nav-item flex items-center gap-3">
+      <a href="/admin/offer-management" class="flex items-center gap-3">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="1" x2="12" y2="23" />
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
         </svg>
-        <button
-          type="submit"
-          class="bg-transparent border-none text-inherit focus:outline-none"
-        >
-          Logout
-        </button>
-      </form>
+        <span>Offer Management</span>
+      </a>
     </li>
+
+    <!-- Brand Management -->
+    <li class="nav-item flex items-center gap-3">
+      <a href="/admin/brand-management" class="flex items-center gap-3">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 4h16v4H4z" />
+          <path d="M4 12h16v4H4z" />
+          <path d="M4 20h16v0z" />
+        </svg>
+        <span>Brand Management</span>
+      </a>
+    </li>
+
+  <!-- Logout -->
+<li class="nav-item flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100">
+  <form action="/admin/logout" method="post" class="w-full flex items-center gap-3">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 12H3" />
+      <path d="M10 17l-5-5 5-5" />
+      <path d="M21 16V8a2 2 0 0 0-2-2h-4" />
+    </svg>
+    <button type="submit" class="text-left w-full bg-transparent border-none text-inherit focus:outline-none">
+      Logout
+    </button>
+  </form>
+</li>
+
   </ul>
-  <% if (success_msg.length > 0) { %>
-  <input
-    type="hidden"
-    id="successMessage"
-    value="<%= success_msg[0] %>"
-    data-alert="<%= success_msg ?'true' : 'false' %>"
-  />
-  <% } else if (error_msg.length > 0) { %>
-  <input
-    type="hidden"
-    id="errorMessage"
-    value="<%= error_msg[0] %>"
-    data-alert="<%= error_msg ? 'true' : 'false' %>"
-  />
-  <% } %>
 </aside>

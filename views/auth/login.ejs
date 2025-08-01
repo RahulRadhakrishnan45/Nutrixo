@@ -1,34 +1,28 @@
-
 <body class="flex flex-col min-h-screen">
- 
-
   <!-- Page Title and Breadcrumb -->
-<div class="bg-gray-100 py-7 px-4">
-  <div class="max-w-7xl mx-auto">
-    <h1 class="text-xl font-bold mb-2">Log In</h1>
-    <nav class="text-sm text-gray-600">
-      <a href="/" class="hover:underline font-medium">Nutrixo</a> / <span>Log In</span>
-    </nav>
+  <div class="bg-gray-100 py-7 px-4">
+    <div class="max-w-7xl mx-auto">
+      <h1 class="text-xl font-bold mb-2">Log In</h1>
+      <nav class="text-sm text-gray-600">
+        <a href="/" class="hover:underline font-medium">Nutrixo</a> / <span>Log In</span>
+      </nav>
+    </div>
   </div>
-</div>
-
 
   <!-- Main Login Form -->
   <main class="flex-grow flex justify-center items-start py-12 px-4 sm:px-6 lg:px-8">
     <div class="w-full max-w-md bg-white p-6 sm:p-8 rounded-md shadow-sm border">
-
       
-
-      <!-- Google Login Button -->
-<button class="w-full flex items-center justify-center border border-gray-300 rounded-md py-4 text-sm mb-4 hover:bg-gray-50">
-  <img src="https://www.google.com/favicon.ico" alt="Google" class="w-5 h-5 mr-2" />
-  Continue with Google
-</button>
+      <!-- Google Login Button (optional) -->
+      <button class="w-full flex items-center justify-center border border-gray-300 rounded-md py-4 text-sm mb-4 hover:bg-gray-50">
+        <img src="https://www.google.com/favicon.ico" alt="Google" class="w-5 h-5 mr-2" />
+        Continue with Google
+      </button>
 
       <div class="text-center text-gray-500 mb-4">OR</div>
 
       <!-- Login Form -->
-      <form action="/auth/login" method="POST" class="space-y-4">
+      <form id="loginForm" class="space-y-4">
         <div>
           <label for="email" class="block text-sm font-medium">Email</label>
           <input type="email" name="email" id="email" required
@@ -39,7 +33,7 @@
           <input type="password" name="password" id="password" required
                  class="w-full border rounded-md px-3 py-2 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
           <div class="text-right mt-1">
-            <a href="/user/forgot-password" class="text-xs text-blue-600 hover:underline">Forgot password?</a>
+            <a href="/auth/forgot-password" class="text-xs text-blue-600 hover:underline">Forgot password?</a>
           </div>
         </div>
         <button type="submit"
@@ -51,11 +45,45 @@
       <!-- Sign up prompt -->
       <p class="mt-6 text-center text-sm text-gray-600">
         Don’t have an account?
-        <a href="/user/signup" class="text-blue-600 hover:underline">Sign Up</a>
+        <a href="/auth/signup" class="text-blue-600 hover:underline">Sign Up</a>
       </p>
     </div>
   </main>
 
+  <!-- SweetAlert -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+  <script>
+    document.querySelector('#loginForm').addEventListener('submit', async function(e){
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      const res = await fetch('/auth/login', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({email, password})
+      });
+
+      const data = await res.json();
+
+      if(data.success){
+          Swal.fire({
+              icon:'success',
+              title:data.message,
+              timer:1500,
+              showConfirmButton:false
+          }).then(()=>{
+              window.location.href = data.redirect;
+          });
+      }else{
+          Swal.fire({
+              icon:'error',
+              title:'Login failed',
+              text:data.message
+          });
+      }
+    });
+  </script>
 </body>
-</html>
