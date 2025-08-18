@@ -17,9 +17,9 @@
       Please enter the code below to continue.
     </p>
 
-    <p id="timer", class="text-gray-600 font-medium mb-4 text-center text-lg" ></p>
+    <p id="timer" class="text-gray-600 font-medium mb-4 text-center text-lg" ></p>
 
-    <form onsubmit="return validateOtpForm()" class="space-y-6" method="POST" action="/auth/verify-otp">
+    <form onsubmit="return validateOtpForm()" class="space-y-6"  action="/auth/verify-otp">
       <div>
         <label for="otp" class="block text-sm font-medium text-gray-700">Enter OTP</label>
         <input
@@ -43,7 +43,7 @@
 
       <div class="text-sm text-center text-gray-600">
         Didn’t receive the code?
-        <a href="/auth/resend-otp" class="text-blue-600 hover:underline font-medium">Resend OTP</a>
+        <a href="#" onclick="resendOTP(); return false;" class="text-blue-600 hover:underline font-medium">Resend OTP</a>
       </div>
     </form>
   </div>
@@ -93,33 +93,69 @@ function validateOtpForm() {
 }
 
 let duration = 2*60
+let countDown =null
 const timerDisplay = document.getElementById('timer')
 
-const countDown = setInterval(()=>{
-  let minutes = Math.floor(duration / 60)
-  let seconds = duration % 60
+function startTimer(){
+    countDown = setInterval(()=>{
+        duration--
+        let minutes=Math.floor(duration/60)
+        let seconds = duration%60
+        timerDisplay.textContent = `OTP expires in ${minutes}:${seconds <10 ? '0'+ seconds:seconds}`
 
-  timerDisplay.textContent = `OTP expires in ${minutes}:${seconds <10 ? '0' + seconds : seconds}`
+        if(duration<=0){
+            clearInterval(countDown)
+            timerDisplay.textContent = 'OTP Expired'
 
+            Swal.fire({
+                icon: 'error',
+                title: 'Time expired',
+                text: 'Your OTP has expired. Please click "Resend OTP" to get a new code.',
+            })
+        }
+    },1000)
+}
+startTimer()
 
-if(--duration < 0) {
-  clearInterval(countDown)
-
-  otpInput.disabled = true
-  verifyButton.disabled = true
-  verifyButton.classList.add('bg-gray-400','cursor-not-allowed')
-
-  timerDisplay.textContent = 'OTP Expired'
-
-  Swal.fire({
-        icon: 'error',
-        title: 'Time expired',
-        text: 'Your OTP has expired. Please click "Resend OTP" to get a new code.',
-      }).then(() => {
-        window.location.href = '/auth/signup'
-      });
-    }
-  }, 1000);
+  function resendOTP(){
+    clearInterval(countDown)
+    duration = 60*2
+    document.getElementById('otp').disabled=false
+    document.getElementById('timer').classList.remove('expired')
+    startTimer()
+    
+    fetch('/auth/resend-otp',{
+      method:'POST',
+      headers:{
+        'content-type':'application/json'
+      }
+    })
+    .then(res=>res.json())
+    .then(response =>{
+      if(response.success){
+        Swal.fire({
+          icon:'success',
+          title:'OTP Resent successfully',
+          showConfirmButton:false,
+          timer:1500
+        })
+      }else{
+        Swal.fire({
+          icon:'error',
+          title:'error',
+          text:'An error occured while resending OTP. Please try again'
+        })
+      }
+    })
+    .catch(()=>{
+      Swal.fire({
+        icon:'error',
+        title:'error',
+        text:'Something went wrong. Please try again'
+      })
+    })
+    return false
+  }
 
 
 </script>

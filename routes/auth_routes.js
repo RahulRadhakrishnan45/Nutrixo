@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+const passport = require('../config/passport')
 const authController = require('../controllers/user/auth_userController')
 
 
@@ -11,11 +12,21 @@ router.post('/login',authController.loginUser)
 router.get('/login',authController.loadLogin)
 
 router.get('/forgot-password',authController.forgotPassword)
+router.post('/forgot-password',authController.sendResetMail)
+
 router.get('/reset-password',authController.resetPassword)
 router.post('/verify-otp',authController.verifyOtp)
 router.get('/otp',authController.loadOtpPage)
 
+router.post('/resend-otp',authController.resendOtp)
 
+router.get('/google',passport.authenticate('google',{scope:['profile','email']}))
+
+router.get('/google/callback',passport.authenticate('google',{failureRedirect:'/auth/signup'}),(req,res)=>{
+    
+    req.session.user = req.user._id
+    res.redirect('/')
+})
 
 
 

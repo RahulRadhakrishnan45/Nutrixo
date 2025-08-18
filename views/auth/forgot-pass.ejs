@@ -16,7 +16,7 @@
       We’ll promptly send you a link to reset your password.
     </p>
 
-    <form class="space-y-6" method="POST" action="/forgot-password">
+    <form class="space-y-6" onsubmit="return handleForgotPassword(event)">
       <div>
         <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
         <input
@@ -39,3 +39,44 @@
     </form>
   </div>
 </main>
+
+<script>
+
+function handleForgotPassword(e){
+  e.preventDefault()
+  const email = document.getElementById('email').value
+
+  fetch('/auth/forgot-password',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({email})
+  })
+  .then(res =>res.json())
+  .then(response =>{
+    if(response.success){
+      window.location.href = response.redirect || '/auth/otp'
+    }else{
+      Swal.fire({
+        icon:'error',
+        title:'Error',
+        text:response.message || 'User not found. Please signup'
+      }).then(()=>{
+        if(response.redirect){
+          window.location.href = response.redirect
+        }
+      })
+    }
+  })
+  .catch(()=>{
+    Swal.fire({
+      icon:'error',
+      title:'Error',
+      text:'Network error, please try again'
+    })
+  })
+  return false
+}
+
+
+</script>
+

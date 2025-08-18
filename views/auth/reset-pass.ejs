@@ -23,7 +23,7 @@
           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black"
         />
       </div>
-
+      <div id="error1" class="error-class"></div>
       <div>
         <label for="confirmPassword" class="block text-sm font-medium text-gray-700">Confirm password</label>
         <input
@@ -34,7 +34,7 @@
           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black"
         />
       </div>
-
+      <div id="error2" class="error-class"></div>
       <div>
         <button
           type="submit"
@@ -46,3 +46,76 @@
     </form>
   </div>
 </main>
+
+<style>
+  .error-class {
+    display: none;
+    color: red;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+</style>
+
+<script>
+
+const newPassword =  document.getElementById('newPassword')
+const confirmPassword = document.getElementById('confirmPassword')
+const error1 = document.getElementById('error1')
+const error2 = document.getElementById('error2')
+const form = document.querySelector('form')
+
+const passPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+
+function debounce(fn,delay=500){
+  let timeout
+  return function (...args){
+    clearTimeout(timeout)
+    timeout = setTimeout(()=>fn.apply(this,args),delay)
+  }
+}
+
+
+function passwordValidate(e){
+    const passVal = newPassword.value
+    const confirmVal = confirmPassword.value
+    if(e.target.id === 'newPassword'){
+      if(passVal === ''){
+        error1.style.display = 'block'
+        error1.innerHTML = 'Password cannot be empty'
+      }else if(!passPattern.test(passVal)){
+        error1.style.display = 'block'
+        error1.innerHTML = 'Password must be at least 8 characters long and include uppercase, lowercase, a number, and a special character'
+      }else{
+        error1.style.display = 'none'
+        error1.innerHTML = ''
+      }
+    } 
+    if(e.target.id ==='confirmPassword'){
+      if(confirmVal===''){
+        error2.style.display = 'block'
+        error2.innerHTML = 'Please confirm your password'
+      }else if (passVal !== confirmVal){
+        error2.style.display = 'block'
+        error2.innerHTML = 'Passwords are not matching'
+      } else {
+        error2.style.display = 'none'
+        error2.innerHTML =''
+      }
+    }
+  }
+
+  const debounceValidate = debounce(passwordValidate,500)
+
+newPassword.addEventListener('input',passwordValidate)
+confirmPassword.addEventListener('input',debounceValidate)
+
+form.addEventListener('submit',function(e){
+  passwordValidate({target:newPassword})
+  passwordValidate({target:confirmPassword})
+  if(error1.style.display === 'block' || error2.style.display === 'block'){
+    e.preventDefault()
+  }
+})
+
+
+</script>

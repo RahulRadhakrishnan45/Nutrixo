@@ -23,18 +23,18 @@ async function sendVerificationEmail(email,otp) {
             to:email,
             subject:'Verify your Account',
             text:`Your OTP is ${otp}`,
-            html:`<b>Your OTP : ${otp}</b>`
+            html:`<b><h4>Your OTP : ${otp}<h4></b>`
         })
 
         if (info.accepted.length > 0) {
 
             console.log('Email successfully sent to:', email);
-            return true; // Email sent successfully
+            return true
 
         } else {
 
             console.log('Failed to send email to:', email);
-            return false;
+            return false
 
         }
 

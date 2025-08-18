@@ -12,30 +12,34 @@
   <!-- Main Login Form -->
   <main class="flex-grow flex justify-center items-start py-12 px-4 sm:px-6 lg:px-8">
     <div class="w-full max-w-md bg-white p-6 sm:p-8 rounded-md shadow-sm border">
-      
+
       <!-- Google Login Button (optional) -->
-      <button class="w-full flex items-center justify-center border border-gray-300 rounded-md py-4 text-sm mb-4 hover:bg-gray-50">
+      <a href="/auth/google" type="button" class="w-full flex items-center justify-center border border-gray-300 rounded-md py-4 text-sm mb-4 hover:bg-gray-50">
         <img src="https://www.google.com/favicon.ico" alt="Google" class="w-5 h-5 mr-2" />
         Continue with Google
-      </button>
+      </a>
 
       <div class="text-center text-gray-500 mb-4">OR</div>
 
       <!-- Login Form -->
-      <form id="loginForm" class="space-y-4">
+      <form id="loginForm" class="space-y-4 mt-3">
         <div>
           <label for="email" class="block text-sm font-medium">Email</label>
-          <input type="email" name="email" id="email" required
-                 class="w-full border rounded-md px-3 py-2 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <input type="email" name="email" id="email" required placeholder="Enter email"
+                 class="w-full border rounded-md px-3 py-2 mt-1 text-sm focus:outline-none focus:ring-2" />
+          <div id="errorEmail" class="error-class"></div>
         </div>
+
         <div>
           <label for="password" class="block text-sm font-medium">Password</label>
-          <input type="password" name="password" id="password" required
-                 class="w-full border rounded-md px-3 py-2 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <input type="password" name="password" id="password" required placeholder="Enter password"
+                 class="w-full border rounded-md px-3 py-2 mt-1 text-sm focus:outline-none focus:ring-2" />
+          <div id="errorPassword" class="error-class"></div>
           <div class="text-right mt-1">
             <a href="/auth/forgot-password" class="text-xs text-blue-600 hover:underline">Forgot password?</a>
           </div>
         </div>
+
         <button type="submit"
                 class="w-full bg-gray-900 text-white py-2 rounded-md hover:bg-gray-800 transition">
           Log In
@@ -53,36 +57,105 @@
   <!-- SweetAlert -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+  <style>
+    .error-class {
+      display: block;
+      min-height: 16px; /* keeps space even if hidden */
+      color: red;
+      font-size: 0.75rem;
+      margin-top: 2px;
+    }
+    .input-error {
+      border-color: red !important;
+    }
+    .input-success {
+      border-color: green !important;
+    }
+  </style>
+
   <script>
-    document.querySelector('#loginForm').addEventListener('submit', async function(e){
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const errorEmail = document.getElementById('errorEmail');
+    const errorPassword = document.getElementById('errorPassword');
+    const loginForm = document.getElementById('loginForm');
+
+    function validateEmail() {
+      const emailVal = emailInput.value.trim();
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailVal) {
+        errorEmail.textContent = 'Please enter your email';
+        emailInput.classList.add('input-error');
+        emailInput.classList.remove('input-success');
+      } else if (!emailPattern.test(emailVal)) {
+        errorEmail.textContent = 'Invalid email format';
+        emailInput.classList.add('input-error');
+        emailInput.classList.remove('input-success');
+      } else {
+        errorEmail.textContent = '';
+        emailInput.classList.remove('input-error');
+        emailInput.classList.add('input-success');
+      }
+    }
+
+    function validatePassword() {
+      const passVal = passwordInput.value;
+      if (!passVal) {
+        errorPassword.textContent = 'Please enter your password';
+        passwordInput.classList.add('input-error');
+        passwordInput.classList.remove('input-success');
+      } else if (passVal.length < 6) {
+        errorPassword.textContent = 'Password must be at least 6 characters';
+        passwordInput.classList.add('input-error');
+        passwordInput.classList.remove('input-success');
+      } else {
+        errorPassword.textContent = '';
+        passwordInput.classList.remove('input-error');
+        passwordInput.classList.add('input-success');
+      }
+    }
+
+    // Real-time validation
+    emailInput.addEventListener('input', validateEmail);
+    passwordInput.addEventListener('input', validatePassword);
+
+    // Submit handler
+    loginForm.addEventListener('submit', async function(e) {
       e.preventDefault();
 
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
+      validateEmail();
+      validatePassword();
+
+      if (errorEmail.textContent || errorPassword.textContent) {
+        return; // stop submission if errors
+      }
+
+      const email = emailInput.value;
+      const password = passwordInput.value;
 
       const res = await fetch('/auth/login', {
-          method: 'POST',
-          headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({email, password})
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({email, password})
       });
 
       const data = await res.json();
 
-      if(data.success){
-          Swal.fire({
-              icon:'success',
-              title:data.message,
-              timer:1500,
-              showConfirmButton:false
-          }).then(()=>{
-              window.location.href = data.redirect;
-          });
-      }else{
-          Swal.fire({
-              icon:'error',
-              title:'Login failed',
-              text:data.message
-          });
+      if (data.success) {
+        Swal.fire({
+          icon:'success',
+          title:data.message,
+          timer:1500,
+          showConfirmButton:false
+        }).then(() => {
+          window.location.href = data.redirect;
+        });
+      } else {
+        Swal.fire({
+          icon:'error',
+          title:'Login failed',
+          text:data.message
+        });
       }
     });
   </script>

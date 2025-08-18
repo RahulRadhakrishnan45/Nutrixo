@@ -4,7 +4,7 @@ const env = require('dotenv').config()
 const session = require('express-session')
 const nocache = require('nocache')
 const expressLayouts = require('express-ejs-layouts')
-const flash = require('connect-flash')
+const passport = require('./config/passport')
 const userRoutes = require('./routes/user')
 const adminRoutes = require('./routes/admin')
 const authRoutes = require('./routes/auth_routes')
@@ -39,6 +39,9 @@ app.use(
     },
   })
 )
+
+app.use(passport.initialize())
+app.use(passport.session())
 
 app.use(userRoutes)
 app.use('/admin',adminRoutes)

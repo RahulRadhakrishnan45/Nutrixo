@@ -3,13 +3,15 @@ const User = require('../../models/userSchema')
 const asyncHandler = require('express-async-handler')
 const bcrypt = require('bcrypt')
 const env = require('dotenv').config()
-const { generateOtp, sendVerificationEmail} = require('../../helper_files/generator')
+const { generateOtp, sendVerificationEmail} = require('../../utils/generator')
+const user = require('../../models/userSchema')
 
 
 
 const loadLogin = asyncHandler(async (req,res) =>{
+    const message = req.session.message;
     if(req.session.user) return res.redirect('/');
-    res.render('auth/login',{layout:'layouts/userLogin'})
+    res.render('auth/login',{message,layout:'layouts/userLogin'})
 })
 
 const loadHome = asyncHandler(async (req,res) =>{
@@ -24,12 +26,39 @@ const forgotPassword = asyncHandler(async (req,res) =>{
     res.render('auth/forgot-pass',{layout:'layouts/userLogin'})
 })
 
+const sendResetMail = asyncHandler( async(req,res) =>{
+    const {email} = req.body
+    console.log(email)
+    const findUser = await User.findOne({email})
+    
+    if(findUser){
+        const otp = generateOtp()
+        const emailSent = await sendVerificationEmail(email,otp)
+
+        if(!emailSent) {
+        return res.status(500).json({success:false,message:'Email send failed'})
+        }
+
+        req.session.userOtp = otp
+        req.session.otpExpiry = Date.now() + 2*60*1000
+        req.session.email = email
+        req.session.purpose = 'forgot-password'
+
+        
+        console.log('otp sent',otp)
+
+        return res.json({success:true, message:'OTP sent successfully',redirect:'/auth/otp'})
+    }else{
+        return res.status(404).json({success:false,message:'User not found. Please sign up',redirect:'/auth/signup'})
+    }
+})
+
 const resetPassword = asyncHandler(async (req,res) =>{
     res.render('auth/reset-pass',{layout:'layouts/userLogin'})
 })
 
 const loadOtpPage = asyncHandler(async (req,res)=>{
-    if(!req.session.userOtp || !req.session.userData) {
+    if(!req.session.userOtp || !req.session.purpose) {
         return res.redirect('/auth/signup')
     }
     res.render('auth/otp',{layout:'layouts/userLogin'})
@@ -40,7 +69,7 @@ const loginUser = asyncHandler(async (req,res) => {
 
     const user = await User.findOne({email})
     if(!user) {
-        return res.status(400).json({success:false,message:'Invalid email'})
+        return res.status(400).json({success:false,message:'User does not exist'})
     }
 
     const isMatch = await bcrypt.compare(password,user.password)
@@ -88,6 +117,7 @@ const signupUser = asyncHandler( async (req,res) =>{
     req.session.userOtp = otp
     req.session.otpExpiry = otpExpiry
     req.session.userData = {name,email,password,mobile}
+    req.session.purpose = 'signup'
 
     res.redirect('/auth/otp')
     console.log('otp sent',otp)
@@ -107,31 +137,89 @@ const verifyOtp = asyncHandler(async (req,res) =>{
         return res.status(400).json({success:false, message:'OTP has expired. Please try again. '})
     }
 
-    if(otp===req.session.userOtp) {
-        const user = req.session.userData
-        const passwordHash = await securePassword(user.password)
+   if(parseInt(otp) === parseInt(req.session.userOtp)) {
+        if (req.session.purpose === 'signup') {
+            
+            const user = req.session.userData
+            const passwordHash = await securePassword(user.password)
 
-        const saveUserData = new User({
-            name:user.name,
-            email:user.email,
-            mobile:user.mobile,
-            password:passwordHash
+            const saveUserData = new User({
+                name:user.name,
+                email:user.email,
+                mobile:user.mobile,
+                password:passwordHash
+            })
+            await saveUserData.save()
+
+            
+            req.session.userOtp = null
+            req.session.userData = null
+            req.session.otpExpiry = null
+            req.session.purpose = null
+
+            return res.json({
+                success:true,
+                message:'Signup successful',
+                redirect:'/auth/login'
+            })
+
+        } else if (req.session.purpose === 'forgot-password') {
+            
+            req.session.verifiedEmail = req.session.email
+
+            
+            req.session.userOtp = null
+            req.session.otpExpiry = null
+            req.session.purpose = null
+
+            return res.json({
+                success:true,
+                message:'OTP verified. Redirecting...',
+                redirect:'/auth/reset-password'
+            })
+
+        } else {
+            
+            return res.status(400).json({
+                success:false,
+                message:'Invalid OTP purpose. Please restart the process.'
+            })
+        }
+
+    } else {
+        return res.status(400).json({
+            success:false, 
+            message:'OTP Verification failed, Please try again'
         })
-        console.log(user)
-        await saveUserData.save()
-        
-
-        req.session.userOtp = null
-        req.session.userData = null
-        req.session.otpExpiry = null
-
-        res.json({success:true,message:'signup successfull', redirect:'/auth/login'})
-        
-    }else{
-        console.log('otp verification failed')
-        res.status(400).json({success:false, message:'OTP Verification failed, Please try again'})
-
     }
 })
 
-module.exports = {loadSignup,loadLogin,loadHome,loginUser,forgotPassword,resetPassword,signupUser,verifyOtp,loadOtpPage}
+const resendOtp = asyncHandler(async (req,res)=>{
+
+        let email = null;
+
+        if (req.session.purpose === 'signup' && req.session.userData) {
+        email = req.session.userData.email
+        }else if (req.session.purpose === 'forgot-password' && req.session.email) {
+        email = req.session.email
+        }
+        console.log(email)
+        if(!email){
+            return res.status(400).json({success:false, message:'email not found in session'})
+        }
+        
+        const otp = generateOtp()
+        req.session.otpExpiry = Date.now() + 2*60*1000
+        req.session.userOtp = otp
+
+        const emailSent = await sendVerificationEmail(email,otp)
+        if(emailSent){
+            console.log('Resend otp:',otp)
+            res.status(200).json({success:true,message:'OTP Resend successfully'})
+        }else{
+            console.log('OTP resend failed')
+            res.status(500).json({success:false,message:'failed to resend OTP. Please try again'})
+        }
+})
+
+module.exports = {loadSignup,loadLogin,loadHome,loginUser,forgotPassword,resetPassword,signupUser,verifyOtp,loadOtpPage,resendOtp,sendResetMail}

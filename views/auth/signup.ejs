@@ -15,10 +15,10 @@
   <div class="w-full max-w-md bg-white p-8 rounded-md shadow-sm border">
 
     <!-- Google Sign Up Button -->
-    <button class="w-full flex items-center justify-center border border-gray-300 rounded-md py-4 text-sm mb-4 hover:bg-gray-50">
+    <a href="/auth/google" type="button" class="w-full flex items-center justify-center border border-gray-300 rounded-md py-4 text-sm mb-4 hover:bg-gray-50">
       <img src="https://www.google.com/favicon.ico" alt="Google" class="w-5 h-5 mr-2" />
       Continue with Google
-    </button>
+    </a>
 
     <!-- Divider -->
     <div class="flex items-center justify-center text-gray-500 text-sm mb-6">
@@ -28,38 +28,38 @@
     </div>
 
     <!-- Sign Up Form -->
-    <form action="/auth/signup" method="POST" class="space-y-4">
+    <form id="signform" action="/auth/signup" method="POST" class="space-y-4">
 
       <div>
         <label for="name" class="block text-sm font-medium">Name</label>
-        <input type="text" name="name" id="name" required
+        <input type="text" name="name" id="name" required placeholder="Enter Name"
                class="w-full border rounded-md px-3 py-2 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
       </div>
-
+      <div id="error1" class="error-class" ></div>
       <div>
         <label for="email" class="block text-sm font-medium">Email</label>
-        <input type="email" name="email" id="email" required
+        <input type="email" name="email" id="email" placeholder="Enter email"
                class="w-full border rounded-md px-3 py-2 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
       </div>
-
+      <div id="error2" class="error-class" ></div>
       <div>
         <label for="password" class="block text-sm font-medium">Password</label>
-        <input type="password" name="password" id="password" required
+        <input type="password" name="password" id="password" placeholder="Enter password"
                class="w-full border rounded-md px-3 py-2 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
       </div>
-
+      <div id="error3" class="error-class" ></div>
       <div>
         <label for="confirmPassword" class="block text-sm font-medium">Confirm Password</label>
-        <input type="password" name="confirmPassword" id="confirmPassword" required
+        <input type="password" name="confirmPassword" id="confirmPassword" placeholder="Re-enter password"
                class="w-full border rounded-md px-3 py-2 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
       </div>
-
+      <div id="error4" class="error-class" ></div>
       <div>
         <label for="mobile" class="block text-sm font-medium">Mobile</label>
-        <input type="tel" name="mobile" id="mobile" pattern="^[0-9]{10}$" required
+        <input type="tel" name="mobile" id="mobile" pattern="^(\+[0-9]{1,4}[-\s]?)?[0-9]{10}$"" placeholder="Enter mobile number"
                class="w-full border rounded-md px-3 py-2 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
       </div>
-
+      <div id="error5" class="error-class" ></div>
       <p class="text-xs text-gray-500 mt-2">
         By creating an account you agree with our <a href="#" class="underline">Terms of Service</a>, <a href="#" class="underline">Privacy Policy</a>.
       </p>
@@ -81,3 +81,128 @@
 
 
 </html>
+
+<style>
+  .error-class {
+    display: none;
+    color: red;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+</style>
+
+
+<script>
+
+    const nameid = document.getElementById('name')
+    const emailid = document.getElementById('email')
+    const mobileid = document.getElementById('mobile')
+    const passid = document.getElementById('password')
+    const confirmpassid = document.getElementById('confirmPassword')
+    const error1 = document.getElementById('error1')
+    const error2 = document.getElementById('error2')
+    const error3 = document.getElementById('error3')
+    const error4 = document.getElementById('error4')
+    const error5 = document.getElementById('error5')
+    const signform = document.getElementById('signform')
+
+
+    function nameValidateChecking(e){
+      const nameVal = nameid.value
+      const namePattern = /^[A-Za-z\s]+$/
+
+      if(nameVal.trim()===''){
+        error1.style.display = 'block'
+        error1.innerHTML = 'Please enter a valid name'
+      }else if (!namePattern.test(nameVal)){
+        error1.style.display = 'block'
+        error1.innerHTML = 'Name can only contain alphabets and spaces'
+      }else{
+        error1.style.display = 'none'
+        error1.innerHTML = ''
+      }
+    }
+
+    function emailValidateChecking(e){
+      const emailVal = emailid.value
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/
+
+      if(emailVal===''){
+        error2.style.display ='block'
+        error2.innerHTML = 'Please enter email'
+      }else if(!emailPattern.test(emailVal)){
+        error2.style.display = 'block'
+        error2.innerHTML = 'Invalid mail format'
+      }else{
+        error2.style.display ='none'
+        error2.innerHTML = ''
+      }
+    }
+
+    function passValidateChecking(e){
+      const passVal = passid.value
+      const confirmVal = confirmpassid.value
+      const passPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+
+      if(passVal===''){
+        error3.style.display = 'block'
+        error3.innerHTML = 'Password cannot be empty'
+      }else if(!passPattern.test(passVal)){
+        error3.style.display = 'block'
+        error3.innerHTML = 'Password must be at least 8 characters long and include uppercase, lowercase, a number, and a special character'
+      }else{
+        error3.style.display = 'none'
+        error3.innerHTML = ''
+      }
+
+      if(confirmVal===''){
+        error4.style.display = 'block'
+        error4.innerHTML = 'Please confirm your password'
+      }else if(confirmVal !== passVal){
+        error4.style.display = 'block'
+        error4.innerHTML = 'Passwords do not match'
+      }else{
+        error4.style.display = 'none'
+        error4.innerHTML = ''
+      }
+    }
+
+    function mobileValidateChecking(e){
+      const mobileVal = mobileid.value
+      const mobilePattern = /^(\+[0-9]{1,4}[-\s]?)?[0-9]{10}$/
+
+      if(mobileVal===''){
+        error5.style.display = 'block'
+        error5.innerHTML = 'Enter a valid Mobile no'
+      }else if(!mobilePattern.test(mobileVal)){
+        error5.style.display ='block'
+        error5.innerHTML = 'Please enter a valid mobile number (10 digits, with or without country code)'
+      }else{
+        error5.style.display = 'none'
+        error5.innerHTML = ''
+      }
+    }
+      nameid.addEventListener('input', nameValidateChecking)
+      emailid.addEventListener('input', emailValidateChecking)
+      passid.addEventListener('input', passValidateChecking)
+      confirmpassid.addEventListener('input', passValidateChecking)
+      mobileid.addEventListener('input', mobileValidateChecking)
+                            
+    
+      signform.addEventListener('submit',function(e){
+
+        nameValidateChecking()
+        emailValidateChecking()
+        mobileValidateChecking()
+        passValidateChecking()
+
+        if(!nameid || !emailid || !mobileid || !passid || !error1 || !error2 || !error3 || !error4 || !error5 || signform){
+          console.log('One or more elements not found')
+        }
+        if(error1.innerHTML || error2.innerHTML || error3.innerHTML || error4.innerHTML || error5.innerHTML){
+          e.preventDefault()
+        }
+      })
+    
+
+</script>
