@@ -1,0 +1,118 @@
+
+
+<!-- Main Dashboard Content -->
+<main class="p-6 bg-gray-50 min-h-screen">
+  <!-- Page Title -->
+  <div class="mb-10">
+    <h1 class="text-2xl font-semibold text-gray-800">Dashboard</h1>
+    <nav class="text-sm text-gray-500 mt-5">
+      <a href="/admin/dashboard" class="hover:underline">Admin</a> /
+      <span class="text-gray-700 font-medium">Dashboard</span>
+    </nav>
+  </div>
+
+  <!-- Stats Section -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <!-- Total Sales -->
+    <div class="bg-white shadow rounded-lg p-6">
+      <h2 class="text-gray-500 text-sm font-medium">Total Sales</h2>
+      <p class="text-2xl font-semibold text-gray-800 mt-2">₹ 12,05600</p>
+      <div class="mt-4">
+        <div class="h-16 bg-gray-100 rounded flex items-center justify-center text-gray-400 text-sm">
+          📊 Sales Graph
+        </div>
+      </div>
+    </div>
+
+    <!-- Customers -->
+    <div class="bg-white shadow rounded-lg p-6">
+      <h2 class="text-gray-500 text-sm font-medium">Customers</h2>
+      <p class="text-2xl font-semibold text-gray-800 mt-2">2,571</p>
+      <div class="mt-4">
+        <div class="h-16 bg-gray-100 rounded flex items-center justify-center text-gray-400 text-sm">
+          👥 Customers Graph
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders -->
+    <div class="bg-white shadow rounded-lg p-6">
+      <h2 class="text-gray-500 text-sm font-medium">Orders</h2>
+      <p class="text-2xl font-semibold text-gray-800 mt-2">734</p>
+      <div class="mt-4">
+        <div class="h-16 bg-gray-100 rounded flex items-center justify-center text-gray-400 text-sm">
+          📦 Orders Progress
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Middle Section -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Best Selling -->
+    <div class="bg-white shadow rounded-lg p-6">
+      <h2 class="text-gray-500 text-sm font-medium mb-4">Best Selling</h2>
+      <p class="text-xl font-semibold text-gray-800">₹ 250000 — Total Sales</p>
+      <ul class="mt-4 space-y-2 text-gray-600 text-sm">
+        <li>• Asitis Atom — 125000 Sales</li>
+        <li>• Muscle Blaze — 67500 Sales</li>
+        <li>• Naturaltein — 57500 Sales</li>
+      </ul>
+      <div class="mt-6">
+        <div class="h-24 w-24 rounded-full border-8 border-blue-500 flex items-center justify-center text-gray-500 text-sm">
+          🔄 Chart
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="bg-white shadow rounded-lg p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-gray-500 text-sm font-medium">Recent Orders</h2>
+        <a href="/admin/orders" class="text-blue-600 text-sm hover:underline">View All</a>
+      </div>
+      <table class="w-full text-sm text-left text-gray-600">
+        <thead class="border-b text-gray-500">
+          <tr>
+            <th class="py-2">Item</th>
+            <th class="py-2">Date</th>
+            <th class="py-2">Total</th>
+            <th class="py-2">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b">
+            <td class="py-2">MB Whey Gold</td>
+            <td>20 Dec, 2024</td>
+            <td>₹ 8299</td>
+            <td class="text-yellow-500">Processing</td>
+          </tr>
+          <tr class="border-b">
+            <td class="py-2">Avatar Isorich Protein</td>
+            <td>19 Mar, 2025</td>
+            <td>₹ 7249</td>
+            <td class="text-yellow-500">Processing</td>
+          </tr>
+          <tr class="border-b">
+            <td class="py-2">Naturaltein Whey Isolate</td>
+            <td>7 Feb, 2025</td>
+            <td>₹ 4280</td>
+            <td class="text-green-600">Completed</td>
+          </tr>
+          <tr class="border-b">
+            <td class="py-2">Whole Truth - Whey Protein</td>
+            <td>29 Jan, 2025</td>
+            <td>₹ 3799</td>
+            <td class="text-green-600">Completed</td>
+          </tr>
+          <tr>
+            <td class="py-2">Naturaltein Whey Isolate</td>
+            <td>27 Jan, 2025</td>
+            <td>₹ 4280</td>
+            <td class="text-green-600">Completed</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>

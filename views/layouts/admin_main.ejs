@@ -4,13 +4,28 @@
   <meta charset="UTF-8">
   <title><%= typeof title !== 'undefined' ? title : 'Admin Dashboard' %></title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="flex flex-col min-h-screen">
   <div class="flex flex-grow">
     <%- include('../partials/adminSidebar') %>
-    <main class="flex-grow">
+    <main class="flex-1 p-6">
       <%- body %>
     </main>
   </div>
 </body>
 </html>
+
+<script>
+
+<% if (typeof message !== 'undefined' && message) {%>
+  Swal.fire({
+    icon:'<%= message.type %>',
+    title:'<%= message.type ==='success'? 'success':'error' %>',
+    text:'<%=message.text %>',
+    timer:2000,
+    showConfirmButton:false
+  })
+<% } %>
+
+</script>

@@ -14,9 +14,7 @@ const loadLogin = asyncHandler(async (req,res) =>{
     res.render('auth/login',{message,layout:'layouts/userLogin'})
 })
 
-const loadHome = asyncHandler(async (req,res) =>{
-    res.render('user/home',{layout:'layouts/user_main'})
-})
+
 
 const loadSignup = asyncHandler(async (req,res) =>{
     res.render('auth/signup',{layout:'layouts/userLogin'})
@@ -57,6 +55,31 @@ const resetPassword = asyncHandler(async (req,res) =>{
     res.render('auth/reset-pass',{layout:'layouts/userLogin'})
 })
 
+const postResetPassword = asyncHandler(async (req,res) =>{
+    const {newPass,confirmPass} = req.body
+    const email = req.session.verifiedEmail
+
+    if(!email){
+        return res.status(400).json({success:false,message:'Session expired. please try again'})
+    }
+
+    if(newPass !== confirmPass){
+        return res.status(400).json({success:false,message:'Passwords do not match'})
+    }
+
+    const passwordHash = await securePassword(newPass)
+
+    const updateUser = await User.findOneAndUpdate({email},{password:passwordHash},{new:true})
+
+    if(!updateUser){
+        return res.status(404).json({success:false,message:'user not found'})
+    }
+
+    req.session.verifiedEmail = null
+
+    return res.json({success:true,message:'Password reset successful',redirect:'/auth/login'})
+})
+
 const loadOtpPage = asyncHandler(async (req,res)=>{
     if(!req.session.userOtp || !req.session.purpose) {
         return res.redirect('/auth/signup')
@@ -70,6 +93,10 @@ const loginUser = asyncHandler(async (req,res) => {
     const user = await User.findOne({email})
     if(!user) {
         return res.status(400).json({success:false,message:'User does not exist'})
+    }
+
+    if(!user.is_active) {
+        return res.status(403).json({success:false,message:'Your account has been blocked by the admin'})
     }
 
     const isMatch = await bcrypt.compare(password,user.password)
@@ -222,4 +249,4 @@ const resendOtp = asyncHandler(async (req,res)=>{
         }
 })
 
-module.exports = {loadSignup,loadLogin,loadHome,loginUser,forgotPassword,resetPassword,signupUser,verifyOtp,loadOtpPage,resendOtp,sendResetMail}
+module.exports = {loadSignup,loadLogin,loginUser,forgotPassword,resetPassword,signupUser,verifyOtp,loadOtpPage,resendOtp,sendResetMail,postResetPassword}

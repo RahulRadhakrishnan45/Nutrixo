@@ -1,9 +1,11 @@
 const express = require('express')
 const router = express.Router()
-const checkSession = require('../middlewares/checkSession')
-const authController = require('../controllers/user/auth_userController')
+const {checkSession} = require('../middlewares/checkSession')
+const userController = require('../controllers/user/userController')
 
-router.get('/',checkSession,authController.loadHome)
+router.get('/',checkSession,userController.loadHome)
+router.get('/profile',checkSession,userController.loadProfile)
+router.get('/logout',userController.logoutUser)
 
 
 
