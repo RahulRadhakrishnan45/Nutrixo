@@ -15,6 +15,8 @@ router.get('/forgot-password',authController.forgotPassword)
 router.post('/forgot-password',authController.sendResetMail)
 
 router.get('/reset-password',authController.resetPassword)
+router.post('/reset-password',authController.postResetPassword)
+
 router.post('/verify-otp',authController.verifyOtp)
 router.get('/otp',authController.loadOtpPage)
 
@@ -22,9 +24,12 @@ router.post('/resend-otp',authController.resendOtp)
 
 router.get('/google',passport.authenticate('google',{scope:['profile','email']}))
 
-router.get('/google/callback',passport.authenticate('google',{failureRedirect:'/auth/signup'}),(req,res)=>{
+router.get('/google/callback',passport.authenticate('google',{failureRedirect:'/auth/signup'}),async (req,res)=>{
     
     req.session.user = req.user._id
+    req.session.userOtp = null
+    req.session.purpose = null
+    req.session.otpExpiry = null
     res.redirect('/')
 })
 

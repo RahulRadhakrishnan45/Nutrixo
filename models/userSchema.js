@@ -4,7 +4,7 @@ const userSchema = new mongoose.Schema({
     name:{type:String, required:true, trim:true},
     email:{type:String, required:true, unique:true, lowercase:true, trim:true},
     password:{type:String, required:false},
-    mobile:{type:String, required:false, unique:true, sparse:true, default:null, trim:true},
+    mobile:{type:String, required:false, unique:true, sparse:true, trim:true},
     googleId:{type:String, unique:true},
     profile_image:{type:String, default:null},
     is_active:{type:Boolean, default:true},
@@ -12,5 +12,8 @@ const userSchema = new mongoose.Schema({
 
 
 const user = mongoose.model('user',userSchema)
+
+
+
 
 module.exports = user

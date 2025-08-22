@@ -60,7 +60,7 @@
   <style>
     .error-class {
       display: block;
-      min-height: 16px; /* keeps space even if hidden */
+      min-height: 16px; 
       color: red;
       font-size: 0.75rem;
       margin-top: 2px;
@@ -115,11 +115,11 @@
       }
     }
 
-    // Real-time validation
+    
     emailInput.addEventListener('input', validateEmail);
     passwordInput.addEventListener('input', validatePassword);
 
-    // Submit handler
+    
     loginForm.addEventListener('submit', async function(e) {
       e.preventDefault();
 
@@ -127,7 +127,7 @@
       validatePassword();
 
       if (errorEmail.textContent || errorPassword.textContent) {
-        return; // stop submission if errors
+        return; 
       }
 
       const email = emailInput.value;
