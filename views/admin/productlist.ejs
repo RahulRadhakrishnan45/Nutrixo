@@ -1,0 +1,188 @@
+
+
+<div class="p-6">
+  <!-- Breadcrumb -->
+  <nav class="text-sm mb-6 text-gray-500">
+    <ol class="flex items-center space-x-2">
+      <li>
+        <a href="/admin/dashboard" class="hover:underline text-gray-600">Admin</a>
+      </li>
+      <li>/</li>
+      <li class="text-gray-800 font-medium">Products</li>
+    </ol>
+  </nav>
+
+  <!-- heading -->
+<div class="flex justify-between items-center mb-8 mt-10">
+  <h1 class="text-xl font-semibold">Product Page</h1>
+  
+</div>
+
+  <!-- Top bar -->
+<div class="flex justify-end items-center mb-4 space-x-2">
+  <input type="text" id="searchInput" placeholder="Search products..."
+    class="px-3 py-2 border rounded-md w-64 focus:outline-none focus:ring focus:ring-blue-300">
+
+    <a href="/admin/products/add"
+        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 inline-block">
+        + Add Product
+    </a>
+</div>
+
+
+  <!-- Table -->
+  <div class="bg-white shadow-md rounded-lg overflow-hidden">
+    <table class="w-full text-left">
+      <thead class="bg-gray-200 text-gray-600 text-sm uppercase">
+        <tr>
+          <th class="py-3 px-4">Image</th>
+          <th class="py-3 px-4">Name</th>
+          <th class="py-3 px-4">Price</th>
+          <th class="py-3 px-4">Category</th>
+          <th class="py-3 px-4">Brand</th>
+          <th class="py-3 px-4">Date</th>
+          <th class="py-3 px-4 text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="productTable">
+        <% products.forEach((product, index) => { %>
+          <tr class="border-b hover:bg-gray-50">
+            <td class="py-3 px-4">
+              <img src="<%= product.images[0] %>" alt="product image" class="h-12 w-12 rounded object-cover">
+            </td>
+            <td class="py-3 px-4"><%= product.name %></td>
+            <td class="py-3 px-4">₹ <%= product.price %></td>
+            <td class="py-3 px-4"><%= product.category?.name || '-' %></td>
+            <td class="py-3 px-4"><%= product.brand?.name || '-' %></td>
+            <td class="py-3 px-4"><%= product.createdAt.toDateString() %></td>
+            <td class="py-3 px-4 text-center flex justify-center space-x-3">
+              <!-- Edit Icon -->
+              <button class="editBtn text-blue-600 hover:text-blue-800"
+                data-id="<%= product._id %>"
+                data-name="<%= product.name %>"
+                data-price="<%= product.price %>"
+                data-category="<%= product.category?._id %>"
+                data-brand="<%= product.brand?._id %>"
+                data-description="<%= product.description %>"
+                data-images="<%= product.images.join(',') %>"
+                data-flavour="<%= product.flavour %>"
+                data-size="<%= product.size %>"
+                data-stock="<%= product.stock %>">
+                ✏️
+              </button>
+              <!-- Delete Icon -->
+              <button class="deleteBtn text-red-600 hover:text-red-800" data-id="<%= product._id %>">🗑</button>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Edit Product Modal -->
+<div id="editModal"
+  class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-3/5 p-6 relative">
+    <h2 class="text-xl font-semibold mb-4">Edit Product</h2>
+    <form id="editProductForm" method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="id" id="editProductId">
+
+      <!-- Grid Form -->
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm">Name</label>
+          <input type="text" name="name" id="editName"
+            class="w-full border rounded px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm">Price</label>
+          <input type="number" name="price" id="editPrice"
+            class="w-full border rounded px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm">Category</label>
+          <select name="category" id="editCategory" class="w-full border rounded px-3 py-2">
+            <% categories.forEach(cat => { %>
+              <option value="<%= cat._id %>"><%= cat.name %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm">Brand</label>
+          <select name="brand" id="editBrand" class="w-full border rounded px-3 py-2">
+            <% brands.forEach(br => { %>
+              <option value="<%= br._id %>"><%= br.name %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="col-span-2">
+          <label class="block text-sm">Description</label>
+          <textarea name="description" id="editDescription" rows="3"
+            class="w-full border rounded px-3 py-2"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm">Flavour</label>
+          <select name="flavour" id="editFlavour" class="w-full border rounded px-3 py-2">
+            <% flavours.forEach(f => {%>
+            <option value="<%= f %><%= f%></option>"
+            <% }) %> 
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm">Size Variant</label>
+          <select name="size" id="editSize" class="w-full border rounded px-3 py-2">
+            <% sizes.forEach(s => { %>
+            <option value="<%= s %>"<%= s %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm">Stock Quantity</label>
+          <input type="number" name="stock" id="editStock"
+            class="w-full border rounded px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm">Images (max 3)</label>
+          <input type="file" name="images" id="editImages" multiple accept="image/*"
+            class="w-full border rounded px-3 py-2">
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex justify-end space-x-2 mt-6">
+        <button type="button" id="closeEditModal"
+          class="px-4 py-2 border rounded hover:bg-gray-100">Cancel</button>
+        <button type="submit"
+          class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Handle Edit Button
+  document.querySelectorAll('.editBtn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById('editModal').classList.remove('hidden');
+      document.getElementById('editProductId').value = btn.dataset.id;
+      document.getElementById('editName').value = btn.dataset.name;
+      document.getElementById('editPrice').value = btn.dataset.price;
+      document.getElementById('editDescription').value = btn.dataset.description;
+      document.getElementById('editStock').value = btn.dataset.stock;
+
+      // select category & brand
+      document.getElementById('editCategory').value = btn.dataset.category;
+      document.getElementById('editBrand').value = btn.dataset.brand;
+      document.getElementById('editFlavour').value = btn.dataset.flavour;
+      document.getElementById('editSize').value = btn.dataset.size;
+    });
+  });
+
+  // Close modal
+  document.getElementById('closeEditModal').addEventListener('click', () => {
+    document.getElementById('editModal').classList.add('hidden');
+  });
+</script>
+
+

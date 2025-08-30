@@ -1,0 +1,355 @@
+<nav class="text-sm mb-6 text-gray-500">
+  <ol class="flex items-center space-x-2">
+    <li>
+      <a href="/admin/dashboard" class="hover:underline text-gray-600">Admin</a>
+    </li>
+    <li>/</li>
+    <li class="text-gray-800 font-medium">Category</li>
+  </ol>
+</nav>
+
+<div class="p-6">
+  <!-- Top bar with Add Button -->
+  <div class="flex justify-between items-center mb-4">
+    <h1 class="text-xl font-semibold">Categories</h1>
+    <button id="openModalBtn"
+            class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+      + Add Category
+    </button>
+  </div>
+
+  <!-- Table -->
+  <div class="bg-white shadow-md rounded-lg overflow-hidden">
+    <table class="w-full text-left">
+      <thead class="bg-gray-200 text-gray-600">
+        <tr>
+          <th class="py-3 px-4">S.No</th>
+          <th class="py-3 px-4">Category</th>
+          <th class="py-3 px-4">List / Unlist</th>
+          <th class="py-3 px-4">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="categoryTableBody">
+        <% categories.forEach((cat, index) => { %>
+          <tr class="border-b <%= cat.is_deleted ? 'bg-opacity-50':'' %>">
+            <td class="py-3 px-4"><%= index+1 %></td>
+            <td class="py-3 px-4"><%= cat.name %></td>
+
+            <!-- Toggle -->
+            <td class="py-3 px-4">
+              <% if (!cat.is_deleted) { %>
+              <label class="inline-flex items-center cursor-pointer">
+                <input type="checkbox" 
+                       class="sr-only peer toggle-checkbox" 
+                       data-id="<%= cat._id %>" 
+                       <%= cat.is_active ? 'checked' : '' %> >
+
+                <!-- Toggle Button -->
+                <div class="w-11 h-6 rounded-full relative transition-colors
+                            bg-red-600 peer-checked:bg-blue-600
+                            after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                            after:bg-white after:h-5 after:w-5 after:rounded-full
+                            peer-checked:after:translate-x-full after:transition">
+                </div>
+
+                <!-- Toggle Text -->
+                <span class="ml-2 text-red-600 peer-checked:hidden">Unlist</span>
+                <span class="ml-2 hidden text-blue-600 peer-checked:inline">List</span>
+              </label>
+              <% } else { %>
+                <span class="text-gray-400 italic">Deleted</span>
+                <% } %>
+            </td>
+
+            <!-- Actions -->
+            <td class="py-3 px-4 flex gap-3">
+              <% if (!cat.is_deleted) { %>
+                <button class="editBtn bg-yellow-500 text-white px-2 py-1 rounded" 
+                    data-id="<%= cat._id %>" 
+                    data-name="<%= cat.name %>" 
+                    data-status="<%= cat.is_active %>">
+                    Edit
+                </button>
+
+                <button class="deleteBtn bg-red-600 text-white px-2 py-1 rounded" 
+                    data-id="<%= cat._id %>">
+                    Delete
+                </button>
+                <% } else { %>
+                    <button class="restoreBtn bg-green-600 text-white px-2 py-1 rounded" 
+                      data-id="<%= cat._id %>">
+                      Restore
+                    </button>
+                <% } %> 
+              </td>
+
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal -->
+<div id="categoryModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
+    <!-- Close -->
+    <button id="closeModalBtn" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800">✖</button>
+    
+    <h2 class="text-lg font-semibold mb-4">Add New Category</h2>
+    <form id="addCategoryForm" action="/admin/category/add" method="POST" class="flex flex-col gap-6">
+      <div class="flex items-center justify-between gap-6">
+        <div class="flex-1">
+          <label class="block mb-1 font-medium">Name</label>
+          <input type="text" name="name" maxlength="50" required 
+                 class="w-full border rounded-md p-2 focus:outline-none focus:ring focus:border-blue-300">
+        </div>
+
+        <!-- Toggle inside Modal -->
+        <div class="mt-6 flex items-center gap-2">
+          <label class="font-medium">List:</label>
+          <label class="inline-flex items-center cursor-pointer">
+            <input type="checkbox" name="is_active" class="sr-only peer">
+
+            <!-- Toggle Button -->
+            <div class="w-11 h-6 rounded-full relative transition-colors
+                        bg-red-600 peer-checked:bg-blue-600
+                        after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                        after:bg-white after:h-5 after:w-5 after:rounded-full
+                        peer-checked:after:translate-x-full after:transition">
+            </div>
+
+            <!-- Toggle Text -->
+            <span class="ml-2 text-red-600 peer-checked:hidden">Unlist</span>
+            <span class="ml-2 hidden text-blue-600 peer-checked:inline">List</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="flex justify-center">
+        <button type="submit" class="bg-blue-600 text-white px-8 py-2 rounded-md hover:bg-blue-700">
+          Save
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div id="editModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
+    <button id="closeEditModal" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800">✖</button>
+    
+    <h2 class="text-lg font-semibold mb-4">Edit Category</h2>
+    <form id="editCategoryForm" class="flex flex-col gap-6">
+      <input type="hidden" id="editCategoryId" />
+      <div class="flex-1">
+        <label class="block mb-1 font-medium">Name</label>
+        <input type="text" id="editCategoryName" maxlength="50" required 
+               class="w-full border rounded-md p-2 focus:outline-none focus:ring focus:border-blue-300">
+      </div>
+
+      <div class="flex items-center gap-2">
+        <label class="font-medium">List:</label>
+        <select id="editCategoryStatus" class="border p-2 rounded">
+          <option value="true">Active</option>
+          <option value="false">Inactive</option>
+        </select>
+      </div>
+
+      <div class="flex justify-center">
+        <button type="submit" class="bg-blue-600 text-white px-8 py-2 rounded-md hover:bg-blue-700">
+          Update
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+<script>
+  
+  const modal = document.getElementById('categoryModal');
+  const openBtn = document.getElementById('openModalBtn');
+  const closeBtn = document.getElementById('closeModalBtn');
+  const form = document.getElementById('addCategoryForm');
+
+  openBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+  closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
+
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(form);
+    const body = Object.fromEntries(formData.entries());
+    body.is_active = formData.get('is_active') ? true : false;
+
+    try {
+      const res = await fetch(form.action, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Category Added',
+          text: data.message || 'New category added!',
+          timer: 2000,
+          showConfirmButton: false
+        }).then(() => location.reload());
+      } else {
+        Swal.fire({ icon: 'error', title: 'Oops...', text: data.message || 'Something went wrong!' });
+      }
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'Server error occurred!' });
+    }
+  });
+
+
+  document.querySelectorAll('.toggle-checkbox').forEach(cb => {
+    cb.addEventListener('change', async (e) => {
+      const id = e.target.dataset.id;
+      try {
+        const res = await fetch(`/admin/category/toggle/${id}`, { method: 'PATCH' })
+        const data = await res.json()
+
+        if (data.success) {
+          Swal.fire({
+            icon: 'success',
+            title: data.message,
+            timer: 1500,
+            showConfirmButton: false
+          });
+        } else {
+          Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+          e.target.checked = !e.target.checked
+        }
+      } catch (err) {
+        Swal.fire({ icon: 'error', title: 'Server error' })
+        e.target.checked = !e.target.checked
+      }
+    })
+  })
+
+  // ==== EDIT BUTTONS ====
+document.querySelectorAll('.editBtn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const id = btn.dataset.id
+    const name = btn.dataset.name
+    const status = btn.dataset.status
+
+    document.getElementById('editCategoryId').value = id
+    document.getElementById('editCategoryName').value = name
+    document.getElementById('editCategoryStatus').value = status
+
+    document.getElementById('editModal').classList.remove('hidden')
+  })
+})
+
+// Close Edit Modal
+document.getElementById('closeEditModal').addEventListener('click', () => {
+  document.getElementById('editModal').classList.add('hidden')
+})
+
+// Submit Edit Form
+document.getElementById('editCategoryForm').addEventListener('submit', async (e) => {
+  e.preventDefault()
+  const id = document.getElementById('editCategoryId').value
+  const name = document.getElementById('editCategoryName').value
+  const is_active = document.getElementById('editCategoryStatus').value
+
+  try {
+    const res = await fetch(`/admin/category/${id}/edit`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, is_active })
+    })
+    const data = await res.json()
+    if (data.success) {
+      Swal.fire({ icon: 'success', title: 'Updated!', text: data.message, timer: 1500, showConfirmButton: false })
+        .then(() => location.reload())
+    } else {
+      Swal.fire({ icon: 'error', title: 'Error', text: data.message })
+    }
+  } catch {
+    Swal.fire({ icon: 'error', title: 'Server error' })
+  }
+})
+
+
+// ==== DELETE BUTTONS ====
+document.querySelectorAll('.deleteBtn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const id = btn.dataset.id
+
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'This will permanently delete the category!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!',
+      background: '#fff',
+       didOpen: (popup) => {
+    
+        popup.querySelector('.swal2-title').style.color = '#000';
+        popup.querySelector('.swal2-html-container').style.color = '#000';
+        }
+      }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const res = await fetch(`/admin/category/${id}/delete`, { method: 'DELETE' })
+          const data = await res.json()
+          if (data.success) {
+            Swal.fire({ icon: 'success', title: 'Deleted!', text: data.message, timer: 1500, showConfirmButton: false })
+              .then(() => location.reload())
+          } else {
+            Swal.fire({ icon: 'error', title: 'Error', text: data.message })
+          }
+        } catch {
+          Swal.fire({ icon: 'error', title: 'Server error' })
+        }
+      }
+    })
+  })
+})
+
+
+// ==== RESTORE BUTTONS ====
+document.querySelectorAll('.restoreBtn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const id = btn.dataset.id
+    Swal.fire({
+      title: 'Restore this category?',
+      text: 'It will become active again.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#28a745',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, restore it!'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const res = await fetch(`/admin/category/${id}/restore`, { method: 'PATCH' })
+          const data = await res.json()
+          if (data.success) {
+            Swal.fire({ icon: 'success', title: 'Restored!', text: data.message, timer: 1500, showConfirmButton: false })
+              .then(() => location.reload())
+          } else {
+            Swal.fire({ icon: 'error', title: 'Error', text: data.message })
+          }
+        } catch {
+          Swal.fire({ icon: 'error', title: 'Server error' })
+        }
+      }
+    })
+  })
+})
+
+
+</script>

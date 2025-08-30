@@ -3,6 +3,8 @@ const bcrypt = require('bcrypt')
 const asyncHandler = require('express-async-handler')
 const User = require('../../models/userSchema')
 const Admin = require('../../models/adminSchema')
+const httpStatus = require('../../constants/httpStatus')
+const messages = require('../../constants/messages')
 
 
 
@@ -12,7 +14,7 @@ const loadLogin = asyncHandler(async (req,res) => {
     delete req.session.message
 
     if(req.query.logout ==='1'){
-        message = {type:'success',text:'Logged out successfully'}
+        message = {type:'success',text:messages.AUTH.LOGOUT_SUCCESS}
     }
 
     if(req.session.admin) {
@@ -26,18 +28,18 @@ const login = asyncHandler( async (req,res) => {
     const admin = await Admin.findOne({email})
 
     if(!admin) {
-        req.session.message = {type:'error',text:'Invalid email or password'}
-        return res.status(400).render('admin/login',{layout:'layouts/adminLogin',message:{type:'error',text:'Invalid email'}})
+        req.session.message = {type:'error',text:messages.ADMIN.INVALID_EMAIL}
+        return res.status(httpStatus.bad_request).render('admin/login',{layout:'layouts/adminLogin',message:{type:'error',text:messages.ADMIN.INVALID_EMAIL}})
     }
 
     const passwordMatch = await bcrypt.compare(password,admin.password)
 
     if(!passwordMatch) {
-        req.session.message = {type:'error', text:'Invalid password'}
-        return res.status(400).render('admin/login',{layout:'layouts/adminLogin',message:{type:'error',text:'Invalid password'}})
+        req.session.message = {type:'error', text:messages.ADMIN.INVALID_PASSWORD}
+        return res.status(httpStatus.bad_request).render('admin/login',{layout:'layouts/adminLogin',message:{type:'error',text:messages.ADMIN.INVALID_PASSWORD}})
     }
     req.session.admin = admin._id
-    req.session.message = {type:'success',text:'Welcome back Admin'}
+    req.session.message = {type:'success',text:messages.ADMIN.WELCOME}
 
     return res.redirect('/admin/dashboard')
 })
@@ -46,7 +48,7 @@ const logout = asyncHandler( async (req,res) => {
     req.session.destroy(err => {
         if(err) {
             console.log('Logout error',err)
-            return res.status(500).send('logout failed')
+            return res.status(httpStatus.internal_server_error).send(messages.AUTH.LOGOUT_FAILED)
         }
         res.clearCookie('connect.sid')
         res.redirect('/admin/login?logout=1')

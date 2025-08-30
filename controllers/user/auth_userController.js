@@ -5,6 +5,8 @@ const bcrypt = require('bcrypt')
 const env = require('dotenv').config()
 const { generateOtp, sendVerificationEmail} = require('../../utils/generator')
 const user = require('../../models/userSchema')
+const httpStatus = require('../../constants/httpStatus')
+const messages = require('../../constants/messages')
 
 
 
@@ -34,7 +36,7 @@ const sendResetMail = asyncHandler( async(req,res) =>{
         const emailSent = await sendVerificationEmail(email,otp)
 
         if(!emailSent) {
-        return res.status(500).json({success:false,message:'Email send failed'})
+        return res.status(httpStatus.internal_server_error).json({success:false,message:messages.OTP.FAILED})
         }
 
         req.session.userOtp = otp
@@ -45,9 +47,9 @@ const sendResetMail = asyncHandler( async(req,res) =>{
         
         console.log('otp sent',otp)
 
-        return res.json({success:true, message:'OTP sent successfully',redirect:'/auth/otp'})
+        return res.json({success:true, message:messages.OTP.SENT,redirect:'/auth/otp'})
     }else{
-        return res.status(404).json({success:false,message:'User not found. Please sign up',redirect:'/auth/signup'})
+        return res.status(httpStatus.not_found).json({success:false,message:messages.AUTH.USER_NOT_FOUND,redirect:'/auth/signup'})
     }
 })
 
@@ -60,11 +62,11 @@ const postResetPassword = asyncHandler(async (req,res) =>{
     const email = req.session.verifiedEmail
 
     if(!email){
-        return res.status(400).json({success:false,message:'Session expired. please try again'})
+        return res.status(httpStatus.bad_request).json({success:false,message:messages.AUTH.SESSION_EXPIRED})
     }
 
     if(newPass !== confirmPass){
-        return res.status(400).json({success:false,message:'Passwords do not match'})
+        return res.status(httpStatus.bad_request).json({success:false,message:messages.AUTH.PASSWORD_MISMATCH})
     }
 
     const passwordHash = await securePassword(newPass)
@@ -72,12 +74,12 @@ const postResetPassword = asyncHandler(async (req,res) =>{
     const updateUser = await User.findOneAndUpdate({email},{password:passwordHash},{new:true})
 
     if(!updateUser){
-        return res.status(404).json({success:false,message:'user not found'})
+        return res.status(httpStatus.not_found).json({success:false,message:messages.AUTH.USER_NOT_FOUND})
     }
 
     req.session.verifiedEmail = null
 
-    return res.json({success:true,message:'Password reset successful',redirect:'/auth/login'})
+    return res.json({success:true,message:messages.AUTH.PASSWORD_RESET_SUCCESS,redirect:'/auth/login'})
 })
 
 const loadOtpPage = asyncHandler(async (req,res)=>{
@@ -92,21 +94,21 @@ const loginUser = asyncHandler(async (req,res) => {
 
     const user = await User.findOne({email})
     if(!user) {
-        return res.status(400).json({success:false,message:'User does not exist'})
+        return res.status(httpStatus.bad_request).json({success:false,message:messages.AUTH.USER_NOT_FOUND})
     }
 
     if(!user.is_active) {
-        return res.status(403).json({success:false,message:'Your account has been blocked by the admin'})
+        return res.status(httpStatus.forbidden).json({success:false,message:messages.AUTH.ACCOUNT_BLOCKED})
     }
 
     const isMatch = await bcrypt.compare(password,user.password)
     if(!isMatch) {
-        return res.status(400).json({success:false, message:'Password doesnot match'})
+        return res.status(httpStatus.bad_request).json({success:false, message:messages.AUTH.PASSWORD_INVALID})
     }
 
     req.session.user = user._id
 
-    return res.json({success:true, message:'Login successful',redirect:'/'})
+    return res.json({success:true, message:messages.AUTH.LOGIN_SUCCESS,redirect:'/'})
 })
 
 const signupUser = asyncHandler( async (req,res) =>{
@@ -138,7 +140,7 @@ const signupUser = asyncHandler( async (req,res) =>{
     const emailSent = await sendVerificationEmail(email,otp)
 
     if(!emailSent) {
-        return res.status(500).json({success:false,message:'Email send failed'})
+        return res.status(httpStatus.internal_server_error).json({success:false,message:messages.OTP.FAILED})
     }
 
     req.session.userOtp = otp
@@ -161,7 +163,7 @@ const verifyOtp = asyncHandler(async (req,res) =>{
     console.log(otp)
 
     if(Date.now() > req.session.otpExpiry) {
-        return res.status(400).json({success:false, message:'OTP has expired. Please try again. '})
+        return res.status(httpStatus.bad_request).json({success:false, message:messages.OTP.EXPIRED})
     }
 
    if(parseInt(otp) === parseInt(req.session.userOtp)) {
@@ -186,7 +188,7 @@ const verifyOtp = asyncHandler(async (req,res) =>{
 
             return res.json({
                 success:true,
-                message:'Signup successful',
+                message:messages.AUTH.SIGNUP_SUCCESS,
                 redirect:'/auth/login'
             })
 
@@ -201,22 +203,22 @@ const verifyOtp = asyncHandler(async (req,res) =>{
 
             return res.json({
                 success:true,
-                message:'OTP verified. Redirecting...',
+                message:messages.OTP.VERIFIED,
                 redirect:'/auth/reset-password'
             })
 
         } else {
             
-            return res.status(400).json({
+            return res.status(httpStatus.bad_request).json({
                 success:false,
-                message:'Invalid OTP purpose. Please restart the process.'
+                message:messages.OTP.INVALID_PURPOSE
             })
         }
 
     } else {
-        return res.status(400).json({
+        return res.status(httpStatus.bad_request).json({
             success:false, 
-            message:'OTP Verification failed, Please try again'
+            message:messages.OTP.VERIFICATION_FAILED
         })
     }
 })
@@ -232,7 +234,7 @@ const resendOtp = asyncHandler(async (req,res)=>{
         }
         console.log(email)
         if(!email){
-            return res.status(400).json({success:false, message:'email not found in session'})
+            return res.status(httpStatus.bad_request).json({success:false, message:messages.OTP.EMAIL_NOT_FOUND})
         }
         
         const otp = generateOtp()
@@ -242,10 +244,10 @@ const resendOtp = asyncHandler(async (req,res)=>{
         const emailSent = await sendVerificationEmail(email,otp)
         if(emailSent){
             console.log('Resend otp:',otp)
-            res.status(200).json({success:true,message:'OTP Resend successfully'})
+            res.status(httpStatus.ok).json({success:true,message:messages.OTP.RESENT})
         }else{
             console.log('OTP resend failed')
-            res.status(500).json({success:false,message:'failed to resend OTP. Please try again'})
+            res.status(httpStatus.internal_server_error).json({success:false,message:messages.OTP.RESEND_FAILED})
         }
 })
 

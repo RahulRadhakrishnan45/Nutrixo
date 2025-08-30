@@ -8,7 +8,8 @@ const productSchema = new mongoose.Schema({
         stock:{type:Number, required:true},
         quantity:{type:Number, required:true},
         images:[{type:String, required:true}]}],
-        category_id:{type:mongoose.Schema.Types.ObjectId, ref:'brand', required:true},
+        category_id:{type:mongoose.Schema.Types.ObjectId, ref:'category', required:true},
+        brand_id:{type:mongoose.Schema.Types.ObjectId, ref:'brand', required:true},
         is_active:{type:Boolean, default:true}
     },{timestamps:true})
 
