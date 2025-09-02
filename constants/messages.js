@@ -53,6 +53,9 @@ const messages = Object.freeze({
         BRAND_RESTORED:"Brand restored successfully",
         BRAND_ACTIVATED:"Brand activated successfully",
         BRAND_BLOCKED:"Brand blocked successfully"
+    },
+    PRODUCT:{
+        PRODUCT_ADD:"Product added successfully"
     }
 });
 

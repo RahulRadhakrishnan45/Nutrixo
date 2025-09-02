@@ -5,7 +5,7 @@ const categoryController = require('../../controllers/admin/category_adminContro
 const brandController = require('../../controllers/admin/brand_adminController')
 const productController = require('../../controllers/admin/product_adminController')
 const {checkAdminSession} = require('../../middlewares/checkSession')
-const upload = require('../../config/multer')
+const {uploadBrand,uploadProduct} = require('../../config/multer')
 
 router.get('/login',adminController.loadLogin)
 router.post('/login',adminController.login)
@@ -24,13 +24,15 @@ router.patch('/category/:id/restore',checkAdminSession,categoryController.restor
 
 
 router.get('/brands',checkAdminSession,brandController.loadBrands)
-router.post('/brands/add',checkAdminSession,upload.single('logo_url'),brandController.addBrand)
+router.post('/brands/add',checkAdminSession,uploadBrand.single('logo_url'),brandController.addBrand)
 router.patch('/brands/toggle/:id',checkAdminSession,brandController.toggleBrand)
 router.delete('/brands/:id/delete',checkAdminSession,brandController.deleteBrand)
 router.patch('/brands/:id/restore',checkAdminSession,brandController.restoreBrand)
 
 
 router.get('/products',checkAdminSession,productController.loadProducts)
+router.get('/products/add',checkAdminSession,productController.loadAddProduct)
+router.post('/products/add',checkAdminSession,uploadProduct.any(),productController.addProduct)
 
 
 

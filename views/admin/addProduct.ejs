@@ -1,0 +1,253 @@
+<div class="p-6">
+  <!-- Breadcrumb -->
+  <nav class="text-sm mb-6 text-gray-500">
+    <ol class="flex items-center space-x-2">
+      <li>
+        <a href="/admin/dashboard" class="hover:underline text-gray-600">Admin</a>
+      </li>
+      <li>/</li>
+      <li class="text-gray-800 font-medium">Add Product</li>
+    </ol>
+  </nav>
+
+  <!-- Card -->
+  <div class="bg-white shadow-md rounded-lg p-6">
+    <h1 class="text-lg font-semibold mb-4">Add Product</h1>
+
+    <!-- form must POST to /products/add -->
+    <form id="addProductForm" action="/admin/products/add" method="POST" enctype="multipart/form-data">
+      <div class="grid grid-cols-2 gap-6">
+        
+        <!-- Left Section (common fields) -->
+        <div class="space-y-4">
+          <input type="text" name="title" placeholder="Product Title"
+                 class="w-full border p-2 rounded-md" required>
+
+          <textarea name="description" placeholder="Description"
+                    class="w-full border p-2 rounded-md" required></textarea>
+
+          <!-- Category -->
+          <select name="category_id" class="w-full border p-2 rounded-md" required>
+            <option value="">Select Category</option>
+            <% categories.forEach(c => { %>
+              <option value="<%= c._id %>"><%= c.name %></option>
+            <% }) %>
+          </select>
+
+          <!-- Brand -->
+          <select name="brand_id" class="w-full border p-2 rounded-md" required>
+            <option value="">Select Brand</option>
+            <% brands.forEach(b => { %>
+              <option value="<%= b._id %>"><%= b.name %></option>
+            <% }) %>
+          </select>
+
+          <!-- Flavour (product-level) -->
+          <select name="flavour" class="w-full border p-2 rounded-md mt-2" required>
+            <option value="">Select Flavour</option>
+            <% flavours.forEach(f => { %>
+              <option value="<%= f %>"><%= f %></option>
+            <% }) %>
+          </select>
+
+          
+        </div>
+
+        <!-- Right Section (variants) -->
+        <div class="space-y-4">
+          <div id="variantContainer" class="space-y-4">
+            <!-- First Variant -->
+            <div class="variantBox border p-4 rounded-md relative">
+              <button type="button" class="absolute top-2 right-2 text-red-500 removeVariant hidden">✕</button>
+
+              <!-- Size -->
+              <select name="size[]" class="w-full border p-2 rounded-md mt-2" required>
+                <option value="">Select Size</option>
+                <% sizes.forEach(s => { %>
+                  <option value="<%= s %>"><%= s %></option>
+                <% }) %>
+              </select>
+
+              <!-- Price -->
+              <input type="number" name="price[]" placeholder="Price" class="w-full border p-2 rounded-md mt-2" required>
+
+              <!-- Discount Price -->
+              <input type="number" name="discounted_price[]" placeholder="Discounted Price" class="w-full border p-2 rounded-md mt-2">
+
+              <!-- Stock -->
+              <input type="number" name="stock[]" placeholder="Stock Quantity" class="w-full border p-2 rounded-md mt-2" required>
+
+              <!-- Images -->
+              <input type="file" name="variant_images_0[]" multiple accept="image/*"
+                     class="w-full border p-2 rounded-md mt-2 imageInput" required>
+              <div class="previewContainer flex gap-4 mt-2"></div>
+            </div>
+          </div>
+
+          <!-- Add Variant Button -->
+          <button type="button" id="addVariantBtn"
+                  class="bg-gray-200 px-4 py-2 rounded-md">
+            + Add Variant
+          </button>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex space-x-2 mt-6">
+        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md">
+          Add Product
+        </button>
+        <a href="/admin/products" 
+           class="bg-red-600 text-white px-6 py-2 rounded-md">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<!-- JS for Variants & Image Preview -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const addBtn = document.getElementById("addVariantBtn");
+  const container = document.getElementById("variantContainer");
+
+  let variantIndex = 1; // start from 1 since 0 is already there
+
+  // Add Variant
+  addBtn.addEventListener("click", () => {
+    const firstVariant = container.firstElementChild;
+    const newVariant = firstVariant.cloneNode(true);
+
+    // Reset values
+    newVariant.querySelectorAll("input, select").forEach(el => el.value = "");
+    newVariant.querySelector(".previewContainer").innerHTML = "";
+
+    // Update file input name to match index
+    const fileInput = newVariant.querySelector(".imageInput");
+    fileInput.name = `variant_images_${variantIndex}[]`;
+    variantIndex++;
+
+    // Show remove button
+    newVariant.querySelector(".removeVariant").classList.remove("hidden");
+
+    container.appendChild(newVariant);
+  });
+
+  // Remove Variant
+  container.addEventListener("click", (e) => {
+    if (e.target.classList.contains("removeVariant")) {
+      e.target.closest(".variantBox").remove();
+    }
+  });
+
+// Image Preview with Add/Remove Support
+function handleImagePreview(imageInput, previewContainer, keepExisting = true) {
+  let currentFiles = [];
+
+  // Keep existing files if requested
+  if (keepExisting && imageInput._filesBackup) {
+    currentFiles = Array.from(imageInput._filesBackup);
+  }
+
+  // Add new files
+  const newFiles = Array.from(imageInput.files);
+  currentFiles = currentFiles.concat(newFiles).slice(0, 3); // limit to 3
+
+  // Build a new FileList
+  const dt = new DataTransfer();
+  currentFiles.forEach(file => dt.items.add(file));
+  imageInput.files = dt.files;
+  imageInput._filesBackup = dt.files; // save backup for later
+
+  // Render previews
+  previewContainer.innerHTML = "";
+  currentFiles.forEach((file, index) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const div = document.createElement("div");
+      div.classList.add("relative", "inline-block");
+      div.innerHTML = `
+        <img src="${e.target.result}" class="w-24 h-24 object-cover rounded-md border">
+        <button type="button" 
+                class="absolute top-0 right-0 bg-red-500 text-white rounded-full px-1 text-xs removeImage"
+                data-index="${index}">✕</button>
+      `;
+      previewContainer.appendChild(div);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// Remove image
+document.addEventListener("click", (e) => {
+  if (e.target.classList.contains("removeImage")) {
+    const indexToRemove = parseInt(e.target.dataset.index, 10);
+    const variantBox = e.target.closest(".variantBox");
+    const imageInput = variantBox.querySelector(".imageInput");
+    const previewContainer = variantBox.querySelector(".previewContainer");
+
+    let files = Array.from(imageInput.files);
+    files.splice(indexToRemove, 1);
+
+    const dt = new DataTransfer();
+    files.forEach(f => dt.items.add(f));
+    imageInput.files = dt.files;
+    imageInput._filesBackup = dt.files;
+
+    handleImagePreview(imageInput, previewContainer, false);
+  }
+});
+
+// Handle change event → merge instead of replace
+document.addEventListener("change", (e) => {
+  if (e.target.classList.contains("imageInput")) {
+    const variantBox = e.target.closest(".variantBox");
+    const previewContainer = variantBox.querySelector(".previewContainer");
+    handleImagePreview(e.target, previewContainer, true);
+  }
+});
+
+
+
+
+
+
+  // AJAX Submit with Swal
+  document.getElementById("addProductForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    try {
+      const res = await fetch(this.action, {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: data.message
+        }).then(() => {
+          window.location.href = "/admin/products";
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: data.message || "Something went wrong"
+        });
+      }
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "Server Error",
+        text: "Could not add product"
+      });
+    }
+  });
+});
+</script>
