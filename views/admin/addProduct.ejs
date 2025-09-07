@@ -42,13 +42,7 @@
             <% }) %>
           </select>
 
-          <!-- Flavour (product-level) -->
-          <select name="flavour" class="w-full border p-2 rounded-md mt-2" required>
-            <option value="">Select Flavour</option>
-            <% flavours.forEach(f => { %>
-              <option value="<%= f %>"><%= f %></option>
-            <% }) %>
-          </select>
+        
 
           
         </div>
@@ -57,31 +51,41 @@
         <div class="space-y-4">
           <div id="variantContainer" class="space-y-4">
             <!-- First Variant -->
-            <div class="variantBox border p-4 rounded-md relative">
-              <button type="button" class="absolute top-2 right-2 text-red-500 removeVariant hidden">✕</button>
+            <!-- Variant Box -->
+<div class="variantBox border p-4 rounded-md relative">
+  <button type="button" class="absolute top-2 right-2 text-red-500 removeVariant hidden">✕</button>
 
-              <!-- Size -->
-              <select name="size[]" class="w-full border p-2 rounded-md mt-2" required>
-                <option value="">Select Size</option>
-                <% sizes.forEach(s => { %>
-                  <option value="<%= s %>"><%= s %></option>
-                <% }) %>
-              </select>
+  <!-- Flavour -->
+  <select name="flavour[]" class="w-full border p-2 rounded-md mt-2" required>
+    <option value="">Select Flavour</option>
+    <% flavours.forEach(f => { %>
+      <option value="<%= f %>"><%= f %></option>
+    <% }) %>
+  </select>
 
-              <!-- Price -->
-              <input type="number" name="price[]" placeholder="Price" class="w-full border p-2 rounded-md mt-2" required>
+  <!-- Size -->
+  <select name="size[]" class="w-full border p-2 rounded-md mt-2" required>
+    <option value="">Select Size</option>
+    <% sizes.forEach(s => { %>
+      <option value="<%= s %>"><%= s %></option>
+    <% }) %>
+  </select>
 
-              <!-- Discount Price -->
-              <input type="number" name="discounted_price[]" placeholder="Discounted Price" class="w-full border p-2 rounded-md mt-2">
+  <!-- Price -->
+  <input type="number" name="price[]" placeholder="Price" class="w-full border p-2 rounded-md mt-2" required>
 
-              <!-- Stock -->
-              <input type="number" name="stock[]" placeholder="Stock Quantity" class="w-full border p-2 rounded-md mt-2" required>
+  <!-- Discount Price -->
+  <input type="number" name="discounted_price[]" placeholder="Discounted Price" class="w-full border p-2 rounded-md mt-2">
 
-              <!-- Images -->
-              <input type="file" name="variant_images_0[]" multiple accept="image/*"
-                     class="w-full border p-2 rounded-md mt-2 imageInput" required>
-              <div class="previewContainer flex gap-4 mt-2"></div>
-            </div>
+  <!-- Stock -->
+  <input type="number" name="stock[]" placeholder="Stock Quantity" class="w-full border p-2 rounded-md mt-2" required>
+
+  <!-- Images -->
+  <input type="file" name="variant_images_0[]" multiple accept="image/*"
+         class="w-full border p-2 rounded-md mt-2 imageInput" required>
+  <div class="previewContainer flex gap-4 mt-2"></div>
+</div>
+
           </div>
 
           <!-- Add Variant Button -->
@@ -103,6 +107,8 @@
     </form>
   </div>
 </div>
+
+<%- include('../partials/cropperScript.ejs') %>
 
 
 <!-- JS for Variants & Image Preview -->
@@ -199,13 +205,13 @@ document.addEventListener("click", (e) => {
 });
 
 // Handle change event → merge instead of replace
-document.addEventListener("change", (e) => {
-  if (e.target.classList.contains("imageInput")) {
-    const variantBox = e.target.closest(".variantBox");
-    const previewContainer = variantBox.querySelector(".previewContainer");
-    handleImagePreview(e.target, previewContainer, true);
-  }
-});
+// document.addEventListener("change", (e) => {
+//   if (e.target.classList.contains("imageInput")) {
+//     const variantBox = e.target.closest(".variantBox");
+//     const previewContainer = variantBox.querySelector(".previewContainer");
+//     handleImagePreview(e.target, previewContainer, true);
+//   }
+// });
 
 
 
@@ -250,4 +256,111 @@ document.addEventListener("change", (e) => {
     }
   });
 });
+
+
+let currentCropper = null;
+let currentInput = null;
+let cropQueue = [];
+
+// When selecting images -> push all into queue
+document.addEventListener("change", (e) => {
+  if (e.target.classList.contains("imageInput")) {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    currentInput = e.target;
+    cropQueue = files; // put all files into queue
+    startNextCrop();
+  }
+});
+
+// Start cropping the next file in queue
+function startNextCrop() {
+  if (cropQueue.length === 0) return;
+
+  const file = cropQueue.shift(); // take first file
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const cropModal = document.getElementById("cropModal");
+    const cropImage = document.getElementById("cropImage");
+
+    cropImage.src = ev.target.result;
+    cropModal.classList.remove("hidden");
+
+    if (currentCropper) currentCropper.destroy();
+    currentCropper = new Cropper(cropImage, {
+      aspectRatio: 1,
+      viewMode: 1
+    });
+  };
+  reader.readAsDataURL(file);
+}
+
+// Cancel crop → skip this image
+document.getElementById("cropCancel").addEventListener("click", () => {
+  document.getElementById("cropModal").classList.add("hidden");
+  if (currentCropper) currentCropper.destroy();
+  currentCropper = null;
+
+  // Move to next in queue
+  startNextCrop();
+});
+
+// Save cropped image
+document.getElementById("cropSave").addEventListener("click", () => {
+  if (!currentCropper || !currentInput) return;
+
+  currentCropper.getCroppedCanvas({
+    width: 500,
+    height: 500,
+  }).toBlob((blob) => {
+    const croppedFile = new File(
+      [blob],
+      "cropped_" + Date.now() + ".png",
+      { type: "image/png", lastModified: new Date().getTime() }
+    );
+
+    // Merge with existing files
+    let files = currentInput._filesBackup ? Array.from(currentInput._filesBackup) : [];
+    files.push(croppedFile);
+
+    // Limit to 3
+    files = files.slice(0, 3);
+
+    // Rebuild FileList
+    const dt = new DataTransfer();
+    files.forEach(f => dt.items.add(f));
+    currentInput.files = dt.files;
+    currentInput._filesBackup = dt.files;
+
+    // Re-render preview
+    const variantBox = currentInput.closest(".variantBox");
+    const previewContainer = variantBox.querySelector(".previewContainer");
+    previewContainer.innerHTML = "";
+    files.forEach((file, index) => {
+      const url = URL.createObjectURL(file);
+      const div = document.createElement("div");
+      div.classList.add("relative", "inline-block");
+      div.innerHTML = `
+        <img src="${url}" class="w-24 h-24 object-cover rounded-md border">
+        <button type="button"
+                class="absolute top-0 right-0 bg-red-500 text-white rounded-full px-1 text-xs removeImage"
+                data-index="${index}">✕</button>
+      `;
+      previewContainer.appendChild(div);
+    });
+
+    // Close modal
+    document.getElementById("cropModal").classList.add("hidden");
+    currentCropper.destroy();
+    currentCropper = null;
+
+    // Move to next file in queue
+    startNextCrop();
+  });
+});
+
+
+
+
 </script>

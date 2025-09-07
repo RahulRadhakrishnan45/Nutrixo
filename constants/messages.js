@@ -55,7 +55,19 @@ const messages = Object.freeze({
         BRAND_BLOCKED:"Brand blocked successfully"
     },
     PRODUCT:{
-        PRODUCT_ADD:"Product added successfully"
+        PRODUCT_ADD:"Product added successfully",
+        PRODUCT_NOT_FOUND:"Product not found",
+        PRODUCT_UPDATE:"Product updated successfully"
+    },
+    VARIANT:{
+        VARIANT_NOT_FOUND:"Variant not found",
+        VARIANT_DELETE:"Variant deleted successfully",
+        VARIANT_RESTORE:"Variant restored successfully"
+    },
+    USER:{
+        USER_NOT_FOUND:"User not found",
+        USER_UNBLOCKED:"User unblocked successfully",
+        USER_BLOCKED:"User blocked successfully"
     }
 });
 

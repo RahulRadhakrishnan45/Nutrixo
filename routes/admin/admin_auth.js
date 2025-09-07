@@ -4,6 +4,7 @@ const adminController = require('../../controllers/admin/admin_authController')
 const categoryController = require('../../controllers/admin/category_adminController')
 const brandController = require('../../controllers/admin/brand_adminController')
 const productController = require('../../controllers/admin/product_adminController')
+const userController = require('../../controllers/admin/user_adminController')
 const {checkAdminSession} = require('../../middlewares/checkSession')
 const {uploadBrand,uploadProduct} = require('../../config/multer')
 
@@ -32,7 +33,18 @@ router.patch('/brands/:id/restore',checkAdminSession,brandController.restoreBran
 
 router.get('/products',checkAdminSession,productController.loadProducts)
 router.get('/products/add',checkAdminSession,productController.loadAddProduct)
+router.get('/products/search',checkAdminSession,productController.searchProducts)
 router.post('/products/add',checkAdminSession,uploadProduct.any(),productController.addProduct)
+router.patch('/products/:id/edit',checkAdminSession,uploadProduct.any(),productController.editProduct)
+router.delete('/products/:productId/variants/:variantId/delete',checkAdminSession,productController.deleteProduct)
+router.patch('/products/:productId/variants/:variantId/restore',checkAdminSession,productController.restoreVariant)
+
+
+router.get('/customers',checkAdminSession,userController.loadCustomers)
+router.patch('/customers/:userId/block',checkAdminSession,userController.blockCustomers)
+router.get('/customers/search',checkAdminSession,userController.searchCustomers)
+
+
 
 
 
