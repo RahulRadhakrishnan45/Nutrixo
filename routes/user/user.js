@@ -7,7 +7,7 @@ router.get('/',checkSession,userController.loadHome)
 router.get('/profile',checkSession,userController.loadProfile)
 router.get('/logout',userController.logoutUser)
 
-
+router.get('/products',checkSession,userController.loadProducts)
 
 
 module.exports = router 

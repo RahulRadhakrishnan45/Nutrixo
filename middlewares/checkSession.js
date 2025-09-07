@@ -1,6 +1,19 @@
-const checkSession = (req,res,next) =>{
+const User = require('../models/userSchema')
+
+
+const checkSession = async (req,res,next) =>{
     if(req.session && req.session.user){
-        next()
+        
+        const user = await User.findById(req.session.user)
+
+        if(user && user.is_active) {
+            next()
+        }else{
+            req.session.destroy(() => {
+                res.redirect('/auth/login')
+            })
+        }
+        
     }else{
         res.redirect('/auth/login')
     }

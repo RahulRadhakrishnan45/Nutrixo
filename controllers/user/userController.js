@@ -2,12 +2,38 @@ const asyncHandler = require('express-async-handler')
 const User = require('../../models/userSchema')
 const httpStatus = require('../../constants/httpStatus')
 const messages = require('../../constants/messages')
+const Product = require('../../models/productSchema')
+const product = require('../../models/productSchema')
+const category = require('../../models/categorySchema')
+const brand = require('../../models/brandSchema')
 
 
 
 
 const loadHome = asyncHandler(async (req,res) =>{
-    res.render('user/home',{layout:'layouts/user_main'})
+    const products = await Product.find().sort({createdAt:-1}).lean()
+
+    let variants = []
+    products.forEach(products => {
+        products.variants.forEach(variant => {
+            variants.push({
+                productId:product._id,
+                title:product.title,
+                description:product.description,
+                category:product.category_id,
+                brand:product.brand_id,
+                flavour:variant.flavour,
+                size:variant.size,
+                price:variant.price,
+                discounted_price:variant.discounted_price,
+                images:variant.images,
+                stock:variant.stock
+            })
+        })
+    })
+
+    variants = variants.slice(0,4)
+    res.render('user/home',{layout:'layouts/user_main',newArrivals:variants})
 })
 
 const loadProfile = asyncHandler( async (req,res) => {
@@ -30,8 +56,32 @@ const logoutUser = asyncHandler( async (req,res) => {
     })
 })
 
+const loadProducts = asyncHandler( async( req,res) => {
+    const dbProducts = await Product.find().populate('brand_id','name is_active is_delete').populate('category_id','name is_active is_deleted')
+    
+    const products = []
+    dbProducts.forEach(p => {
+
+        if(!p.brand_id?.is_active || !p.category_id?.is_active) {
+            return
+        }
+        p.variants.filter(v => v.is_active).forEach(v => {
+            products.push({
+              name: `${p.title} ${v.flavour || ""} ${v.size || ""}`,
+              brand: p.brand_id?.name || "Unknown",
+              category: p.category_id?.name || "Uncategorized",
+              image: v.images?.length > 0 ? v.images[0] : "/images/no-image.png",
+              original_price: v.price,
+              discounted_price: v.discounted_price || v.price,
+              stock: v.stock  
+            })
+        })
+    })
+    res.render('user/product',{layout:'layouts/user_main',products})
+})
 
 
 
 
-module.exports = {loadHome,loadProfile,logoutUser}
+
+module.exports = {loadHome,loadProfile,logoutUser,loadProducts}

@@ -1,0 +1,84 @@
+<body class="bg-gray-100">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Breadcrumb -->
+    <nav class="text-sm mb-6 text-gray-500">
+      <ol class="flex items-center space-x-2">
+        <li>
+          <a href="/" class="hover:underline text-gray-600">Home</a>
+        </li>
+        <li>/</li>
+        <li class="text-gray-800 font-medium">Products</li>
+      </ol>
+    </nav>
+
+    <!-- Layout: Sidebar + Products -->
+    <div class="flex gap-8">
+      
+      <!-- Filters Sidebar -->
+      <aside class="w-64 bg-white rounded-xl shadow p-6 hidden md:block">
+        <h2 class="text-lg font-semibold mb-4">Categories</h2>
+        <ul class="space-y-2">
+          <li><input type="checkbox" class="mr-2">All</li>
+          <li><input type="checkbox" class="mr-2">Protein Powder</li>
+          <li><input type="checkbox" class="mr-2">Creatine</li>
+          <li><input type="checkbox" class="mr-2">Daily Essentials</li>
+        </ul>
+
+        <div class="mt-6">
+          <label class="block font-medium mb-2">Select Brand</label>
+          <select class="w-full border rounded p-2">
+            <option>All</option>
+          </select>
+        </div>
+
+        <div class="mt-6">
+          <label class="block font-medium mb-2">Select Flavour</label>
+          <select class="w-full border rounded p-2">
+            <option>All</option>
+          </select>
+        </div>
+
+        <div class="mt-6">
+          <label class="block font-medium mb-2">Select Weight</label>
+          <select class="w-full border rounded p-2">
+            <option>All</option>
+          </select>
+        </div>
+
+        <div class="mt-6">
+          <label class="block font-medium mb-2">Price</label>
+          <input type="range" min="100" max="20000" class="w-full">
+        </div>
+      </aside>
+
+      <!-- Products Section -->
+      <main class="flex-1">
+        <div class="flex justify-between items-center mb-6">
+          <p class="text-gray-600">Showing <%= products.length %> Results</p>
+          <select class="border rounded p-2">
+            <option>Sort by</option>
+            <option>Price: Low to High</option>
+            <option>Price: High to Low</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <% products.forEach(product => { %>
+            <div class="bg-white rounded-xl shadow hover:shadow-lg transition p-4">
+              <img src="<%= product.image %>" alt="<%= product.name %>" class="h-48 w-full object-contain mb-4">
+              <h3 class="font-semibold text-lg"><%= product.name %></h3>
+              <p class="text-gray-500 text-sm">★★★★★</p>
+              <p class="text-green-600 font-semibold">IN STOCK</p>
+              <div class="mt-2">
+                <span class="line-through text-gray-400">₹ <%= product.original_price %></span>
+                <span class="ml-2 text-xl font-bold text-gray-900">₹ <%= product.discounted_price %></span>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
