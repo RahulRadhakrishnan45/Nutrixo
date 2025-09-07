@@ -1,5 +1,5 @@
 <body class="bg-gray-100">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
     <!-- Breadcrumb -->
     <nav class="text-sm mb-6 text-gray-500">
@@ -13,7 +13,7 @@
     </nav>
 
     <!-- Layout: Sidebar + Products -->
-    <div class="flex gap-8">
+    <div class="flex gap-12">
       
       <!-- Filters Sidebar -->
       <aside class="w-64 bg-white rounded-xl shadow p-6 hidden md:block">
@@ -63,22 +63,25 @@
           </select>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <% products.forEach(product => { %>
-            <div class="bg-white rounded-xl shadow hover:shadow-lg transition p-4">
-              <img src="<%= product.image %>" alt="<%= product.name %>" class="h-48 w-full object-contain mb-4">
-              <h3 class="font-semibold text-lg"><%= product.name %></h3>
-              <p class="text-gray-500 text-sm">★★★★★</p>
-              <p class="text-green-600 font-semibold">IN STOCK</p>
-              <div class="mt-2">
-                <span class="line-through text-gray-400">₹ <%= product.original_price %></span>
-                <span class="ml-2 text-xl font-bold text-gray-900">₹ <%= product.discounted_price %></span>
-              </div>
-            </div>
-          <% }) %>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+          <% products.forEach(variant => { %>
+  <div class="bg-white rounded-xl shadow hover:shadow-lg transition p-4">
+    <img src="<%= variant.image %>" alt="<%= variant.name %>" class="h-48 w-full object-contain mb-4">
+    <h3 class="font-semibold text-lg"><%= variant.name %></h3>
+    <p class="text-gray-500 text-sm">★★★★★</p>
+    <p class="text-green-600 font-semibold">IN STOCK</p>
+    <div class="mt-2">
+      <span class="line-through text-gray-400">₹ <%= variant.original_price %></span>
+      <span class="ml-2 text-xl font-bold text-gray-900">₹ <%= variant.discounted_price %></span>
+    </div>
+  </div>
+<% }) %>
+
         </div>
       </main>
     </div>
   </div>
 </body>
 </html>
+
+<%- include('../partials/pagination.ejs',{currentPage,totalPages}) %>

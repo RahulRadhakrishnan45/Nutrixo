@@ -72,13 +72,13 @@
   </select>
 
   <!-- Price -->
-  <input type="number" name="price[]" placeholder="Price" class="w-full border p-2 rounded-md mt-2" required>
+  <input type="number" name="price[]" placeholder="Price" class="w-full border p-2 rounded-md mt-2" min="1" required>
 
   <!-- Discount Price -->
-  <input type="number" name="discounted_price[]" placeholder="Discounted Price" class="w-full border p-2 rounded-md mt-2">
+  <input type="number" name="discounted_price[]" placeholder="Discounted Price" class="w-full border p-2 rounded-md mt-2" min="1">
 
   <!-- Stock -->
-  <input type="number" name="stock[]" placeholder="Stock Quantity" class="w-full border p-2 rounded-md mt-2" required>
+  <input type="number" name="stock[]" placeholder="Stock Quantity" class="w-full border p-2 rounded-md mt-2" min="1" required>
 
   <!-- Images -->
   <input type="file" name="variant_images_0[]" multiple accept="image/*"

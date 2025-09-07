@@ -57,6 +57,9 @@ const logoutUser = asyncHandler( async (req,res) => {
 })
 
 const loadProducts = asyncHandler( async( req,res) => {
+    const page = parseInt(req.query.page) || 1
+    const limit = 9
+
     const dbProducts = await Product.find().populate('brand_id','name is_active is_delete').populate('category_id','name is_active is_deleted')
     
     const products = []
@@ -77,7 +80,14 @@ const loadProducts = asyncHandler( async( req,res) => {
             })
         })
     })
-    res.render('user/product',{layout:'layouts/user_main',products})
+
+    const totalVariants = products.length
+    const totalPages = Math.ceil(totalVariants / limit)
+
+    const start = (page - 1) * limit
+    const end = start + limit
+    const paginatedVariants = products.slice(start,end)
+    res.render('user/product',{layout:'layouts/user_main',products:paginatedVariants,currentPage:page,totalPages})
 })
 
 
