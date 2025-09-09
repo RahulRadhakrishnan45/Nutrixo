@@ -57,7 +57,8 @@ const messages = Object.freeze({
     PRODUCT:{
         PRODUCT_ADD:"Product added successfully",
         PRODUCT_NOT_FOUND:"Product not found",
-        PRODUCT_UPDATE:"Product updated successfully"
+        PRODUCT_UPDATE:"Product updated successfully",
+        PRODUCT_EXISTS:"Product already exists"
     },
     VARIANT:{
         VARIANT_NOT_FOUND:"Variant not found",

@@ -53,6 +53,25 @@ const addProduct = asyncHandler( async( req,res) => {
     
     const {title,description,category_id,brand_id,flavour,price,discounted_price,stock,size} = req.body
     
+    const existingProduct = await Product.findOne({
+        title:title.trim(),
+        category_id,
+        brand_id
+    })
+
+    if(existingProduct) {
+        for(let i=0; i<size.length;i++) {
+            const duplicateVariant = existingProduct.variants.find(
+                v =>
+                    v.flavour.toLowerCase() === flavour[i].toLowerCase() && v.size.toString() === size[i].toString()
+            )
+
+            if(duplicateVariant) {
+                return res.status(httpStatus.bad_request).json({success:false,field:'variants',message:messages.PRODUCT.PRODUCT_EXISTS})
+            }
+        }
+    }
+
     const imagesByVariant = {}
     if(req.files && req.files.length > 0) {
         req.files.forEach(file => {
@@ -87,7 +106,7 @@ const addProduct = asyncHandler( async( req,res) => {
 
     await newProduct.save()
 
-    return res.status(httpStatus.created).json({success:true,message:messages.PRODUCT.PRODUCT_ADD})
+    return res.status(httpStatus.created).json({success:true,field:'title',message:messages.PRODUCT.PRODUCT_ADD})
 
 })
 
