@@ -171,6 +171,8 @@
       document.getElementById('editCategory').value = btn.dataset.category || '';
       document.getElementById('editBrand').value = btn.dataset.brand || '';
 
+      
+
       const variants = JSON.parse(btn.dataset.variants);
       const container = document.getElementById('variantEditContainer');
       container.innerHTML = "";
@@ -217,14 +219,17 @@
             <div>
               <label class="block text-sm font-medium mb-1">Price</label>
               <input type="number" name="price[]" value="${variant.price || ''}" class="w-full border rounded px-3 py-2">
+              <p class="text-red-500 text-sm mt-1 hidden" id="priceError_${idx}"></p>
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">Discounted Price</label>
               <input type="number" name="discounted_price[]" value="${variant.discounted_price || ''}" class="w-full border rounded px-3 py-2">
+              <p class="text-red-500 text-sm mt-1 hidden" id="discountError_${idx}"></p>
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">Stock</label>
               <input type="number" name="stock[]" value="${variant.stock || ''}" class="w-full border rounded px-3 py-2">
+              <p class="text-red-500 text-sm mt-1 hidden" id="stockError_${idx}"></p>
             </div>
           </div>
 
@@ -236,6 +241,8 @@
             <input type="file" name="variant_images_${idx}[]" multiple accept="image/*"
               class="w-full border rounded px-3 py-2 imageInput">
             <div class="previewContainer flex gap-2 mt-2"></div>
+
+            <p class="text-red-500 text-sm mt-1 hidden" id="imageError_${idx}"></p>
           </div>
         `;
         container.appendChild(div);
@@ -422,8 +429,17 @@ document.getElementById('closeEditModal').addEventListener('click', () => {
   // -----------------------
   document.getElementById('editProductForm').addEventListener('submit', async function (e) {
     e.preventDefault();
+
+    let allValid = true
+    document.querySelectorAll('.variantBox').forEach((box,idx) => {
+      if(!validateVariant(box,idx)) allValid = false
+    })
+
+    if(!allValid) return
+
     const productId = document.getElementById('editProductId').value;
     const formData = new FormData(this);
+
     try {
       const res = await fetch(`/admin/products/${productId}/edit`, { method: 'PATCH', body: formData });
       const data = await res.json();
@@ -431,7 +447,19 @@ document.getElementById('closeEditModal').addEventListener('click', () => {
         Swal.fire({ icon: "success", title: "Updated!", text: data.message || "Product updated successfully" })
           .then(() => window.location.reload());
       } else {
-        Swal.fire({ icon: "error", title: "Error", text: data.message || "Something went wrong" });
+        if(data.field === "variants") {
+        Swal.fire({
+          icon: "error",
+          title: "Duplicate Variant",
+          text: data.message || "Duplicate flavour + size is not allowed"
+        });
+        }else{
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: data.message || "Something went wrong"
+        });
+        }
       }
     } catch (err) {
       Swal.fire({ icon: "error", title: "Server Error", text: "Could not update product" });
@@ -570,9 +598,75 @@ document.addEventListener("click", async (e) => {
   }
 });
 
+function validateVariant(box, idx) {
+  let valid = true
+
+  const priceError = document.getElementById(`priceError_${idx}`)
+  const discountError = document.getElementById(`discountError_${idx}`)
+  const stockError = document.getElementById(`stockError_${idx}`)
+  const imageError1 = document.getElementById(`imageError_${idx}`)
+
+  const price = box.querySelector('input[name="price[]"]').value.trim()
+  const discounted = box.querySelector('input[name="discounted_price[]"]').value.trim()
+  const stock = box.querySelector('input[name="stock[]"]').value.trim()
+
+  const priceVal = Number(price);
+  const discountedVal = Number(discounted);
+  const stockVal = Number(stock);
 
 
+  [priceError,discountError,stockError,imageError1].forEach(el => {
+    if(el){
+    el.classList.add("hidden")
+    el.innerText =""
+    }
+  })
 
+  if(!priceVal || priceVal <= 0) {
+    if(priceError) {
+    priceError.innerText = "Price is required and must be greater than 0"
+    priceError.classList.remove("hidden")
+    }
+    valid = false
+  }
+
+  if (discounted && discountedVal < 0) {
+    if (discountError) {
+      discountError.innerText = "Discount price cannot be negative";
+      discountError.classList.remove("hidden");
+    }
+    valid = false;
+  }
+
+  if(discounted && discountedVal >=priceVal) {
+    if(discountError) {
+    discountError.innerText = "Discount price must be less than price"
+    discountError.classList.remove("hidden")
+    }
+    valid = false
+  }
+
+  if(!stockVal || stockVal < 0) {
+    if(stockError) {
+    stockError.innerText = "Stock is required and cannot be negative"
+    stockError.classList.remove("hidden")
+    }
+    valid = false
+  }
+
+  const existingImages = box.querySelectorAll(`input[name="existing_images_${idx}[]"]`);
+  const newImages = box.querySelector('.imageInput')?.files;
+
+  if ((!existingImages || existingImages.length === 0) && (!newImages || newImages.length === 0)) {
+    if(imageError1) {
+    imageError1.innerText = "At least one image is required";
+    imageError1.classList.remove("hidden");
+    }
+    valid = false;
+  }
+
+  return valid
+}
 
 
 </script>

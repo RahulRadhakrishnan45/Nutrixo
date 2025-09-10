@@ -63,7 +63,8 @@ const messages = Object.freeze({
     VARIANT:{
         VARIANT_NOT_FOUND:"Variant not found",
         VARIANT_DELETE:"Variant deleted successfully",
-        VARIANT_RESTORE:"Variant restored successfully"
+        VARIANT_RESTORE:"Variant restored successfully",
+        VARIANT_EXISTS:"Variant already exists"
     },
     USER:{
         USER_NOT_FOUND:"User not found",

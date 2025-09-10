@@ -126,9 +126,38 @@ const editProduct = asyncHandler(async (req, res) => {
     });
   }
 
+  const existingProduct = await Product.findOne({
+    _id:{$ne:productId},
+    title:title.trim(),
+    category_id,
+    brand_id
+  })
+
+  if(existingProduct) {
+    for(let i=0; i<size.length; i++) {
+        const duplicateVariant = existingProduct.variants.find(
+            v =>
+                v.flavour.toLowerCase() === flavour[i].toLowerCase() && v.size.toString() === size[i].toString()
+        )
+
+        if(duplicateVariant) {
+            return res.status(httpStatus.bad_request).json({success:false,field:'variants',message:messages.PRODUCT.PRODUCT_EXISTS})
+        }
+    }
+  }
+
+  const seen = new Set()
+  for(let i=0;i<size.length;i++ ) {
+    const key = flavour[i].toLowerCase() + "-" + size[i]
+    if(seen.has(key)) {
+        return res.status(httpStatus.bad_request).json({success:false,field:'variants',message:messages.VARIANT.VARIANT_EXISTS})
+    }
+    seen.add(key)
+  }
+
   const variants = [];
   for (let i = 0; i < size.length; i++) {
-    // from hidden inputs
+
     let keptImages = req.body[`existing_images_${i}`] || [];
     if (!Array.isArray(keptImages)) keptImages = keptImages ? [keptImages] : [];
 
