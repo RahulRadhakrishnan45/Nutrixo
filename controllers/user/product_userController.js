@@ -4,8 +4,8 @@ const httpStatus = require('../../constants/httpStatus')
 const messages = require('../../constants/messages')
 const Product = require('../../models/productSchema')
 const product = require('../../models/productSchema')
-const category = require('../../models/categorySchema')
-const brand = require('../../models/brandSchema')
+const Category = require('../../models/categorySchema')
+const Brand = require('../../models/brandSchema')
 
 
 
@@ -60,7 +60,18 @@ const loadProducts = asyncHandler( async( req,res) => {
     const page = parseInt(req.query.page) || 1
     const limit = 9
 
-    const dbProducts = await Product.find().populate('brand_id','name is_active is_delete').populate('category_id','name is_active is_deleted')
+    const {brand,flavour,size,minPrice,maxPrice,category} = req.query
+
+    const query = {}
+
+    if(category && category !== 'All') {
+        const selectedCategory = await Category.findOne({name:category,is_active:true}).select('_id')
+        if(selectedCategory) {
+        query['category_id'] = selectedCategory._id
+        }
+    }
+
+    const dbProducts = await Product.find(query).populate('brand_id','name is_active is_delete').populate('category_id','name is_active is_deleted')
     
     const products = []
     dbProducts.forEach(p => {
@@ -69,6 +80,14 @@ const loadProducts = asyncHandler( async( req,res) => {
             return
         }
         p.variants.filter(v => v.is_active).forEach(v => {
+
+            if (brand && brand !== "All" && p.brand_id?.name !== brand) return;
+            if (flavour && flavour !== "All" && v.flavour !== flavour) return;
+            if (size && size !== "All" && v.size !== size) return;
+            const priceToCheck = v.discounted_price || v.price;
+            if (minPrice && priceToCheck < Number(minPrice)) return;
+            if (maxPrice && priceToCheck > Number(maxPrice)) return;
+
             products.push({
               name: `${p.title} ${v.flavour || ""} ${v.size || ""}`,
               brand: p.brand_id?.name || "Unknown",
@@ -87,7 +106,13 @@ const loadProducts = asyncHandler( async( req,res) => {
     const start = (page - 1) * limit
     const end = start + limit
     const paginatedVariants = products.slice(start,end)
-    res.render('user/product',{layout:'layouts/user_main',products:paginatedVariants,currentPage:page,totalPages})
+
+    const brands = await Brand.find({is_active:true,is_delete:false}).select('name -_id')
+    const flavours = await Product.distinct('variants.flavour', {'variants.is_active':true})
+    const sizes = await Product.distinct("variants.size", { "variants.is_active": true })
+    const categories = await Category.find({is_active:true,is_deleted:false}).select('name -_id')
+
+    res.render('user/product',{layout:'layouts/user_main',products:paginatedVariants,currentPage:page,totalPages,brands:brands.map(b =>b.name),flavours,sizes,categories:categories.map(c => c.name),selectedFilters:{brand:brand && brand !== "All" ? brand: null,flavour: flavour && flavour !== "All" ? flavour: null,size: size && size !== "All" ? size: null,minPrice,maxPrice,category: category && category !== "All" ? category : null}})
 })
 
 
