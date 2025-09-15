@@ -80,7 +80,7 @@
             class="mt-3 w-full bg-blue-600 text-white py-2 rounded">Apply</button>
       </div>
 
-        <% if (selectedFilters.brand || selectedFilters.flavour || selectedFilters.size || selectedFilters.minPrice || selectedFilters.maxPrice) { %>
+        <% if (selectedFilters.brand || selectedFilters.flavour || selectedFilters.size || selectedFilters.minPrice || selectedFilters.maxPrice || selectedFilters.category) { %>
           <div class="mt-6">
             <button onclick="clearFilters()" 
               class="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 rounded">
@@ -94,28 +94,29 @@
       <main class="flex-1">
         <div class="flex justify-between items-center mb-6">
           <p class="text-gray-600">Showing <%= products.length %> Results</p>
-          <select class="border rounded p-2">
-            <option>Sort by</option>
-            <option>Price: Low to High</option>
-            <option>Price: High to Low</option>
-            <option>Price: aA-zZ</option>
-            <option>Price: zZ-aA</option>
+          <select class="border rounded p-2" name="sort" onchange="applyFilters()">
+            <option value="">Sort by</option>
+            <option value="priceLowHigh" <%= selectedFilters.sort === 'priceLowHigh' ? 'selected' : '' %>>Price: Low to High</option>
+            <option value="priceHighLow" <%= selectedFilters.sort === 'priceHighLow' ? 'selected' : '' %>>Price: High to Low</option>
+            <option value="nameAZ" <%= selectedFilters.sort === 'nameAZ' ? 'selected' : '' %>>Name: aA-zZ</option>
+            <option value="nameZA" <%= selectedFilters.sort === 'nameZA' ? 'selected' : '' %>>Name: zZ-aA</option>
           </select>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
           <% products.forEach(variant => { %>
-  <div class="bg-white rounded-xl shadow hover:shadow-lg transition p-4">
-    <img src="<%= variant.image %>" alt="<%= variant.name %>" class="h-48 w-full object-contain mb-4">
-    <h3 class="font-semibold text-lg"><%= variant.name %></h3>
-    <p class="text-gray-500 text-sm">★★★★★</p>
-    <p class="text-green-600 font-semibold">IN STOCK</p>
-    <div class="mt-2">
-      <span class="line-through text-gray-400">₹ <%= variant.original_price %></span>
-      <span class="ml-2 text-xl font-bold text-gray-900">₹ <%= variant.discounted_price %></span>
-    </div>
-  </div>
-<% }) %>
+            <a href="/products/<%= variant.productId %>?variant=<%= variant._id %>"
+              class="bg-white rounded-xl shadow hover:shadow-lg transition p-4">
+                <img src="<%= variant.image %>" alt="<%= variant.name %>" class="h-48 w-full object-contain mb-4">
+            <h3 class="font-semibold text-lg"><%= variant.name %></h3>
+            <p class="text-gray-500 text-sm">★★★★★</p>
+            <p class="text-green-600 font-semibold">IN STOCK</p>
+            <div class="mt-2">
+                <span class="line-through text-gray-400">₹ <%= variant.original_price %></span>
+                <span class="ml-2 text-xl font-bold text-gray-900">₹ <%= variant.discounted_price %></span>
+            </div>
+          </a>
+        <% }) %>
 
         </div>
       </main>
@@ -137,6 +138,7 @@ function applyFilters() {
   const minPrice = document.getElementById("minPrice").value
   const maxPrice = document.getElementById("maxPrice").value
   const category = document.querySelector("input[name='category']:checked")?.value
+  const sort = document.querySelector("select[name='sort']").value
 
   if(brand && brand !== "All") params.append("brand",brand)
   if(flavour && flavour !== "All") params.append("flavour",flavour)
@@ -144,6 +146,7 @@ function applyFilters() {
   if(minPrice) params.append("minPrice", minPrice);
   if(maxPrice) params.append("maxPrice", maxPrice);
   if(category && category !== "All") params.append("category",category)
+  if(sort) params.append("sort",sort)
 
   window.location.href = "/products?" + params.toString();
 }

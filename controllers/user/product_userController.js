@@ -60,7 +60,7 @@ const loadProducts = asyncHandler( async( req,res) => {
     const page = parseInt(req.query.page) || 1
     const limit = 9
 
-    const {brand,flavour,size,minPrice,maxPrice,category} = req.query
+    const {brand,flavour,size,minPrice,maxPrice,category,sort} = req.query
 
     const query = {}
 
@@ -89,6 +89,8 @@ const loadProducts = asyncHandler( async( req,res) => {
             if (maxPrice && priceToCheck > Number(maxPrice)) return;
 
             products.push({
+               productId: p._id,
+              _id: v._id,
               name: `${p.title} ${v.flavour || ""} ${v.size || ""}`,
               brand: p.brand_id?.name || "Unknown",
               category: p.category_id?.name || "Uncategorized",
@@ -99,6 +101,18 @@ const loadProducts = asyncHandler( async( req,res) => {
             })
         })
     })
+
+    if(sort) {
+        if(sort === 'priceLowHigh') {
+            products.sort((a,b) => a.discounted_price - b.discounted_price)
+        }else if(sort === 'priceHighLow') {
+            products.sort((a,b) => b.discounted_price - a.discounted_price)
+        }else if(sort === 'nameAZ') {
+            products.sort((a,b) => a.name.localeCompare(b.name))
+        }else if(sort === 'nameZA') {
+            products.sort((a,b) => b.name.localeCompare(a.name))
+        }
+    }
 
     const totalVariants = products.length
     const totalPages = Math.ceil(totalVariants / limit)
@@ -112,11 +126,37 @@ const loadProducts = asyncHandler( async( req,res) => {
     const sizes = await Product.distinct("variants.size", { "variants.is_active": true })
     const categories = await Category.find({is_active:true,is_deleted:false}).select('name -_id')
 
-    res.render('user/product',{layout:'layouts/user_main',products:paginatedVariants,currentPage:page,totalPages,brands:brands.map(b =>b.name),flavours,sizes,categories:categories.map(c => c.name),selectedFilters:{brand:brand && brand !== "All" ? brand: null,flavour: flavour && flavour !== "All" ? flavour: null,size: size && size !== "All" ? size: null,minPrice,maxPrice,category: category && category !== "All" ? category : null}})
+    res.render('user/product',{layout:'layouts/user_main',products:paginatedVariants,currentPage:page,totalPages,brands:brands.map(b =>b.name),flavours,sizes,categories:categories.map(c => c.name),selectedFilters:{brand:brand && brand !== "All" ? brand: null,flavour: flavour && flavour !== "All" ? flavour: null,size: size && size !== "All" ? size: null,minPrice,maxPrice,category: category && category !== "All" ? category : null,sort:sort || null},query:req.query})
+})
+
+const loadSingleProduct = asyncHandler( async( req,res) => {
+    const productId = req.params.id
+    const variantId = req.query.variant
+
+    const product = await Product.findById(productId).populate('category_id').populate('brand_id').lean()
+    
+    if(!product || !product.brand_id?.is_active || !product.category_id?.is_active) {
+        return res.status(httpStatus.not_found).render('user/404-page',{layout:false})
+    }
+
+    let selectedVariant = product.variants[0]
+    if(variantId) {
+        const found = product.variants.find(v => v._id.toString() === variantId)
+        if(found) {
+            selectedVariant = found
+        }
+    }
+
+    const relatedProducts = await Product.find({
+        category_id:product.category_id,
+        _id:{$ne:product._id},
+        is_active:true
+    }).limit(4).lean()
+
+    res.render('user/productDetail',{layout:'layouts/user_main',product, relatedProducts,selectedVariant})
 })
 
 
 
 
-
-module.exports = {loadHome,loadProfile,logoutUser,loadProducts}
+module.exports = {loadHome,loadProfile,logoutUser,loadProducts,loadSingleProduct}

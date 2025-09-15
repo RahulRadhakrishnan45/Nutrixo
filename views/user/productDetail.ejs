@@ -1,0 +1,180 @@
+<div class="container mx-auto py-8">
+  <!-- Product Section -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+    
+    <!-- Product Images -->
+    <div>
+      <div class="swiper mySwiper w-full max-w-md">
+        <div class="swiper-wrapper" id="productImages">
+          <% if (selectedVariant && selectedVariant.images.length > 0) { %>
+            <% selectedVariant.images.forEach(image => { %>
+              <div class="swiper-slide">
+                <img src="<%= image %>" alt="<%= product.title %>" class="w-full h-96 object-contain rounded-lg" />
+              </div>
+            <% }) %>
+          <% } else { %>
+            <div class="swiper-slide">
+              <img src="/images/no-image.png" alt="No Image" class="w-full h-96 object-contain rounded-lg" />
+            </div>
+          <% } %>
+        </div>
+        <!-- Swiper navigation -->
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-pagination"></div>
+      </div>
+    </div>
+
+    <!-- Product Info -->
+    <div>
+      <h1 class="text-3xl font-bold mb-4"><%= product.title %></h1>
+      
+      <!-- Price -->
+      <p class="text-2xl font-bold text-gray-800 mb-2">
+        ₹ <span id="productPrice"><%= selectedVariant.discounted_price || selectedVariant.price %></span>
+      </p>
+      
+      <!-- Stock -->
+      <p class="mb-4 text-sm text-gray-600" id="productStock">
+        <%= selectedVariant.stock > 0 ? 'IN STOCK' : 'OUT OF STOCK' %>
+      </p>
+
+      <!-- Variant Dropdowns -->
+      <div class="flex gap-4 mb-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Flavour</label>
+          <select id="flavourSelect" class="border px-3 py-2 rounded w-40">
+            <% let flavours = [...new Set(product.variants.map(v => v.flavour))]; %>
+            <% flavours.forEach(f => { %>
+              <option value="<%= f %>" <%= f === selectedVariant.flavour ? "selected" : "" %>>
+                <%= f %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-1">Size</label>
+          <select id="sizeSelect" class="border px-3 py-2 rounded w-32">
+            <% let sizes = [...new Set(product.variants.map(v => v.size))]; %>
+            <% sizes.forEach(s => { %>
+              <option value="<%= s %>" <%= s === selectedVariant.size ? "selected" : "" %>>
+                <%= s %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
+      </div>
+
+      <!-- Quantity Selector -->
+      <div class="flex items-center mb-4">
+        <button type="button" id="decreaseQty" class="px-3 py-1 border">-</button>
+        <input type="number" id="quantityInput" value="1" class="w-16 text-center border" />
+        <button type="button" id="increaseQty" class="px-3 py-1 border">+</button>
+      </div>
+
+      <!-- Add to Cart -->
+      <button class="bg-black text-white px-6 py-3 rounded w-full text-lg font-semibold">
+        Add to cart
+      </button>
+    </div>
+  </div>
+
+  <!-- Details & Reviews -->
+  <div class="mt-10">
+    <ul class="flex border-b">
+      <li class="mr-6"><a href="#" class="tab-link font-bold">Details</a></li>
+      <li><a href="#" class="tab-link">Reviews</a></li>
+    </ul>
+    <div class="tab-content mt-4">
+      <p><%= product.description %></p>
+    </div>
+  </div>
+
+  <!-- Related Products -->
+  <div class="mt-10">
+    <h2 class="text-xl font-bold mb-4">You might also like</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <% relatedProducts.forEach(rp => { %>
+        <div class="border p-4 rounded-lg text-center">
+          <img src="<%= rp.variants[0]?.images?.[0] || '/images/no-image.png' %>" 
+               alt="<%= rp.title %>" 
+               class="mb-2 w-full h-40 object-contain" />
+          <h3 class="text-sm font-bold"><%= rp.title %></h3>
+          <p class="text-gray-600">₹ <%= rp.variants[0]?.discounted_price || rp.variants[0]?.price %></p>
+          <a href="/products/<%= rp._id %>?variant=<%= rp.variants[0]?._id %>" class="text-blue-500 mt-2 inline-block">View</a>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</div>
+
+<!-- Swiper CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+<!-- Swiper JS -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+<script>
+  // Init Swiper globally
+  const swiper = new Swiper(".mySwiper", {
+    loop: true,
+    spaceBetween: 10,
+    navigation: {
+      nextEl: ".swiper-button-next",
+      prevEl: ".swiper-button-prev"
+    },
+    pagination: {
+      el: ".swiper-pagination",
+      clickable: true,
+    },
+  });
+
+  const variants = <%- JSON.stringify(product.variants) %>;
+  const selectedVariantId = "<%= selectedVariant._id %>";
+
+  const flavourSelect = document.getElementById("flavourSelect");
+  const sizeSelect = document.getElementById("sizeSelect");
+  const productPrice = document.getElementById("productPrice");
+  const productStock = document.getElementById("productStock");
+  const productImages = document.getElementById("productImages");
+
+  function updateProductDetails() {
+    const selectedFlavour = flavourSelect.value;
+    const selectedSize = sizeSelect.value;
+
+    const variant = variants.find(v => v.flavour === selectedFlavour && v.size === selectedSize);
+
+    if (variant) {
+      productPrice.innerText = variant.discounted_price || variant.price;
+      productStock.innerText = variant.stock > 0 ? "IN STOCK" : "OUT OF STOCK";
+
+      // Update images in swiper
+      productImages.innerHTML = "";
+      variant.images.forEach(img => {
+        const slide = document.createElement("div");
+        slide.className = "swiper-slide";
+        slide.innerHTML = `<img src="${img}" alt="${variant.flavour}" class="w-full h-96 object-contain rounded-lg" />`;
+        productImages.appendChild(slide);
+      });
+
+      // Refresh swiper
+      swiper.update();
+      swiper.slideTo(0);
+    }
+  }
+
+  flavourSelect.addEventListener("change", updateProductDetails);
+  sizeSelect.addEventListener("change", updateProductDetails);
+
+  // Quantity buttons
+  document.getElementById("decreaseQty").addEventListener("click", () => {
+    const qty = document.getElementById("quantityInput");
+    if (parseInt(qty.value) > 1) qty.value = parseInt(qty.value) - 1;
+  });
+
+  document.getElementById("increaseQty").addEventListener("click", () => {
+    const qty = document.getElementById("quantityInput");
+    qty.value = parseInt(qty.value) + 1;
+  });
+</script>

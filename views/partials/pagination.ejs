@@ -1,11 +1,18 @@
+<%
+const qs = Object.entries(query || {})
+.filter(([k,v]) => v && k !== 'page')
+.map(([k,v]) =>`${k}=${encodeURIComponent(v)}`)
+.join('&')
+%>
+
 <div class="flex justify-center mt-6 space-x-2">
   <% if (currentPage > 1) { %>
-    <a href="?page=<%= currentPage - 1 %>" 
+    <a href="?page=<%= currentPage - 1 %><%= qs ? '&' + qs : '' %>" 
        class="px-3 py-1 border rounded-md bg-gray-100 hover:bg-gray-200">Prev</a>
   <% } %>
 
   <% for (let i = 1; i <= totalPages; i++) { %>
-    <a href="?page=<%= i %>"
+    <a href="?page=<%= i %><%= qs ? '&' +qs : '' %>"
        class="px-3 py-1 border rounded-md 
               <%= i === currentPage ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100' %>">
        <%= i %>
@@ -13,7 +20,7 @@
   <% } %>
 
   <% if (currentPage < totalPages) { %>
-    <a href="?page=<%= currentPage + 1 %>" 
+    <a href="?page=<%= currentPage + 1 %><%= qs ? '&' + qs : '' %>" 
        class="px-3 py-1 border rounded-md bg-gray-100 hover:bg-gray-200">Next</a>
   <% } %>
 </div>

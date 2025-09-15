@@ -8,6 +8,7 @@ router.get('/profile',checkSession,userController.loadProfile)
 router.get('/logout',userController.logoutUser)
 
 router.get('/products',checkSession,userController.loadProducts)
+router.get('/products/:id',checkSession,userController.loadSingleProduct)
 
 
 module.exports = router 
