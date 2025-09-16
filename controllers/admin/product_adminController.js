@@ -39,7 +39,7 @@ const loadProducts = asyncHandler( async( req,res) => {
     const categories = await Category.find()
     const brands = await Brand.find()
     
-    res.render('admin/productlist',{layout:'layouts/admin_main',rows,categories,brands,flavours:FLAVOURS,sizes:SIZES,currentPage:page,totalPages:Math.ceil(totalRows / perPage)})
+    res.render('admin/productlist',{layout:'layouts/admin_main',rows,categories,brands,flavours:FLAVOURS,sizes:SIZES,currentPage:page,totalPages:Math.ceil(totalRows / perPage),query:req.query})
 })
 
 const loadAddProduct = asyncHandler( async( req,res) => {

@@ -16,7 +16,7 @@ const loadCustomers = asyncHandler( async( req,res) => {
 
     const users = await User.find().sort({createdAt:-1}).skip(skip).limit(limit)
 
-    res.render('admin/customer',{layout:'layouts/admin_main',users,currentPage:page,totalPages:Math.ceil(totatUsers / limit)})
+    res.render('admin/customer',{layout:'layouts/admin_main',users,currentPage:page,totalPages:Math.ceil(totatUsers / limit),query:req.query || {}})
 })
 
 const blockCustomers = asyncHandler( async( req,res) => {

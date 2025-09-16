@@ -25,7 +25,13 @@ router.post('/resend-otp',authController.resendOtp)
 router.get('/google',passport.authenticate('google',{scope:['profile','email']}))
 
 router.get('/google/callback',passport.authenticate('google',{failureRedirect:'/auth/signup'}),async (req,res)=>{
-    
+    if(!req.user.is_active) {
+        req.session.destroy(() => {
+            res.redirect('/auth/login?blocked=true')
+        })
+        return
+    }
+
     req.session.user = req.user._id
     req.session.userOtp = null
     req.session.purpose = null
