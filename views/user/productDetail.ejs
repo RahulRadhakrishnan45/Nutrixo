@@ -73,14 +73,22 @@
         <button type="button" id="increaseQty" class="px-3 py-1 border">+</button>
       </div>
 
-      <!-- Add to Cart -->
-      <button class="bg-black text-white px-6 py-3 rounded w-full text-lg font-semibold">
-        Add to cart
-      </button>
+      <!-- Add to Cart + Wishlist -->
+      <div class="flex items-center gap-3 mt-12"> 
+        <button class="bg-black text-white px-8 py-3 rounded text-base font-semibold w-auto min-w-[350px]">
+          Add to cart
+        </button>
+        <!-- Wishlist Icon -->
+        <button class="border border-gray-300 rounded p-2 hover:bg-gray-100">
+          <i class="fa fa-heart text-red-500 text-[1.2rem]"></i>
+        </button>
+      </div>
     </div>
   </div>
+</div> <!-- ✅ close product section container -->
 
-  <!-- Details & Reviews -->
+<!-- Details & Reviews (full width) -->
+<div class="container mx-auto py-8">
   <div class="mt-10">
     <ul class="flex border-b">
       <li class="mr-6"><a href="#" class="tab-link font-bold">Details</a></li>
@@ -90,22 +98,23 @@
       <p><%= product.description %></p>
     </div>
   </div>
+</div>
 
-  <!-- Related Products -->
-  <div class="mt-10">
-    <h2 class="text-xl font-bold mb-4">You might also like</h2>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-      <% relatedProducts.forEach(rp => { %>
-        <div class="border p-4 rounded-lg text-center">
-          <img src="<%= rp.variants[0]?.images?.[0] || '/images/no-image.png' %>" 
-               alt="<%= rp.title %>" 
-               class="mb-2 w-full h-40 object-contain" />
-          <h3 class="text-sm font-bold"><%= rp.title %></h3>
-          <p class="text-gray-600">₹ <%= rp.variants[0]?.discounted_price || rp.variants[0]?.price %></p>
-          <a href="/products/<%= rp._id %>?variant=<%= rp.variants[0]?._id %>" class="text-blue-500 mt-2 inline-block">View</a>
-        </div>
-      <% }) %>
-    </div>
+<!-- Related Products (full width below) -->
+<div class="container mx-auto py-8">
+  <h2 class="text-xl font-bold mb-4">You might also like</h2>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+    <% relatedProducts.forEach(rp => { %>
+      <div class="border p-4 rounded-lg text-center">
+        <img src="<%= rp.variants[0]?.images?.[0] || '/images/no-image.png' %>" 
+             alt="<%= rp.title %>" 
+             class="mb-2 w-full h-40 object-contain" />
+        <h3 class="text-sm font-bold"><%= rp.title %></h3>
+        <p class="text-gray-600">₹ <%= rp.variants[0]?.discounted_price || rp.variants[0]?.price %></p>
+        <a href="/products/<%= rp._id %>?variant=<%= rp.variants[0]?._id %>" 
+           class="text-blue-500 mt-2 inline-block">View</a>
+      </div>
+    <% }) %>
   </div>
 </div>
 

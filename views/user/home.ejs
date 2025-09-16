@@ -1,6 +1,8 @@
 <!-- Banner Section with Right-Bottom Button -->
 <section class="container mx-auto mt-10">
-  <img class="rounded-2xl w-full" src="/images/newBanner.jpeg" alt="">
+  <a href="/products">
+    <img class="rounded-2xl w-full" src="/images/newBanner.jpeg" alt="">
+  </a>
 </section>
 
 <!-- Features Section -->
@@ -497,6 +499,7 @@
           <div class="group border border-gray-100 py-3 px-3 bg-white rounded-lg overflow-hidden hover:shadow-lg transition">
 
             <!-- Variant Image -->
+             <a href="/products/<%= item.productId %>?variant=<%= item.variantId %>"">
             <div class="aspect-w-1 aspect-h-1 bg-white rounded-lg overflow-hidden">
               <img 
                 src="<%= item.images[0] %>" 
@@ -530,8 +533,9 @@
                 <% } %>
               </div>
             </div>
-          </div>
-        <% }) %>
+          </a>
+        </div>
+      <% }) %>
       <% } else { %>
         <p class="text-gray-500">No new arrivals available.</p>
       <% } %>

@@ -14,10 +14,11 @@ const loadHome = asyncHandler(async (req,res) =>{
     const products = await Product.find().sort({createdAt:-1}).lean()
 
     let variants = []
-    products.forEach(products => {
-        products.variants.forEach(variant => {
+    products.forEach(product => {
+        product.variants.forEach(variant => {
             variants.push({
-                productId:product._id,
+                productId:product._id.toString(),
+                variantId:variant._id.toString(),
                 title:product.title,
                 description:product.description,
                 category:product.category_id,
