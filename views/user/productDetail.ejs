@@ -9,12 +9,16 @@
           <% if (selectedVariant && selectedVariant.images.length > 0) { %>
             <% selectedVariant.images.forEach(image => { %>
               <div class="swiper-slide">
-                <img src="<%= image %>" alt="<%= product.title %>" class="w-full h-96 object-contain rounded-lg" />
+                <div class="zoom-container w-full h-96 rounded-lg overflow-hidden cursor-zoom-in">
+                  <img src="<%= image %>" alt="<%= product.title %>" class="zoom-image w-full h-full object-contain rounded-lg" />
+                </div>
               </div>
             <% }) %>
           <% } else { %>
             <div class="swiper-slide">
-              <img src="/images/no-image.png" alt="No Image" class="w-full h-96 object-contain rounded-lg" />
+              <div class="zoom-container w-full h-96 rounded-lg overflow-hidden cursor-zoom-in">
+                <img src="/images/no-image.png" alt="No Image" class="zoom-image w-full h-full object-contain rounded-lg" />
+              </div>
             </div>
           <% } %>
         </div>
@@ -118,6 +122,19 @@
   </div>
 </div>
 
+<style>
+  .zoom-container {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .zoom-image {
+    transition: transform 0.2s ease;
+    transform-origin: center center;
+    will-change: transform;
+  }
+</style>
+
 <!-- Swiper CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
@@ -163,13 +180,20 @@
       variant.images.forEach(img => {
         const slide = document.createElement("div");
         slide.className = "swiper-slide";
-        slide.innerHTML = `<img src="${img}" alt="${variant.flavour}" class="w-full h-96 object-contain rounded-lg" />`;
+        slide.innerHTML = `
+          <div class="zoom-container w-full h-96 rounded-lg overflow-hidden cursor-zoom-in">
+            <img src="${img}" alt="${variant.flavour}" class="zoom-image w-full h-full object-contain rounded-lg" />
+          </div>
+        `;
         productImages.appendChild(slide);
       });
 
       // Refresh swiper
       swiper.update();
       swiper.slideTo(0);
+
+      // Re-apply zoom
+      applyZoomAgain();
     }
   }
 
@@ -186,4 +210,31 @@
     const qty = document.getElementById("quantityInput");
     qty.value = parseInt(qty.value) + 1;
   });
+
+  // Function to enable magnifier effect
+  function enableZoom(container) {
+    const img = container.querySelector(".zoom-image");
+
+    container.addEventListener("mousemove", (e) => {
+      const rect = container.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+      img.style.transformOrigin = `${x}% ${y}%`;
+      img.style.transform = "scale(2)"; // zoom level
+    });
+
+    container.addEventListener("mouseleave", () => {
+      img.style.transformOrigin = "center center";
+      img.style.transform = "scale(1)";
+    });
+  }
+
+  // Run zoom effect for all visible slides
+  document.querySelectorAll(".zoom-container").forEach(enableZoom);
+
+  // Also re-run when variants update (after swiper.update())
+  function applyZoomAgain() {
+    document.querySelectorAll(".zoom-container").forEach(enableZoom);
+  }
 </script>
