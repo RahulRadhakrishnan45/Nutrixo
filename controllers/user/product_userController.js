@@ -149,9 +149,10 @@ const loadSingleProduct = asyncHandler( async( req,res) => {
     }
 
     const relatedProducts = await Product.find({
-        category_id:product.category_id,
+        category_id:product.category_id._id,
         _id:{$ne:product._id},
-        is_active:true
+        'variants.size':selectedVariant.size,
+        'variants.is_active':true
     }).limit(4).lean()
 
     res.render('user/productDetail',{layout:'layouts/user_main',product, relatedProducts,selectedVariant})
