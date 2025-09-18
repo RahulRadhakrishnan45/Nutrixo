@@ -233,8 +233,8 @@ const searchProducts = asyncHandler( async( req,res) => {
      products = await Product.find({
         $or:[
             {title: regex},
-            {"variant.flavour":regex},
-            {"variant.size":regex}
+            {"variants.flavour":regex},
+            {"variants.size":regex}
         ]
     })
         .populate("category_id")
@@ -274,7 +274,7 @@ const searchProducts = asyncHandler( async( req,res) => {
         });
     });
 
-    res.json({ success: true, products: rows })
+    res.json(rows.sllice(0,8))
     
 })
 

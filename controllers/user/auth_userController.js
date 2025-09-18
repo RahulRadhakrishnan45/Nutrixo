@@ -124,14 +124,13 @@ const signupUser = asyncHandler( async (req,res) =>{
 
     const emailExists = await User.findOne({email})
     if(emailExists) {
-        res.json('User already exists')
-        return res.redirect('/auth/signup')
+        return res.status(httpStatus.bad_request).json({success:false,message:messages.USER.USER_EXISTS})
     }
 
     const mobileExists = await User.findOne({mobile})
     
     if(mobileExists) {
-        return res.json('Number already exists')
+        return res.status(httpStatus.bad_request).json({success:false,message:messages.USER.USER_MOB_EXISTS})
     }
 
     const otp = generateOtp()

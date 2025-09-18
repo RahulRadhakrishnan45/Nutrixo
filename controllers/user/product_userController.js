@@ -6,6 +6,7 @@ const Product = require('../../models/productSchema')
 const product = require('../../models/productSchema')
 const Category = require('../../models/categorySchema')
 const Brand = require('../../models/brandSchema')
+const category = require('../../models/categorySchema')
 
 
 
@@ -61,7 +62,7 @@ const loadProducts = asyncHandler( async( req,res) => {
     const page = parseInt(req.query.page) || 1
     const limit = 9
 
-    const {brand,flavour,size,minPrice,maxPrice,category,sort} = req.query
+    const {brand,flavour,size,minPrice,maxPrice,category,sort,q} = req.query
 
     const query = {}
 
@@ -88,6 +89,15 @@ const loadProducts = asyncHandler( async( req,res) => {
             const priceToCheck = v.discounted_price || v.price;
             if (minPrice && priceToCheck < Number(minPrice)) return;
             if (maxPrice && priceToCheck > Number(maxPrice)) return;
+
+            if (
+                q &&
+                !p.title.toLowerCase().includes(q.toLowerCase()) &&
+                !(v.flavour && v.flavour.toLowerCase().includes(q.toLowerCase())) &&
+                !(v.size && v.size.toLowerCase().includes(q.toLowerCase()))
+            ) {
+                return
+            }
 
             products.push({
                productId: p._id,
@@ -127,7 +137,7 @@ const loadProducts = asyncHandler( async( req,res) => {
     const sizes = await Product.distinct("variants.size", { "variants.is_active": true })
     const categories = await Category.find({is_active:true,is_deleted:false}).select('name -_id')
 
-    res.render('user/product',{layout:'layouts/user_main',products:paginatedVariants,currentPage:page,totalPages,brands:brands.map(b =>b.name),flavours,sizes,categories:categories.map(c => c.name),selectedFilters:{brand:brand && brand !== "All" ? brand: null,flavour: flavour && flavour !== "All" ? flavour: null,size: size && size !== "All" ? size: null,minPrice,maxPrice,category: category && category !== "All" ? category : null,sort:sort || null},query:req.query})
+    res.render('user/product',{layout:'layouts/user_main',products:paginatedVariants,currentPage:page,totalPages,brands:brands.map(b =>b.name),flavours,sizes,categories:categories.map(c => c.name),selectedFilters:{brand:brand && brand !== "All" ? brand: null,flavour: flavour && flavour !== "All" ? flavour: null,size: size && size !== "All" ? size: null,minPrice,maxPrice,category: category && category !== "All" ? category : null,sort:sort || null,q:q || null,},query:req.query})
 })
 
 const loadSingleProduct = asyncHandler( async( req,res) => {
@@ -140,12 +150,23 @@ const loadSingleProduct = asyncHandler( async( req,res) => {
         return res.status(httpStatus.not_found).render('user/404-page',{layout:false})
     }
 
-    let selectedVariant = product.variants[0]
+    const activeVariants = product.variants.filter(v => v.is_active)
+
+    if(activeVariants.length === 0) {
+        return res.status(httpStatus.not_found).render('user/404-page', {layout:false})
+    }
+
+    let selectedVariant 
+
     if(variantId) {
-        const found = product.variants.find(v => v._id.toString() === variantId)
-        if(found) {
-            selectedVariant = found
+        const found = activeVariants.find(v => v._id.toString() === variantId)
+        
+        if(!found) {
+            return res.status(httpStatus.not_found).render('user/404-page',{layout:false})
         }
+        selectedVariant = found
+    }else{
+        selectedVariant = activeVariants[0]
     }
 
     const relatedProducts = await Product.find({
@@ -155,10 +176,42 @@ const loadSingleProduct = asyncHandler( async( req,res) => {
         'variants.is_active':true
     }).limit(4).lean()
 
-    res.render('user/productDetail',{layout:'layouts/user_main',product, relatedProducts,selectedVariant})
+    res.render('user/productDetail',{layout:'layouts/user_main',product:{...product,variants:activeVariants}, relatedProducts,selectedVariant})
+})
+
+const searchProducts = asyncHandler( async( req,res) => {
+    const query = req.query.q?.trim()
+    if(!query) return res.json([])
+
+    const dbProducts = await Product.find({
+        title: {$regex:query,$options:'i'}
+    }).populate('brand_id','name is_active is_delete').populate('category_id','name is_active is_delete').lean()
+
+    const result = []
+
+    dbProducts.forEach(p => {
+        if(!p.brand_id?.is_active || !p.category_id?.is_active) return
+
+        p.variants.filter(v => v.is_active).forEach(v => {
+            result.push({
+                productId:p._id,
+                variantId:v._id,
+                title:p.title,
+                brand:p.brand_id?.name || 'unknown',
+                category:p.category_id?.name || 'uncategorized',
+                flavour:v.flavour,
+                size:v.size,
+                price:v.price,
+                discounted_price:v.discounted_price || v.price,
+                image: v.images && v.images.length > 0 ? v.images[0] : '/images/no-image.png'
+            })
+        })
+    })
+
+    res.json(result.slice(0,8))
 })
 
 
 
 
-module.exports = {loadHome,loadProfile,logoutUser,loadProducts,loadSingleProduct}
+module.exports = {loadHome,loadProfile,logoutUser,loadProducts,loadSingleProduct,searchProducts}

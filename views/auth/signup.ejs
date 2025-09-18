@@ -28,7 +28,7 @@
     </div>
 
     <!-- Sign Up Form -->
-    <form id="signform" action="/auth/signup" method="POST" class="space-y-4">
+    <form id="signform"  method="POST" class="space-y-4">
 
       <div>
         <label for="name" class="block text-sm font-medium">Name</label>
@@ -189,18 +189,41 @@
       mobileid.addEventListener('input', mobileValidateChecking)
                             
     
-      signform.addEventListener('submit',function(e){
+      signform.addEventListener('submit',async function(e){
+        e.preventDefault()
 
         nameValidateChecking()
         emailValidateChecking()
         mobileValidateChecking()
         passValidateChecking()
 
-        if(!nameid || !emailid || !mobileid || !passid || !error1 || !error2 || !error3 || !error4 || !error5 || signform){
-          console.log('One or more elements not found')
-        }
         if(error1.innerHTML || error2.innerHTML || error3.innerHTML || error4.innerHTML || error5.innerHTML){
-          e.preventDefault()
+          return
+        }
+        
+        const formData = new FormData(signform)
+        const data = Object.fromEntries(formData)
+
+        try {
+          const res = await fetch ('/auth/signup', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify(data)
+          })
+
+          const result = await res.json()
+
+          if(!result.success) {
+            Swal.fire({
+              icon:'error',
+              title:'Oops...',
+              text:result.message
+            })
+          }else{
+            window.location.href = '/auth/otp'
+          }
+        }catch (err) {
+          Swal.fire('error','something went wrong','error')
         }
       })
     

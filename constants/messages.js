@@ -69,7 +69,9 @@ const messages = Object.freeze({
     USER:{
         USER_NOT_FOUND:"User not found",
         USER_UNBLOCKED:"User unblocked successfully",
-        USER_BLOCKED:"User blocked successfully"
+        USER_BLOCKED:"User blocked successfully",
+        USER_EXISTS:"User already exists",
+        USER_MOB_EXISTS:"User mobile number already exists"
     }
 });
 
