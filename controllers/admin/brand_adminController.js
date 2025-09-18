@@ -31,6 +31,10 @@ const toggleBrand = asyncHandler( async( req,res) => {
         return res.status(httpStatus.not_found).json({success:false,message:messages.BRAND.BRAND_NOT_FOUND})
     }
 
+    if(brand.is_delete) {
+        return res.json({success:false,message:'cannot change the status of a deleted brand'})
+    }
+
     brand.is_active = !brand.is_active
     await brand.save()
 
@@ -47,6 +51,7 @@ const deleteBrand = asyncHandler( async( req,res) => {
     }
 
     brand.is_delete = true
+    brand.is_active = false
     await brand.save()
 
     res.json({success:true,message:messages.BRAND.BRAND_DELETED})
@@ -60,6 +65,7 @@ const restoreBrand = asyncHandler( async( req,res) => {
     }
 
     brand.is_delete = false
+    brand.is_active = true
     await brand.save()
 
     res.json({success:true,message:messages.BRAND.BRAND_RESTORED})

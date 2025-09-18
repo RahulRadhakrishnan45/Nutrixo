@@ -274,7 +274,7 @@ const searchProducts = asyncHandler( async( req,res) => {
         });
     });
 
-    res.json(rows.sllice(0,8))
+    res.json({success:true,products:rows.slice(0,8)})
     
 })
 

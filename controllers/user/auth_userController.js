@@ -86,7 +86,9 @@ const loadOtpPage = asyncHandler(async (req,res)=>{
     if(!req.session.userOtp || !req.session.purpose) {
         return res.redirect('/auth/signup')
     }
-    res.render('auth/otp',{layout:'layouts/userLogin'})
+
+    const expiry = req.session.otpExpiry
+    res.render('auth/otp',{layout:'layouts/userLogin',expiry})
 })
 
 const loginUser = asyncHandler(async (req,res) => {
@@ -147,9 +149,9 @@ const signupUser = asyncHandler( async (req,res) =>{
     req.session.userData = {name,email,password,mobile}
     req.session.purpose = 'signup'
 
-    res.redirect('/auth/otp')
     console.log('otp sent',otp)
 
+    return res.json({success:true,message:messages.OTP.SENT,redirect:'/auth/otp'})
 })
 
 const securePassword = async (password) =>{
@@ -243,7 +245,7 @@ const resendOtp = asyncHandler(async (req,res)=>{
         const emailSent = await sendVerificationEmail(email,otp)
         if(emailSent){
             console.log('Resend otp:',otp)
-            res.status(httpStatus.ok).json({success:true,message:messages.OTP.RESENT})
+            res.status(httpStatus.ok).json({success:true,message:messages.OTP.RESENT,expiry:req.session.otpExpiry})
         }else{
             console.log('OTP resend failed')
             res.status(httpStatus.internal_server_error).json({success:false,message:messages.OTP.RESEND_FAILED})

@@ -17,9 +17,9 @@
       Please enter the code below to continue.
     </p>
 
-    <p id="timer" class="text-gray-600 font-medium mb-4 text-center text-lg" ></p>
+    <p id="timer" class="text-gray-600 font-medium mb-4 text-center text-lg"></p>
 
-    <form onsubmit="return validateOtpForm()" class="space-y-6"  action="/auth/verify-otp">
+    <form onsubmit="return validateOtpForm()" class="space-y-6" action="/auth/verify-otp">
       <div>
         <label for="otp" class="block text-sm font-medium text-gray-700">Enter OTP</label>
         <input
@@ -43,119 +43,130 @@
 
       <div class="text-sm text-center text-gray-600">
         Didn’t receive the code?
-        <a href="#" onclick="resendOTP(); return false;" class="text-blue-600 hover:underline font-medium">Resend OTP</a>
+        <a href="#" id="resend-btn" onclick="resendOTP(); return false;" 
+           class="text-blue-600 hover:underline font-medium">Resend OTP</a>
       </div>
     </form>
   </div>
 </main>
 
 <script>
+  
+  let expiryTime = <%= expiry %>; 
 
-function validateOtpForm() {
-  const otpInput = document.getElementById('otp').value;
+  function validateOtpForm() {
+    const otpInput = document.getElementById('otp').value;
 
-  fetch('/auth/verify-otp', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ otp: otpInput })
-  })
-  .then(res => res.json())
-  .then(response => {
-    if (response.success) {
-      Swal.fire({
-        icon: 'success',
-        title: 'OTP Verified!',
-        text: response.message || 'Redirecting...',
-        timer: 1500,
-        showConfirmButton: false
-      }).then(() => {
-        window.location.href = response.redirect || '/auth/login';
-      });
-    } else {
+    fetch('/auth/verify-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ otp: otpInput })
+    })
+    .then(res => res.json())
+    .then(response => {
+      if (response.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'OTP Verified!',
+          text: response.message || 'Redirecting...',
+          timer: 1500,
+          showConfirmButton: false
+        }).then(() => {
+          window.location.href = response.redirect || '/auth/login';
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Invalid OTP',
+          text: response.message || 'Please try again.'
+        });
+      }
+    })
+    .catch(() => {
       Swal.fire({
         icon: 'error',
-        title: 'Invalid OTP',
-        text: response.message || 'Please try again.'
+        title: 'Error',
+        text: 'Something went wrong. Please try again.'
       });
-    }
-  })
-  .catch(() => {
-    Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: 'Something went wrong. Please try again.'
     });
-  });
 
-  return false; 
-}
-
-let duration = 2*60
-let countDown =null
-const timerDisplay = document.getElementById('timer')
-
-function startTimer(){
-    countDown = setInterval(()=>{
-        duration--
-        let minutes=Math.floor(duration/60)
-        let seconds = duration%60
-        timerDisplay.textContent = `OTP expires in ${minutes}:${seconds <10 ? '0'+ seconds:seconds}`
-
-        if(duration<=0){
-            clearInterval(countDown)
-            timerDisplay.textContent = 'OTP Expired'
-
-            Swal.fire({
-                icon: 'error',
-                title: 'Time expired',
-                text: 'Your OTP has expired. Please click "Resend OTP" to get a new code.',
-            })
-        }
-    },1000)
-}
-startTimer()
-
-  function resendOTP(){
-    clearInterval(countDown)
-    duration = 60*2
-    document.getElementById('otp').disabled=false
-    document.getElementById('timer').classList.remove('expired')
-    startTimer()
-    
-    fetch('/auth/resend-otp',{
-      method:'POST',
-      headers:{
-        'content-type':'application/json'
-      }
-    })
-    .then(res=>res.json())
-    .then(response =>{
-      if(response.success){
-        Swal.fire({
-          icon:'success',
-          title:'OTP Resent successfully',
-          showConfirmButton:false,
-          timer:1500
-        })
-      }else{
-        Swal.fire({
-          icon:'error',
-          title:'error',
-          text:'An error occured while resending OTP. Please try again'
-        })
-      }
-    })
-    .catch(()=>{
-      Swal.fire({
-        icon:'error',
-        title:'error',
-        text:'Something went wrong. Please try again'
-      })
-    })
-    return false
+    return false; 
   }
 
+  let countDown = null;
+  const timerDisplay = document.getElementById('timer');
+  const resendBtn = document.getElementById('resend-btn');
 
+  function startTimer(expiry) {
+    clearInterval(countDown);
+
+    function updateTimer() {
+      const now = Date.now();
+      const remaining = Math.floor((expiry - now) / 1000);
+
+      if (remaining > 0) {
+        let minutes = Math.floor(remaining / 60);
+        let seconds = remaining % 60;
+        timerDisplay.textContent = `OTP expires in ${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+        
+        // disable resend while OTP valid
+        resendBtn.classList.add("pointer-events-none", "text-gray-400");
+        resendBtn.classList.remove("text-blue-600");
+      } else {
+        clearInterval(countDown);
+        timerDisplay.textContent = 'OTP Expired';
+
+        // enable resend
+        resendBtn.classList.remove("pointer-events-none", "text-gray-400");
+        resendBtn.classList.add("text-blue-600");
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Time expired',
+          text: 'Your OTP has expired. Please click "Resend OTP" to get a new code.',
+        })
+      }
+    }
+
+    updateTimer();
+    countDown = setInterval(updateTimer, 1000);
+  }
+
+  // Start with backend expiry
+  startTimer(expiryTime);
+
+  function resendOTP() {
+    fetch('/auth/resend-otp', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' }
+    })
+    .then(res => res.json())
+    .then(response => {
+      if (response.success) {
+        expiryTime = response.expiry; // update expiry from backend
+        startTimer(expiryTime);
+
+        Swal.fire({
+          icon: 'success',
+          title: 'OTP Resent successfully',
+          showConfirmButton: false,
+          timer: 1500
+        })
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'An error occurred while resending OTP. Please try again'
+        })
+      }
+    })
+    .catch(() => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Something went wrong. Please try again'
+      })
+    })
+    return false;
+  }
 </script>

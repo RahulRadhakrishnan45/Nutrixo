@@ -9,7 +9,6 @@ router.get('/logout',userController.logoutUser)
 
 router.get('/products',checkSession,userController.loadProducts)
 router.get('/products/:id',checkSession,userController.loadSingleProduct)
-router.get('/api/search', checkSession,userController.searchProducts)
 
 
 module.exports = router 
