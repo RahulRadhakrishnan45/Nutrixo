@@ -16,10 +16,71 @@ const loadLogin = asyncHandler(async (req,res) =>{
     res.render('auth/login',{message,layout:'layouts/userLogin'})
 })
 
+const loginUser = asyncHandler(async (req,res) => {
+    const {email,password} = req.body
 
+    const user = await User.findOne({email})
+    if(!user) {
+        return res.status(httpStatus.bad_request).json({success:false,message:messages.AUTH.USER_NOT_FOUND})
+    }
+
+    if(!user.is_active) {
+        return res.status(httpStatus.forbidden).json({success:false,message:messages.AUTH.ACCOUNT_BLOCKED})
+    }
+
+    const isMatch = await bcrypt.compare(password,user.password)
+    if(!isMatch) {
+        return res.status(httpStatus.bad_request).json({success:false, message:messages.AUTH.PASSWORD_INVALID})
+    }
+
+    req.session.user = user._id
+
+    return res.json({success:true, message:messages.AUTH.LOGIN_SUCCESS,redirect:'/'})
+})
 
 const loadSignup = asyncHandler(async (req,res) =>{
     res.render('auth/signup',{layout:'layouts/userLogin'})
+})
+
+const signupUser = asyncHandler( async (req,res) =>{
+    const { name, email, password, confirmPassword, mobile} = req.body
+    
+    if(!name.trim() || !email.trim() || !password.trim() || !confirmPassword.trim() || !mobile.trim()) {
+
+        return res.redirect('/auth/signup')
+    }
+    if(password !== confirmPassword){
+        return res.redirect('/auth/signup')
+    }
+
+    const emailExists = await User.findOne({email})
+    if(emailExists) {
+        return res.status(httpStatus.bad_request).json({success:false,message:messages.USER.USER_EXISTS})
+    }
+
+    const mobileExists = await User.findOne({mobile})
+    
+    if(mobileExists) {
+        return res.status(httpStatus.bad_request).json({success:false,message:messages.USER.USER_MOB_EXISTS})
+    }
+
+    const otp = generateOtp()
+    const otpExpiry = Date.now() + 2*60*1000
+
+    const emailSent = await sendVerificationEmail(email,otp)
+
+    if(!emailSent) {
+        return res.status(httpStatus.internal_server_error).json({success:false,message:messages.OTP.FAILED})
+    }
+
+    req.session.userOtp = otp
+    req.session.otpExpiry = otpExpiry
+    req.session.userData = {name,email,password,mobile}
+    req.session.purpose = 'signup'
+
+    console.log('otp sent',otp)
+
+    return res.json({success:true,message:messages.OTP.SENT,redirect:'/auth/otp'})
 })
 
 const forgotPassword = asyncHandler(async (req,res) =>{
@@ -89,69 +150,6 @@ const loadOtpPage = asyncHandler(async (req,res)=>{
 
     const expiry = req.session.otpExpiry
     res.render('auth/otp',{layout:'layouts/userLogin',expiry})
-})
-
-const loginUser = asyncHandler(async (req,res) => {
-    const {email,password} = req.body
-
-    const user = await User.findOne({email})
-    if(!user) {
-        return res.status(httpStatus.bad_request).json({success:false,message:messages.AUTH.USER_NOT_FOUND})
-    }
-
-    if(!user.is_active) {
-        return res.status(httpStatus.forbidden).json({success:false,message:messages.AUTH.ACCOUNT_BLOCKED})
-    }
-
-    const isMatch = await bcrypt.compare(password,user.password)
-    if(!isMatch) {
-        return res.status(httpStatus.bad_request).json({success:false, message:messages.AUTH.PASSWORD_INVALID})
-    }
-
-    req.session.user = user._id
-
-    return res.json({success:true, message:messages.AUTH.LOGIN_SUCCESS,redirect:'/'})
-})
-
-const signupUser = asyncHandler( async (req,res) =>{
-    const { name, email, password, confirmPassword, mobile} = req.body
-    
-    if(!name.trim() || !email.trim() || !password.trim() || !confirmPassword.trim() || !mobile.trim()) {
-
-        return res.redirect('/auth/signup')
-    }
-    if(password !== confirmPassword){
-        return res.redirect('/auth/signup')
-    }
-
-    const emailExists = await User.findOne({email})
-    if(emailExists) {
-        return res.status(httpStatus.bad_request).json({success:false,message:messages.USER.USER_EXISTS})
-    }
-
-    const mobileExists = await User.findOne({mobile})
-    
-    if(mobileExists) {
-        return res.status(httpStatus.bad_request).json({success:false,message:messages.USER.USER_MOB_EXISTS})
-    }
-
-    const otp = generateOtp()
-    const otpExpiry = Date.now() + 2*60*1000
-
-    const emailSent = await sendVerificationEmail(email,otp)
-
-    if(!emailSent) {
-        return res.status(httpStatus.internal_server_error).json({success:false,message:messages.OTP.FAILED})
-    }
-
-    req.session.userOtp = otp
-    req.session.otpExpiry = otpExpiry
-    req.session.userData = {name,email,password,mobile}
-    req.session.purpose = 'signup'
-
-    console.log('otp sent',otp)
-
-    return res.json({success:true,message:messages.OTP.SENT,redirect:'/auth/otp'})
 })
 
 const securePassword = async (password) =>{

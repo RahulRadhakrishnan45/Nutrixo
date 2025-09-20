@@ -162,103 +162,104 @@
   // -----------------------
   // Build Variants in Modal
   // -----------------------
-  document.querySelectorAll('.editBtn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.getElementById('editModal').classList.remove('hidden');
-      document.getElementById('editProductId').value = btn.dataset.id;
-      document.getElementById('editName').value = btn.dataset.title;
-      document.getElementById('editDescription').value = btn.dataset.description;
-      document.getElementById('editCategory').value = btn.dataset.category || '';
-      document.getElementById('editBrand').value = btn.dataset.brand || '';
+  // Event delegation for edit buttons
+document.addEventListener("click", (e) => {
+  if (e.target.classList.contains("editBtn")) {
+    const btn = e.target;
 
-      
+    document.getElementById('editModal').classList.remove('hidden');
+    document.getElementById('editProductId').value = btn.dataset.id;
+    document.getElementById('editName').value = btn.dataset.title;
+    document.getElementById('editDescription').value = btn.dataset.description;
+    document.getElementById('editCategory').value = btn.dataset.category || '';
+    document.getElementById('editBrand').value = btn.dataset.brand || '';
 
-      const variants = JSON.parse(btn.dataset.variants);
-      const container = document.getElementById('variantEditContainer');
-      container.innerHTML = "";
+    const variants = JSON.parse(btn.dataset.variants);
+    const container = document.getElementById('variantEditContainer');
+    container.innerHTML = "";
 
-      variants.forEach((variant, idx) => {
-        let flavourOptions = FLAVOURS.map(f =>
-          `<option value="${f}" ${variant.flavour === f ? "selected" : ""}>${f}</option>`
-        ).join("");
+    variants.forEach((variant, idx) => {
+      let flavourOptions = FLAVOURS.map(f =>
+        `<option value="${f}" ${variant.flavour === f ? "selected" : ""}>${f}</option>`
+      ).join("");
 
-        let sizeOptions = SIZES.map(s =>
-          `<option value="${s}" ${variant.size === s ? "selected" : ""}>${s}</option>`
-        ).join("");
+      let sizeOptions = SIZES.map(s =>
+        `<option value="${s}" ${variant.size === s ? "selected" : ""}>${s}</option>`
+      ).join("");
 
-        let existingImagesHtml = "";
-        if (variant.images && variant.images.length > 0) {
-          existingImagesHtml = variant.images.map((img, i) => `
-            <div class="relative inline-block mr-2 mb-2">
-              <img src="${img}" class="w-24 h-24 object-cover rounded-md border">
-              <button type="button"
-                      class="absolute top-0 right-0 bg-red-500 text-white rounded-full px-1 text-xs removeExistingImage"
-                      data-variant="${idx}" data-index="${i}">✕</button>
-              <input type="hidden" name="existing_images_${idx}[]" value="${img}">
-            </div>
-          `).join("");
-        } else {
-          existingImagesHtml = `<p class="text-gray-400">No images</p>`;
-        }
-
-        const div = document.createElement("div");
-        div.classList.add("bg-gray-50", "p-4", "rounded-md", "mb-4", "variantBox");
-        div.id = `variant-${variant._id}`;
-
-        div.innerHTML = `
-          <h4 class="font-semibold mb-3 text-lg">Variant ${idx + 1}</h4>
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium mb-1">Flavour</label>
-              <select name="flavour[]" class="w-full border rounded px-3 py-2">${flavourOptions}</select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Size</label>
-              <select name="size[]" class="w-full border rounded px-3 py-2">${sizeOptions}</select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Price</label>
-              <input type="number" name="price[]" value="${variant.price || ''}" class="w-full border rounded px-3 py-2">
-              <p class="text-red-500 text-sm mt-1 hidden" id="priceError_${idx}"></p>
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Discounted Price</label>
-              <input type="number" name="discounted_price[]" value="${variant.discounted_price || ''}" class="w-full border rounded px-3 py-2">
-              <p class="text-red-500 text-sm mt-1 hidden" id="discountError_${idx}"></p>
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Stock</label>
-              <input type="number" name="stock[]" value="${variant.stock || ''}" class="w-full border rounded px-3 py-2">
-              <p class="text-red-500 text-sm mt-1 hidden" id="stockError_${idx}"></p>
-            </div>
+      let existingImagesHtml = "";
+      if (variant.images && variant.images.length > 0) {
+        existingImagesHtml = variant.images.map((img, i) => `
+          <div class="relative inline-block mr-2 mb-2">
+            <img src="${img}" class="w-24 h-24 object-cover rounded-md border">
+            <button type="button"
+                    class="absolute top-0 right-0 bg-red-500 text-white rounded-full px-1 text-xs removeExistingImage"
+                    data-variant="${idx}" data-index="${i}">✕</button>
+            <input type="hidden" name="existing_images_${idx}[]" value="${img}">
           </div>
+        `).join("");
+      } else {
+        existingImagesHtml = `<p class="text-gray-400">No images</p>`;
+      }
 
-          <div class="mt-4">
-            <label class="block text-sm font-medium mb-1">Existing Images</label>
-            <div class="flex flex-wrap gap-2 mb-2">${existingImagesHtml}</div>
+      const div = document.createElement("div");
+      div.classList.add("bg-gray-50", "p-4", "rounded-md", "mb-4", "variantBox");
+      div.id = `variant-${variant._id}`;
 
-            <label class="block text-sm font-medium mb-1">Upload New Images</label>
-            <input type="file" name="variant_images_${idx}[]" multiple accept="image/*"
-              class="w-full border rounded px-3 py-2 imageInput">
-            <div class="previewContainer flex gap-2 mt-2"></div>
-
-            <p class="text-red-500 text-sm mt-1 hidden" id="imageError_${idx}"></p>
+      div.innerHTML = `
+        <h4 class="font-semibold mb-3 text-lg">Variant ${idx + 1}</h4>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Flavour</label>
+            <select name="flavour[]" class="w-full border rounded px-3 py-2">${flavourOptions}</select>
           </div>
-        `;
-        container.appendChild(div);
-      });
+          <div>
+            <label class="block text-sm font-medium mb-1">Size</label>
+            <select name="size[]" class="w-full border rounded px-3 py-2">${sizeOptions}</select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Price</label>
+            <input type="number" name="price[]" value="${variant.price || ''}" class="w-full border rounded px-3 py-2">
+            <p class="text-red-500 text-sm mt-1 hidden" id="priceError_${idx}"></p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Discounted Price</label>
+            <input type="number" name="discounted_price[]" value="${variant.discounted_price || ''}" class="w-full border rounded px-3 py-2">
+            <p class="text-red-500 text-sm mt-1 hidden" id="discountError_${idx}"></p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Stock</label>
+            <input type="number" name="stock[]" value="${variant.stock || ''}" class="w-full border rounded px-3 py-2">
+            <p class="text-red-500 text-sm mt-1 hidden" id="stockError_${idx}"></p>
+          </div>
+        </div>
 
-     const targetVariantId = btn.dataset.variantid;
+        <div class="mt-4">
+          <label class="block text-sm font-medium mb-1">Existing Images</label>
+          <div class="flex flex-wrap gap-2 mb-2">${existingImagesHtml}</div>
+
+          <label class="block text-sm font-medium mb-1">Upload New Images</label>
+          <input type="file" name="variant_images_${idx}[]" multiple accept="image/*"
+            class="w-full border rounded px-3 py-2 imageInput">
+          <div class="previewContainer flex gap-2 mt-2"></div>
+
+          <p class="text-red-500 text-sm mt-1 hidden" id="imageError_${idx}"></p>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+
+    const targetVariantId = btn.dataset.variantid;
     const targetElement = document.getElementById(`variant-${targetVariantId}`);
     if (targetElement) {
       targetElement.scrollIntoView({ behavior: "smooth", block: "start" });
-      // optional: highlight for visibility
       targetElement.style.transition = "background 0.6s ease";
-      targetElement.style.background = "#fff3cd"; // light yellow
+      targetElement.style.background = "#fff3cd";
       setTimeout(() => targetElement.style.background = "", 1000);
-    } 
-    });
-  });
+    }
+  }
+});
+
 
   // -----------------------
   // Remove Existing Images
@@ -667,6 +668,14 @@ function validateVariant(box, idx) {
 
   return valid
 }
+
+// const products = <%-JSON.stringify(rows) %>
+
+// const total = products.reduce((tot,p) =>{
+//   const price = p.discounted_price
+//   return tot+price
+// })
+// console.log('sum is :',sum)
 
 
 </script>

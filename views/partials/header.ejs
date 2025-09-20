@@ -24,6 +24,14 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
           </svg>
         </button>
+        <div class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+          <a href="/products?category=All" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">All</a>
+          <% if (typeof categories !== 'undefined') { %>
+            <% categories.forEach(cat => { %>
+              <a href="/products?category=<%= cat %>" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"><%= cat %></a>
+            <% }) %>
+          <% } %>
+        </div>
       </div>
       
       <!-- Brands Dropdown -->
@@ -35,7 +43,12 @@
           </svg>
         </button>
         <div class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-          <!-- brand links go here -->
+          <a href="/products?brand=All" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">All</a>
+          <% if (typeof brands !== 'undefined') { %>
+            <% brands.forEach(brand => { %>
+              <a href="/products?brand=<%= brand %>" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"><%= brand %></a>
+            <% }) %>
+          <% } %>
         </div>
       </div>
       

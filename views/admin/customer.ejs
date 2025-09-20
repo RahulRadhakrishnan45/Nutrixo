@@ -90,6 +90,22 @@
     const userId = btn.dataset.id;
     const isActive = btn.dataset.active === "true";
 
+    const action = isActive ? 'block' : 'unblock'
+    const actionText = isActive ? 'This user will be blocked and cannot access the site' : 'This user will be unblocked and regain access to the site'
+
+    const result = await Swal.fire({
+      title:`Are you sure you want to ${action} this user ?`,
+      text:actionText,
+      icon:'warning',
+      showCancelButton:true,
+      confirmButtonColor:isActive ? '#d33' : '#3085d6',
+      cancelButtonColor:'#6c757d',
+      confirmButtonText:`Yes, ${action}`
+    })
+
+      if(!result.isConfirmed) return
+    
+
     const res = await fetch(`/admin/customers/${userId}/block`, { method: 'PATCH' });
     const data = await res.json();
 
@@ -101,6 +117,7 @@
         btn.dataset.active = "false";
         btn.closest("tr").querySelector("td:nth-child(5)").innerHTML =
           `<span class="px-2 py-1 text-sm rounded-full bg-red-100 text-red-700">Blocked</span>`;
+          Swal.fire("Blocked!", "The user has been blocked.", "success");
       } else {
         btn.textContent = "Block";
         btn.classList.remove("bg-green-500", "hover:bg-green-600");
@@ -108,9 +125,10 @@
         btn.dataset.active = "true";
         btn.closest("tr").querySelector("td:nth-child(5)").innerHTML =
           `<span class="px-2 py-1 text-sm rounded-full bg-green-100 text-green-700">Active</span>`;
+          Swal.fire("Unblocked!", "The user has been unblocked.", "success");
       }
     } else {
-      alert("Could not update user status");
+      Swal.fire("Error", "Could not update user status", "error");
     }
   }
 

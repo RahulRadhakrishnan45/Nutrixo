@@ -216,6 +216,9 @@
       swiper.update();
       swiper.slideTo(0);
       applyZoomAgain();
+
+      const newUrl = `${window.location.pathname}?variant=${variant._id}`;
+      window.history.replaceState({}, "", newUrl);
     }
   }
 

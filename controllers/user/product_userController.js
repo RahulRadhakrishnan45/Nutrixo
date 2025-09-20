@@ -35,7 +35,11 @@ const loadHome = asyncHandler(async (req,res) =>{
     })
 
     variants = variants.slice(0,4)
-    res.render('user/home',{layout:'layouts/user_main',newArrivals:variants})
+
+    const categories = await Category.find({is_active:true,is_deleted:false}).select('name -_id')
+    const brands = await Brand.find({is_active:true,is_delete:false}).select('name =_id')
+
+    res.render('user/home',{layout:'layouts/user_main',newArrivals:variants,categories:categories.map(c=>c.name),brands:brands.map(b=>b.name)})
 })
 
 const loadProfile = asyncHandler( async (req,res) => {
@@ -161,10 +165,12 @@ const loadSingleProduct = asyncHandler( async( req,res) => {
     if(variantId) {
         const found = activeVariants.find(v => v._id.toString() === variantId)
         
-        if(!found) {
-            return res.status(httpStatus.not_found).render('user/404-page',{layout:false})
+        if(found) {
+            selectedVariant = found
+        }else{
+            selectedVariant = activeVariants[0]
         }
-        selectedVariant = found
+        
     }else{
         selectedVariant = activeVariants[0]
     }
