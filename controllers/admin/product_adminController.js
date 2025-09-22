@@ -112,7 +112,7 @@ const addProduct = asyncHandler( async( req,res) => {
 
 const editProduct = asyncHandler(async (req, res) => {
   const productId = req.params.id;
-  const { title, description, category_id, brand_id, flavour, size, price, discounted_price, stock } = req.body;
+  const { title, description, category_id, brand_id, flavour, size, price, discounted_price, stock, variantIds } = req.body;
 
   const imagesByVariant = {};
   if (req.files && req.files.length > 0) {
@@ -155,23 +155,6 @@ const editProduct = asyncHandler(async (req, res) => {
     seen.add(key)
   }
 
-  const variants = [];
-  for (let i = 0; i < size.length; i++) {
-
-    let keptImages = req.body[`existing_images_${i}`] || [];
-    if (!Array.isArray(keptImages)) keptImages = keptImages ? [keptImages] : [];
-
-    const uploadedImages = imagesByVariant[i] || [];
-    variants.push({
-      flavour: flavour[i],
-      price: price[i],
-      discounted_price: discounted_price[i],
-      stock: stock[i],
-      size: size[i],
-      images: [...keptImages, ...uploadedImages]
-    });
-  }
-
   const product = await Product.findById(productId);
   if (!product) {
     return res.status(httpStatus.not_found).json({ success: false, message: messages.PRODUCT.PRODUCT_NOT_FOUND });
@@ -181,7 +164,37 @@ const editProduct = asyncHandler(async (req, res) => {
   product.description = description;
   product.category_id = category_id;
   product.brand_id = brand_id;
-  product.variants = variants;
+
+  for(let i=0;i<size.length;i++) {
+    let keptImages = req.body[`existing_images_${i}`] || []
+    if (!Array.isArray(keptImages)) keptImages = keptImages ? [keptImages] : []
+
+    const uploadedImages = imagesByVariant[i] || [];
+
+    const variantId = Array.isArray(variantIds) ? variantIds[i] : variantIds
+    let existingVariant = product.variants.id(variantId)
+
+    if(existingVariant) {
+      existingVariant.flavour = flavour[i];
+      existingVariant.price = price[i];
+      existingVariant.discounted_price = discounted_price[i];
+      existingVariant.stock = stock[i];
+      existingVariant.size = size[i];
+      existingVariant.images = [...keptImages, ...uploadedImages];
+      existingVariant.updatedAt = new Date()
+    }else{
+      product.variants.push({
+        flavour: flavour[i],
+        price: price[i],
+        discounted_price: discounted_price[i],
+        stock: stock[i],
+        size: size[i],
+        images: [...keptImages, ...uploadedImages],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })  
+    }
+}
 
   await product.save();
   return res.json({ success: true, message: messages.PRODUCT.PRODUCT_UPDATE });

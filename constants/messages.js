@@ -14,6 +14,7 @@ const messages = Object.freeze({
         LOGOUT_SUCCESS: "Logged out successfully",
         LOGOUT_FAILED: "Logout failed",
         SIGNUP_SUCCESS: "Signup successful",
+        INVALID_REQUEST:"Invalid request"
     },
     OTP: {
         SENT: "OTP sent successfully",
@@ -72,6 +73,15 @@ const messages = Object.freeze({
         USER_BLOCKED:"User blocked successfully",
         USER_EXISTS:"User already exists",
         USER_MOB_EXISTS:"User mobile number already exists"
+    },
+    CART:{
+        CART_ADD_FAILED:"Please login to add to cart",
+        CART_ADD:"Item added to cart",
+        CART_NOT_FOUND:"Cart not found"
+    },
+    STOCK:{
+        OUT_OF_STOCK:"Not enough stock quantity",
+        STOCK_ALLOWED:"Max 5 quantity per product allowed"
     }
 });
 

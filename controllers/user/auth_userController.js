@@ -33,7 +33,7 @@ const loginUser = asyncHandler(async (req,res) => {
         return res.status(httpStatus.bad_request).json({success:false, message:messages.AUTH.PASSWORD_INVALID})
     }
 
-    req.session.user = user._id
+    req.session.user = {_id:user._id}
 
     return res.json({success:true, message:messages.AUTH.LOGIN_SUCCESS,redirect:'/'})
 })

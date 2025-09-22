@@ -165,14 +165,13 @@ const loadSingleProduct = asyncHandler( async( req,res) => {
     if(variantId) {
         const found = activeVariants.find(v => v._id.toString() === variantId)
         
-        if(found) {
+        if(found && found.is_active) {
             selectedVariant = found
-        }else{
-            selectedVariant = activeVariants[0]
         }
-        
-    }else{
-        selectedVariant = activeVariants[0]
+    }
+
+    if(!selectedVariant) {
+        selectedVariant = activeVariants.sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0]
     }
 
     const relatedProducts = await Product.find({

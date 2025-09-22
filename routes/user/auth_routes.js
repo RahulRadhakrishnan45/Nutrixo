@@ -32,7 +32,7 @@ router.get('/google/callback',passport.authenticate('google',{failureRedirect:'/
         return
     }
 
-    req.session.user = req.user._id
+    req.session.user = {_id:req.user._id}
     req.session.userOtp = null
     req.session.purpose = null
     req.session.otpExpiry = null
