@@ -82,6 +82,13 @@ const messages = Object.freeze({
     STOCK:{
         OUT_OF_STOCK:"Not enough stock quantity",
         STOCK_ALLOWED:"Max 5 quantity per product allowed"
+    },
+    FILE:{
+        NO_FILE:"No file uploaded"
+    },
+    PROFILE:{
+        PROFILE_IMG_UPDATE:"Profile image updated successfully",
+        PROFILE_IMG_DELETE:"Profile image removed successfully",
     }
 });
 

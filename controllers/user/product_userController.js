@@ -3,10 +3,8 @@ const User = require('../../models/userSchema')
 const httpStatus = require('../../constants/httpStatus')
 const messages = require('../../constants/messages')
 const Product = require('../../models/productSchema')
-const product = require('../../models/productSchema')
 const Category = require('../../models/categorySchema')
 const Brand = require('../../models/brandSchema')
-const category = require('../../models/categorySchema')
 
 
 

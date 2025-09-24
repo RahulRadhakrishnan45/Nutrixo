@@ -1,0 +1,273 @@
+<div class="flex min-h-screen bg-gray-50">
+  
+  <!-- Sidebar -->
+  <%- include('../partials/userSidebar') %>
+
+  <!-- Page Content -->
+  <div class="flex-1 flex justify-center items-start p-10">
+    <div class="w-full max-w-6xl bg-white shadow-md rounded-lg p-10 min-h-[600px]">
+      
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold text-gray-800">Shipping address</h2>
+        
+        <div class="flex items-center gap-4">
+          <% if (addresses && addresses.length > 0) { %>
+            <!-- Dropdown for selecting address -->
+            <select id="selectedAddress" 
+                    class="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-black">
+              <% addresses.forEach((address, idx) => { %>
+                <option value="<%= address._id %>" <%= idx === 0 ? 'selected' : '' %>>
+                  <%= address.fullname %> - <%= address.district %>
+                </option>
+              <% }) %>
+            </select>
+          <% } %>
+
+          <!-- Add New Button -->
+          <button type="button" class="add-new-btn flex items-center gap-2 bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800 transition">
+            <span class="text-lg">+</span> Add new
+          </button>
+        </div>
+      </div>
+
+      <% if (addresses && addresses.length > 0) { %>
+        <!-- Address list -->
+        <div class="space-y-6">
+          <% addresses.forEach(address => { %>
+            <div class="border rounded-lg p-6 shadow-sm" id="address-<%= address._id %>">
+              
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm text-gray-500">Street Address</label>
+                  <input type="text" value="<%= address.address %>" class="w-full border rounded-md px-3 py-2" readonly>
+                </div>
+                <div>
+                  <label class="block text-sm text-gray-500">District</label>
+                  <input type="text" value="<%= address.district %>" class="w-full border rounded-md px-3 py-2" readonly>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4 mt-4">
+                <div>
+                  <label class="block text-sm text-gray-500">Full Name</label>
+                  <input type="text" value="<%= address.fullname %>" class="w-full border rounded-md px-3 py-2" readonly>
+                </div>
+                <div>
+                  <label class="block text-sm text-gray-500">Mobile</label>
+                  <input type="text" value="<%= address.mobile %>" class="w-full border rounded-md px-3 py-2" readonly>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4 mt-4">
+                <div>
+                  <label class="block text-sm text-gray-500">State</label>
+                  <input type="text" value="<%= address.state %>" class="w-full border rounded-md px-3 py-2" readonly>
+                </div>
+                <div>
+                  <label class="block text-sm text-gray-500">Pin Code</label>
+                  <input type="text" value="<%= address.pincode %>" class="w-full border rounded-md px-3 py-2" readonly>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4 mt-4">
+                <div>
+                  <label class="block text-sm text-gray-500">Country</label>
+                  <input type="text" value="<%= address.country %>" class="w-full border rounded-md px-3 py-2" readonly>
+                </div>
+              </div>
+
+              <!-- Buttons -->
+              <div class="flex gap-4 mt-6">
+                <a href="/profile/address/edit/<%= address._id %>" 
+                   class="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 flex items-center gap-2">
+                   ✏ Edit
+                </a>
+                <form action="/profile/address/delete/<%= address._id %>" method="POST" onsubmit="return confirm('Delete this address?')">
+                  <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 flex items-center gap-2">
+                    🗑 Delete
+                  </button>
+                </form>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <!-- If no addresses -->
+        <div class="flex flex-col items-center justify-center py-20 text-center">
+          <svg xmlns="http://www.w3.org/2000/svg" 
+               fill="none" viewBox="0 0 24 24" stroke-width="1.5" 
+               stroke="currentColor" class="w-10 h-10 text-blue-500 mb-4">
+            <path stroke-linecap="round" stroke-linejoin="round" 
+                  d="M12 2.25c4.556 0 8.25 3.694 8.25 8.25 0 6.322-8.25 11.25-8.25 11.25S3.75 16.822 3.75 10.5c0-4.556 3.694-8.25 8.25-8.25z" />
+            <path stroke-linecap="round" stroke-linejoin="round" 
+                  d="M12 13.5a3 3 0 100-6 3 3 0 000 6z" />
+          </svg>
+          <p class="text-gray-500">No address found. Add a new one to continue.</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<!-- Modal (hidden by default) -->
+<div id="addressModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+  <div class="bg-white w-full max-w-lg rounded-lg shadow-lg p-6 relative">
+    
+    <!-- Close Button -->
+    <button id="closeModal" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl">&times;</button>
+    
+    <!-- Modal Title -->
+    <h2 class="text-xl font-bold text-gray-800 mb-4">Add New Address</h2>
+
+    <!-- Address Form -->
+    <form id="addressForm" class="space-y-4">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="text-sm font-medium">Full Name</label>
+          <input type="text" name="fullname" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black" placeholder="Enter Full Name">
+        </div>
+        <div>
+          <label class="text-sm font-medium">Mobile</label>
+          <input type="text" name="mobile" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black" placeholder="Enter Mobile Number" >
+        </div>
+      </div>
+
+      <div>
+        <label class="text-sm font-medium">Address</label>
+        <input type="text" name="address" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black" placeholder="Enter Street/Area" >
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="text-sm font-medium">District</label>
+          <input type="text" name="district" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black" placeholder="Enter District">
+        </div>
+        <div>
+          <label class="text-sm font-medium">State</label>
+          <input type="text" name="state" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black" placeholder="Enter State">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="text-sm font-medium">Country</label>
+          <input type="text" name="country" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black" placeholder="Enter Country">
+        </div>
+        <div>
+          <label class="text-sm font-medium">Pincode</label>
+          <input type="text" name="pincode" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black" placeholder="Enter Pincode">
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex justify-end gap-2 pt-4">
+        <button type="button" id="cancelBtn" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">Cancel</button>
+        <button type="submit" class="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800">Save Address</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const modal = document.getElementById("addressModal");
+    const openBtns = document.querySelectorAll(".add-new-btn");
+    const closeBtn = document.getElementById("closeModal");
+    const cancelBtn = document.getElementById("cancelBtn");
+    const form = document.getElementById("addressForm");
+
+    // Toastr config
+    toastr.options = {
+      closeButton: true,
+      progressBar: true,
+      positionClass: "toast-bottom-right",
+      timeOut: "2000"
+    };
+
+    // Open modal
+    openBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+      });
+    });
+
+    // Close modal
+    const closeModal = () => {
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+      form.reset();
+    };
+    closeBtn.addEventListener("click", closeModal);
+    cancelBtn.addEventListener("click", closeModal);
+
+    // Validation helper
+    function validateForm(data) {
+      if (!data.fullname.trim()) return "Full Name is required";
+      if (!/^[0-9]{10}$/.test(data.mobile)) return "Enter a valid 10-digit Mobile number";
+      if (!data.address.trim()) return "Address is required";
+      if (!data.district.trim()) return "District is required";
+      if (!data.state.trim()) return "State is required";
+      if (!data.country.trim()) return "Country is required";
+      if (!/^[0-9]{6}$/.test(data.pincode)) return "Enter a valid 6-digit Pincode";
+      return null; // no errors
+    }
+
+    // Handle form submit
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = {
+        fullname: form.fullname.value,
+        mobile: form.mobile.value,
+        address: form.address.value,
+        district: form.district.value,
+        state: form.state.value,
+        country: form.country.value,
+        pincode: form.pincode.value,
+      };
+
+      const error = validateForm(formData);
+      if (error) {
+        toastr.error(error);
+        return;
+      }
+
+      try {
+        const res = await fetch("/profile/address", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData)
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          toastr.success(data.message || "Address saved!");
+          closeModal();
+          setTimeout(() => window.location.reload(), 1000);
+        } else {
+          toastr.error(data.message || "Failed to save address");
+        }
+      } catch (err) {
+        toastr.error("Something went wrong. Try again!");
+      }
+    });
+
+    // Dropdown scroll handler
+    const dropdown = document.getElementById("selectedAddress");
+    if (dropdown) {
+      dropdown.addEventListener("change", (e) => {
+        const addressId = e.target.value;
+        const selectedCard = document.getElementById(`address-${addressId}`);
+        if (selectedCard) {
+          selectedCard.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      });
+    }
+  });
+</script>

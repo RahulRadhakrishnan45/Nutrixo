@@ -1,67 +1,177 @@
-<div class="bg-white  flex items-start justify-center mt-12">
-  <div class="w-full max-w-md bg-gray-100 rounded-xl shadow-lg p-8 text-center">
-    <!-- Profile Image -->
-    <img
-      src="../../images/user.webp"
-      alt="Profile"
-      class="w-24 h-24 object-cover mx-auto mb-4"
-    />
+<div class="flex min-h-screen bg-white">
+  
+  <!-- Sidebar -->
+  <%- include('../partials/userSidebar') %>
 
-    <!-- User Name -->
-    <h1 class="text-2xl font-bold text-gray-900 mb-2">
-      <%= user.name %>
-    </h1>
+  <!-- Profile Content Wrapper -->
+  <div class="flex-1 bg-gray-100 p-10">
+    <div class="bg-white shadow-md rounded-xl p-8 max-w-3xl mx-auto">
+      <div class="text-center">
 
-    <!-- Fake Content -->
-    <p class="text-gray-500">This is your profile page.</p>
-    <p class="text-gray-400 text-sm">More features coming soon 🚀</p>
+        <!-- Profile Avatar -->
+        <div class="relative inline-block">
+          <% if (user.profile_image) { %>
+            <!-- If user already uploaded profile image -->
+            <img src="<%= user.profile_image %>" alt="Profile"
+                 class="w-28 h-28 rounded-full border-4 border-gray-200 mx-auto object-cover">
+          <% } else { %>
+            <!-- Show First Alphabet -->
+            <div class="w-28 h-28 rounded-full border-4 border-gray-200 bg-gray-800 flex items-center justify-center mx-auto text-white text-4xl font-bold">
+              <%= user.name.charAt(0).toUpperCase() %>
+            </div>
+          <% } %>
 
-    <!-- Logout button -->
-    <div class="mt-6">
-      <button id="logoutBtn"
-              class="px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition">
-        Logout
-      </button>
+          <!-- Edit Icon -->
+          <label for="profileUpload"
+                 class="absolute bottom-0 right-[-6px] bg-gray-800 text-white p-1 rounded-full text-sm cursor-pointer hover:bg-gray-700">
+            <i class="fas fa-pen"></i>
+          </label>
+          <input type="file" id="profileUpload" class="hidden" accept="image/*">
+        </div>
+
+        <!-- Name -->
+        <h1 class="text-2xl font-bold text-gray-900 mt-4">
+          <%= user.name %>
+        </h1>
+        <p class="text-gray-500">Member since <%= user.createdAt.getFullYear() %></p>
+      </div>
+
+      <!-- Details -->
+      <div class="mt-8 space-y-4">
+        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+          <i class="fas fa-user text-gray-500 w-6"></i>
+          <span class="ml-3 font-medium text-gray-700"><%= user.name %></span>
+        </div>
+        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+          <i class="fas fa-envelope text-gray-500 w-6"></i>
+          <span class="ml-3 text-gray-700"><%= user.email %></span>
+        </div>
+        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+          <i class="fas fa-phone text-gray-500 w-6"></i>
+          <span class="ml-3 text-gray-700"><%= user.mobile || "No phone added" %></span>
+        </div>
+        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+          <i class="fas fa-map-marker-alt text-gray-500 w-6"></i>
+          <span class="ml-3 text-gray-700"><%= user.address || "No default address set" %></span>
+        </div>
+      </div>
+
+      <!-- Edit Profile Button -->
+      <div class="mt-6 text-center">
+        <a href="/profile/edit"
+           class="px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition">
+          <i class="fas fa-pen mr-2"></i> Edit Profile
+        </a>
+      </div>
     </div>
   </div>
 </div>
 
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
 <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const logoutBtn = document.getElementById('logoutBtn');
+    const uploadInput = document.getElementById('profileUpload');
 
-    document.addEventListener('DOMContentLoaded',() => {
-        const logoutBtn = document.getElementById('logoutBtn')
+    toastr.options = {
+      closeButton: true,
+      progressBar: true,
+      positionClass: "toast-bottom-right",
+      timeOut: "2000"
+    }
 
-        logoutBtn.addEventListener('click', async () =>{
-            try {
-                const res = await fetch('/logout',{method:'GET'})
-                const data = await res.json()
+    // Logout function
+    logoutBtn.addEventListener('click', async () => {
+      try {
+        const res = await fetch('/logout', { method: 'GET' });
+        const data = await res.json();
 
-                if(data.success) {
-                    Swal.fire({
-                        icon:'success',
-                        title:'Logged out',
-                        text:data.message,
-                        timer:2000,
-                        showConfirmButton:false
-                    }).then(() => {
-                        window.location.href = '/auth/login'
-                    })
-                }else{
-                    Swal.fire({
-                        icon:'error',
-                        title:'error',
-                        text:data.message
-                    })
-                }
-                
-            } catch (error) {
-                Swal.fire({
-                    icon:'error',
-                    title:'oops',
-                    text:'Something went wrong'
-                })
+        if (data.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Logged out',
+            text: data.message,
+            timer: 2000,
+            showConfirmButton: false
+          }).then(() => {
+            window.location.href = '/auth/login';
+          });
+        } else {
+          Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+        }
+      } catch (error) {
+        Swal.fire({ icon: 'error', title: 'Oops', text: 'Something went wrong' });
+      }
+    });
+
+    // Profile image upload
+    uploadInput.addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const formData = new FormData();
+        formData.append('profile_image', file);
+
+        try {
+          const res = await fetch('/profile/upload', {
+            method: 'POST',
+            body: formData
+          });
+          const data = await res.json();
+          
+          if (data.success) {
+            toastr.success(data.message || 'profile updated')
+
+            // Update preview instantly
+            const avatarImg = document.querySelector('.relative.inline-block img');
+            if (avatarImg) {
+              avatarImg.src = data.image;
+            } else {
+              const container = document.querySelector('.relative.inline-block');
+              container.innerHTML = `
+                <img src="${data.image}" 
+                     class="w-28 h-28 rounded-full border-4 border-gray-200 mx-auto object-cover">
+                <label for="profileUpload"
+                       class="absolute bottom-0 right-2 bg-gray-800 text-white p-2 rounded-full text-sm cursor-pointer hover:bg-gray-700">
+                  <i class="fas fa-pen"></i>
+                </label>
+                <input type="file" id="profileUpload" class="hidden" accept="image/*">
+              `;
             }
-        })
-    })
+          } else {
+            toastr.error(data.message || "Error uploading profile");
+          }
+        } catch (err) {
+          toastr.error("Upload failed");
+        }
+      }
+    });
+  });
+
+// Remove profile image
+// async function removeProfileImage() {
+//   try {
+//     const res = await fetch('/profile/remove', { method: 'DELETE' })
+//     const data = await res.json()
+    
+//     if (data.success) {
+//       Swal.fire({
+//         icon: 'success',
+//         title: 'Profile Image Removed',
+//         text: data.message,
+//         timer: 2000,
+//         showConfirmButton: false
+//       }).then(() => window.location.reload())
+//     } else {
+//       Swal.fire({ icon: 'error', title: 'Error', text: data.message })
+//     }
+//   } catch (err) {
+//     Swal.fire({ icon: 'error', title: 'Oops', text: 'Something went wrong' })
+//   }
+// }
+
 
 </script>

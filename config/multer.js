@@ -1,38 +1,54 @@
 const multer = require('multer')
 const path = require('path')
 
+// ---- Brand Storage ----
 const brandStorage = multer.diskStorage({
-    destination:(req,file,cb) => {
-        cb(null,path.join(__dirname,'../public/uploads/brands'))
-    },
-    filename:(req,file,cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-        cb(null,uniqueSuffix + path.extname(file.originalname))
-    }
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, '../public/uploads/brands'))
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+    cb(null, uniqueSuffix + path.extname(file.originalname))
+  }
 })
 
+// ---- Product Storage ----
 const productStorage = multer.diskStorage({
-    destination:(req,file,cb) => {
-        cb(null, path.join(__dirname,'../public/uploads/products'))
-    },
-    filename: (req,file,cb) => {
-        const uniqueSuffix = Date.now() + '-' +Math.round(Math.random() * 1E9)
-        cb(null, uniqueSuffix + path.extname(file.originalname))
-    }
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, '../public/uploads/products'))
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+    cb(null, uniqueSuffix + path.extname(file.originalname))
+  }
 })
 
-const fileFilter = (req,file,cb) => {
-    const allowedTypes = /jpeg|jpg|png|gif|webp/
-    const ext = path.extname(file.originalname).toLowerCase()
-    
-    if(allowedTypes.test(ext)) {
-        cb(null,true)
-    }else {
-        cb(new Error('Only images are allowed'),false)
-    }
+// ---- Profile Storage ----
+const profileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, '../public/uploads/profiles'))
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+    cb(null, uniqueSuffix + path.extname(file.originalname))
+  }
+})
+
+// ---- File Filter ----
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = /jpeg|jpg|png|gif|webp/
+  const ext = path.extname(file.originalname).toLowerCase()
+
+  if (allowedTypes.test(ext)) {
+    cb(null, true)
+  } else {
+    cb(new Error('Only images are allowed'), false)
+  }
 }
 
-const uploadBrand = multer({storage:brandStorage,fileFilter})
-const uploadProduct = multer({storage:productStorage,fileFilter})
+// ---- Uploaders ----
+const uploadBrand = multer({ storage: brandStorage, fileFilter })
+const uploadProduct = multer({ storage: productStorage, fileFilter })
+const uploadProfile = multer({ storage: profileStorage, fileFilter })
 
-module.exports = {uploadBrand,uploadProduct}
+module.exports = { uploadBrand, uploadProduct, uploadProfile }
