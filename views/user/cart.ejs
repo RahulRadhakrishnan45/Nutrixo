@@ -10,7 +10,7 @@
     </nav>
   </div>
 
-  <h1 class="text-2xl font-bold mb-6">Your cart</h1>
+  <!-- <h1 class="text-2xl font-bold mb-6">Your cart</h1> -->
 
   <!-- Dynamic grid: 3 cols if items, 1 col if empty -->
   <div class="grid <%= cartItems && cartItems.length > 0 ? 'grid-cols-1 lg:grid-cols-3' : 'grid-cols-1' %> gap-10">
@@ -149,61 +149,90 @@ toastr.options = {
 document.addEventListener('DOMContentLoaded', () => {
   let itemToRemove = null
 
+  // 🔹 Helper to update the badge in header
+  function updateCartBadge(cartLength) {
+    const badge = document.getElementById('cartText')
+    if (!badge) return
+    if (cartLength && cartLength !== 0) {
+      badge.textContent = cartLength
+      badge.classList.remove('hidden')
+    } else {
+      badge.classList.add('hidden')
+    }
+  }
+
+  // 🔹 Increase quantity
   document.querySelectorAll('.increaseBtn').forEach((btn) => {
     btn.addEventListener('click', async () => {
       const itemId = btn.dataset.id
       const res = await fetch(`/cart/increase/${itemId}`, { method:'POST' })
       const data = await res.json()
       
-      if(data.success) {
+      if (data.success) {
         document.getElementById(`qty-${itemId}`).innerHTML = data.newQty
         updateSummary(data.summary)
+        updateCartBadge(data.cartLength)
+        if(data.message) toastr.info(data.message)
       } else {
-        const msg = typeof data.message === 'string' ? data.message : 'Max 5 quantity allowed'
-        toastr.warning(msg)
+        toastr.warning(data.message)
+        if(data.newQty !== undefined) {
+          document.getElementById(`qty-${itemId}`).innerHTML = data.newQty
+          updateSummary(data.summary)
+          updateCartBadge(data.cartLength)
+        }
       }
     })
   })
 
+  // 🔹 Decrease quantity
   document.querySelectorAll('.decreaseBtn').forEach((btn) => {
     btn.addEventListener('click', async () => {
       const itemId = btn.dataset.id
       const res = await fetch(`/cart/decrease/${itemId}`, { method:'POST' })
       const data = await res.json()
-      if(data.success) {
-        if(data.removed) {
+
+      if (data.success) {
+        if (data.removed) {
           document.getElementById(`item-${itemId}`).remove()
           toastr.info('Item removed from cart')
         } else {
           document.getElementById(`qty-${itemId}`).innerHTML = data.newQty
         }
         updateSummary(data.summary)
+        updateCartBadge(data.cartLength) 
+        if(data.message) toastr.info(data.message)
 
-        if(data.summary.subtotal === 0) {
+        if (data.summary.subtotal === 0) {
           showEmptyCart()
         }
       } else {
         toastr.warning(data.message)
+        if(data.newQty !== undefined) {
+          document.getElementById(`qty-${itemId}`).innerHTML = data.newQty
+          updateSummary(data.summary)
+          updateCartBadge(data.cartLength)
+        }
       }
     })
   })
 
+  // 🔹 Remove button click → show modal
   document.querySelectorAll('.removeBtn').forEach((btn) => {
     btn.addEventListener('click', () => {
-      itemToRemove = btn.dataset.id; // save the item ID
+      itemToRemove = btn.dataset.id
       document.getElementById('confirmModal').classList.remove('hidden')
       document.getElementById('confirmModal').classList.add('flex')
     })
   })
 
-  
+  // 🔹 Cancel modal
   document.getElementById('cancelRemove').addEventListener('click', () => {
     itemToRemove = null
     document.getElementById('confirmModal').classList.add('hidden')
     document.getElementById('confirmModal').classList.remove('flex')
   })
 
-  
+  // 🔹 Confirm remove
   document.getElementById('confirmRemove').addEventListener('click', async () => {
     if (!itemToRemove) return
 
@@ -213,6 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (data.success) {
       document.getElementById(`item-${itemToRemove}`).remove()
       updateSummary(data.summary)
+      updateCartBadge(data.cartLength) // ✅ update badge
       toastr.error('Item removed from cart')
 
       if (data.summary.subtotal === 0) {
@@ -227,12 +257,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('confirmModal').classList.remove('flex')
   })
 
+  // 🔹 Update totals
   function updateSummary(summary) {
     document.getElementById('subtotal').innerText = `₹ ${summary.subtotal}`
     document.getElementById("tax").innerText = `₹ ${summary.tax}`
     document.getElementById("total").innerText = `₹ ${summary.total}`
   }
 
+  // 🔹 Show empty cart template
   function showEmptyCart() {
     const cartItems = document.getElementById("cart-items");
     if (cartItems) {
@@ -268,7 +300,14 @@ document.addEventListener('DOMContentLoaded', () => {
       grid.classList.remove("lg:grid-cols-3");
       grid.classList.add("grid-cols-1");
     }
+
+    // ✅ Also hide the cart badge when empty
+    updateCartBadge(0)
   }
 })
+
+
+
 </script>
+
 

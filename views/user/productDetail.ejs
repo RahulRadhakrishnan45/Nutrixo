@@ -334,6 +334,10 @@
         if(res.ok) {
           toastr.success('Added to cart')
           addToCartBtn.textContent = 'Go to cart'
+
+          if(data.cartLength !== undefined) {
+            updateCartBadge(data.cartLength)
+          }
         }else{
           toastr.error(data.message || 'Failed to add to cart')
         }

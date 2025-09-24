@@ -25,8 +25,9 @@
           </svg>
         </button>
         <div class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+          <!-- All option -->
           <a href="/products?category=All" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">All</a>
-          <% if (typeof categories !== 'undefined') { %>
+          <% if (categories && categories.length) { %>
             <% categories.forEach(cat => { %>
               <a href="/products?category=<%= cat %>" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"><%= cat %></a>
             <% }) %>
@@ -43,8 +44,9 @@
           </svg>
         </button>
         <div class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+          <!-- All option -->
           <a href="/products?brand=All" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">All</a>
-          <% if (typeof brands !== 'undefined') { %>
+          <% if (brands && brands.length) { %>
             <% brands.forEach(brand => { %>
               <a href="/products?brand=<%= brand %>" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"><%= brand %></a>
             <% }) %>
@@ -58,7 +60,7 @@
 
     <!-- Search and Cart -->
     <div class="flex items-center space-x-4">
-      <!-- ✅ Search form -->
+      
       <form action="/products" method="GET" class="relative">
         <input
           id="searchInput"
@@ -91,11 +93,12 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
         </svg>
-        <% const cartCount = typeof cartLength !== 'undefined' ? cartLength : 0; %>
+        
         <span id="cartText"
-              class="absolute <%= cartCount?'block':'hidden' %> -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
-          <%= cartCount %>
+            class="absolute <%= (typeof cartLength !== 'undefined' && cartLength) ? 'block' : 'hidden' %> -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
+          <%= typeof cartLength !== 'undefined' ? cartLength : 0 %>
         </span>
+
       </a>
 
       <!-- Profile -->
@@ -130,3 +133,17 @@
     background: #555;
   }
 </style>
+
+<script>
+  function updateCartBadge(cartLength) {
+    const badge = document.getElementById('cartText')
+    if (!badge) return
+    if (cartLength && cartLength !== 0) {
+      badge.textContent = cartLength
+      badge.classList.remove('hidden')
+    } else {
+      badge.classList.add('hidden')
+    }
+  }
+</script>
+

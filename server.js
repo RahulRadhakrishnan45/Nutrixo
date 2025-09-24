@@ -11,7 +11,7 @@ const authRoutes = require('./routes/user/auth_routes')
 const connectDB = require('./config/connectDB')
 const globalMiddleware = require('./middlewares/globalMiddleware')
 const seedAdmin=require('./utils/seedAdmin')
-
+const headerData = require('./middlewares/headerData')
 
 dotenv.config()
 const app = express()
@@ -27,6 +27,7 @@ app.use(express.urlencoded({extended:true}))
 app.use(expressLayouts) 
 app.use(nocache())
 app.use(globalMiddleware)
+
 
 app.set('view engine','ejs')
 app.set('views',path.join(__dirname,'views'))
@@ -44,6 +45,7 @@ app.use(
   })
 )
 
+app.use(headerData)
 app.use(passport.initialize())
 app.use(passport.session())
 
