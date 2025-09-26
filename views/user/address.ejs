@@ -1,5 +1,4 @@
 <div class="flex min-h-screen bg-gray-50">
-  
   <!-- Sidebar -->
   <%- include('../partials/userSidebar') %>
 
@@ -40,52 +39,67 @@
               <div class="grid grid-cols-2 gap-4">
                 <div>
                   <label class="block text-sm text-gray-500">Street Address</label>
-                  <input type="text" value="<%= address.address %>" class="w-full border rounded-md px-3 py-2" readonly>
+                  <input type="text" value="<%= address.address %>" 
+                         class="w-full border rounded-md px-3 py-2 editable" 
+                         data-field="address" readonly>
                 </div>
                 <div>
                   <label class="block text-sm text-gray-500">District</label>
-                  <input type="text" value="<%= address.district %>" class="w-full border rounded-md px-3 py-2" readonly>
+                  <input type="text" value="<%= address.district %>" 
+                         class="w-full border rounded-md px-3 py-2 editable" 
+                         data-field="district" readonly>
                 </div>
               </div>
 
               <div class="grid grid-cols-2 gap-4 mt-4">
                 <div>
                   <label class="block text-sm text-gray-500">Full Name</label>
-                  <input type="text" value="<%= address.fullname %>" class="w-full border rounded-md px-3 py-2" readonly>
+                  <input type="text" value="<%= address.fullname %>" 
+                         class="w-full border rounded-md px-3 py-2 editable" 
+                         data-field="fullname" readonly>
                 </div>
                 <div>
                   <label class="block text-sm text-gray-500">Mobile</label>
-                  <input type="text" value="<%= address.mobile %>" class="w-full border rounded-md px-3 py-2" readonly>
+                  <input type="text" value="<%= address.mobile %>" 
+                         class="w-full border rounded-md px-3 py-2 editable" 
+                         data-field="mobile" readonly>
                 </div>
               </div>
 
               <div class="grid grid-cols-2 gap-4 mt-4">
                 <div>
                   <label class="block text-sm text-gray-500">State</label>
-                  <input type="text" value="<%= address.state %>" class="w-full border rounded-md px-3 py-2" readonly>
+                  <input type="text" value="<%= address.state %>" 
+                         class="w-full border rounded-md px-3 py-2 editable" 
+                         data-field="state" readonly>
                 </div>
                 <div>
                   <label class="block text-sm text-gray-500">Pin Code</label>
-                  <input type="text" value="<%= address.pincode %>" class="w-full border rounded-md px-3 py-2" readonly>
+                  <input type="text" value="<%= address.pincode %>" 
+                         class="w-full border rounded-md px-3 py-2 editable" 
+                         data-field="pincode" readonly>
                 </div>
               </div>
 
               <div class="grid grid-cols-2 gap-4 mt-4">
                 <div>
                   <label class="block text-sm text-gray-500">Country</label>
-                  <input type="text" value="<%= address.country %>" class="w-full border rounded-md px-3 py-2" readonly>
+                  <input type="text" value="<%= address.country %>" 
+                         class="w-full border rounded-md px-3 py-2 editable" 
+                         data-field="country" readonly>
                 </div>
               </div>
 
               <!-- Buttons -->
               <div class="flex gap-4 mt-6">
-                <a href="/profile/address/edit/<%= address._id %>" 
-                   class="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 flex items-center gap-2">
-                   ✏ Edit
-                </a>
+                <button type="button" 
+                        class="edit-btn px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-gray-800"
+                        data-id="<%= address._id %>">
+                  Edit
+                </button>
                 <form action="/profile/address/delete/<%= address._id %>" method="POST" onsubmit="return confirm('Delete this address?')">
-                  <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 flex items-center gap-2">
-                    🗑 Delete
+                  <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
+                     Delete
                   </button>
                 </form>
               </div>
@@ -110,7 +124,7 @@
   </div>
 </div>
 
-<!-- Modal (hidden by default) -->
+<!-- Modal (Add New Address) -->
 <div id="addressModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
   <div class="bg-white w-full max-w-lg rounded-lg shadow-lg p-6 relative">
     
@@ -125,38 +139,38 @@
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="text-sm font-medium">Full Name</label>
-          <input type="text" name="fullname" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black" placeholder="Enter Full Name">
+          <input type="text" name="fullname" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black">
         </div>
         <div>
           <label class="text-sm font-medium">Mobile</label>
-          <input type="text" name="mobile" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black" placeholder="Enter Mobile Number" >
+          <input type="text" name="mobile" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black">
         </div>
       </div>
 
       <div>
         <label class="text-sm font-medium">Address</label>
-        <input type="text" name="address" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black" placeholder="Enter Street/Area" >
+        <input type="text" name="address" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black">
       </div>
 
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="text-sm font-medium">District</label>
-          <input type="text" name="district" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black" placeholder="Enter District">
+          <input type="text" name="district" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black">
         </div>
         <div>
           <label class="text-sm font-medium">State</label>
-          <input type="text" name="state" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black" placeholder="Enter State">
+          <input type="text" name="state" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black">
         </div>
       </div>
 
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="text-sm font-medium">Country</label>
-          <input type="text" name="country" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black" placeholder="Enter Country">
+          <input type="text" name="country" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black">
         </div>
         <div>
           <label class="text-sm font-medium">Pincode</label>
-          <input type="text" name="pincode" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black" placeholder="Enter Pincode">
+          <input type="text" name="pincode" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black">
         </div>
       </div>
 
@@ -215,13 +229,12 @@
       if (!data.state.trim()) return "State is required";
       if (!data.country.trim()) return "Country is required";
       if (!/^[0-9]{6}$/.test(data.pincode)) return "Enter a valid 6-digit Pincode";
-      return null; // no errors
+      return null;
     }
 
-    // Handle form submit
+    // Handle ADD new address
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-
       const formData = {
         fullname: form.fullname.value,
         mobile: form.mobile.value,
@@ -256,6 +269,53 @@
       } catch (err) {
         toastr.error("Something went wrong. Try again!");
       }
+    });
+
+    // Handle INLINE EDIT
+    document.querySelectorAll(".edit-btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const card = btn.closest(".border");
+        const inputs = card.querySelectorAll("input");
+
+        if (btn.textContent === "Edit") {
+          inputs.forEach(input => input.removeAttribute("readonly"));
+          btn.textContent = "Save Changes";
+          btn.classList.remove("bg-blue-600");
+          btn.classList.add("bg-green-600");
+        } else {
+          // Save changes
+          const updatedData = {};
+          inputs.forEach(input => {
+            updatedData[input.dataset.field] = input.value;
+          });
+
+          const error = validateForm(updatedData);
+          if (error) {
+            toastr.error(error);
+            return;
+          }
+          try {
+            const res = await fetch(`/profile/address/edit/${btn.dataset.id}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(updatedData)
+            });
+            const data = await res.json();
+
+            if (data.success) {
+              toastr.success(data.message || "Address updated successfully!");
+              inputs.forEach(input => input.setAttribute("readonly", true));
+              btn.textContent = "Edit";
+              btn.classList.remove("bg-green-600");
+              btn.classList.add("bg-blue-600");
+            } else {
+              toastr.error(data.message || "Failed to update address");
+            }
+          } catch (err) {
+            toastr.error("Something went wrong. Try again!");
+          }
+        }
+      });
     });
 
     // Dropdown scroll handler

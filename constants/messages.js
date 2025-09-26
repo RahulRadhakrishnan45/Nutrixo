@@ -14,7 +14,10 @@ const messages = Object.freeze({
         LOGOUT_SUCCESS: "Logged out successfully",
         LOGOUT_FAILED: "Logout failed",
         SIGNUP_SUCCESS: "Signup successful",
-        INVALID_REQUEST:"Invalid request"
+        INVALID_REQUEST:"Invalid request",
+        ALL_FIELDS_REQUIRED:"All fields are required",
+        ENTER_VALID_NO:"Enter a valid 10 digit number",
+        ENTER_VALID_PINCODE:"Enter a valid 6 digit pincode",
     },
     OTP: {
         SENT: "OTP sent successfully",
@@ -72,7 +75,8 @@ const messages = Object.freeze({
         USER_UNBLOCKED:"User unblocked successfully",
         USER_BLOCKED:"User blocked successfully",
         USER_EXISTS:"User already exists",
-        USER_MOB_EXISTS:"User mobile number already exists"
+        USER_MOB_EXISTS:"User mobile number already exists",
+        USER_NOT_LOGIN:"User not logged in"
     },
     CART:{
         CART_ADD_FAILED:"Please login to add to cart",
@@ -89,6 +93,11 @@ const messages = Object.freeze({
     PROFILE:{
         PROFILE_IMG_UPDATE:"Profile image updated successfully",
         PROFILE_IMG_DELETE:"Profile image removed successfully",
+    },
+    ADDRESS:{
+        ADDRESS_ADDED:"Address added successfully",
+        ADDRESS_NOT_FOUND:"Address not found",
+        ADDRESS_UPDATED:"Address updated successfully",
     }
 });
 

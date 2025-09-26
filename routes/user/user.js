@@ -24,9 +24,9 @@ router.post('/cart/remove/:id',checkSession,cartController.removeItem)
 
 
 router.post('/profile/upload',checkSession,uploadProfile.single('profile_image'),profileController.uploadProfileImage)
-router.delete('/profile/remove',checkSession,profileController.removeProfileImage)
 router.get('/profile/address',checkSession,profileController.loadAddress)
-
+router.post('/profile/address',checkSession,profileController.addAddress)
+router.put('/profile/address/edit/:id',checkSession,profileController.updateAddress)
 
 
 
