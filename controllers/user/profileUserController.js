@@ -43,6 +43,8 @@ const addAddress = asyncHandler( async( req,res) => {
         return res.status(httpStatus.bad_request).json({success:false,message:messages.AUTH.ALL_FIELDS_REQUIRED})
     }
 
+    const addressCount = await Address.countDocuments({user_id:userId})
+
     const newAddress = new Address({
         user_id:userId,
         fullname,
@@ -51,7 +53,8 @@ const addAddress = asyncHandler( async( req,res) => {
         district,
         state,
         country,
-        pincode
+        pincode,
+        is_Default:addressCount === 0
     })
 
     await newAddress.save()
@@ -94,5 +97,43 @@ const updateAddress = asyncHandler( async( req,res) => {
     return res.json({success:true,message:messages.ADDRESS.ADDRESS_UPDATED})
 })
 
+const deleteAddress = asyncHandler( async( req,res) => {
+    const userId = req.session.user._id
+    const addressId = req.params.id
 
-module.exports ={uploadProfileImage,loadAddress,addAddress,updateAddress}
+    if(!userId) {
+        return res.status(httpStatus.bad_request).json({success:false,message:messages.USER.USER_NOT_FOUND})
+    }
+
+    const deleted = await Address.findByIdAndDelete({_id:addressId,user_id:userId})
+
+    if(!deleted) {
+        return res.status(httpStatus.not_found).json({success:false,message:messages.ADDRESS.ADDRESS_NOT_FOUND})
+    }
+
+    return res.json({success:true,message:messages.ADDRESS.ADDRESS_DELETED})
+})
+
+const setDefaultAddress = asyncHandler( async( req,res) => {
+    const userId = req.session.user._id
+    const addressId = req.params.id
+
+    if(!userId) {
+        return res.status(httpStatus.unauthorized).json({success:false,message:messages.USER.USER_NOT_FOUND})
+    }
+
+    await Address.updateMany({user_id:userId},{$set:{is_Default:false}})
+
+    const updated = await Address.findOneAndUpdate(
+        {_id:addressId,user_id:userId},{$set:{is_Default:true}},{new:true}
+    )
+
+    if(!updated) {
+        return res.status(httpStatus.not_found).json({success:false,message:messages.ADDRESS.ADDRESS_NOT_FOUND})
+    }
+
+    return res.json({success:true,message:messages.ADDRESS.DEFAULT_ADDRESS})
+})
+
+
+module.exports ={uploadProfileImage,loadAddress,addAddress,updateAddress,deleteAddress,setDefaultAddress}

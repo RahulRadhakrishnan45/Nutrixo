@@ -98,6 +98,8 @@ const messages = Object.freeze({
         ADDRESS_ADDED:"Address added successfully",
         ADDRESS_NOT_FOUND:"Address not found",
         ADDRESS_UPDATED:"Address updated successfully",
+        ADDRESS_DELETED:"Address deleted successfully",
+        DEFAULT_ADDRESS:"Default address updated successfully",
     }
 });
 

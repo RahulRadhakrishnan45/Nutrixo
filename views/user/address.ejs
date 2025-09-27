@@ -92,16 +92,27 @@
 
               <!-- Buttons -->
               <div class="flex gap-4 mt-6">
+                <% if (address.is_Default) { %>
+                  <span class="px-3 py-1 bg-green-500 text-white rounded">Default</span>
+                <% } else { %>
+                  <button type="button" 
+                          class="default-btn px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-700"
+                          data-id="<%= address._id %>">
+                    Make Default
+                  </button>
+                <% } %>
+
                 <button type="button" 
                         class="edit-btn px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-gray-800"
                         data-id="<%= address._id %>">
                   Edit
                 </button>
-                <form action="/profile/address/delete/<%= address._id %>" method="POST" onsubmit="return confirm('Delete this address?')">
-                  <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
-                     Delete
-                  </button>
-                </form>
+
+                <button type="button" 
+                        class="delete-btn px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                        data-id="<%= address._id %>">
+                  Delete
+                </button>
               </div>
             </div>
           <% }) %>
@@ -186,7 +197,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/js/logout.js"></script>
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const modal = document.getElementById("addressModal");
@@ -222,17 +234,17 @@
 
     // Validation helper
     function validateForm(data) {
-      if (!data.fullname.trim()) return "Full Name is required";
+      if (!data.fullname?.trim()) return "Full Name is required";
       if (!/^[0-9]{10}$/.test(data.mobile)) return "Enter a valid 10-digit Mobile number";
-      if (!data.address.trim()) return "Address is required";
-      if (!data.district.trim()) return "District is required";
-      if (!data.state.trim()) return "State is required";
-      if (!data.country.trim()) return "Country is required";
+      if (!data.address?.trim()) return "Address is required";
+      if (!data.district?.trim()) return "District is required";
+      if (!data.state?.trim()) return "State is required";
+      if (!data.country?.trim()) return "Country is required";
       if (!/^[0-9]{6}$/.test(data.pincode)) return "Enter a valid 6-digit Pincode";
       return null;
     }
 
-    // Handle ADD new address
+    // ADD new address
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const formData = {
@@ -246,10 +258,7 @@
       };
 
       const error = validateForm(formData);
-      if (error) {
-        toastr.error(error);
-        return;
-      }
+      if (error) return toastr.error(error);
 
       try {
         const res = await fetch("/profile/address", {
@@ -266,12 +275,12 @@
         } else {
           toastr.error(data.message || "Failed to save address");
         }
-      } catch (err) {
+      } catch {
         toastr.error("Something went wrong. Try again!");
       }
     });
 
-    // Handle INLINE EDIT
+    // INLINE EDIT
     document.querySelectorAll(".edit-btn").forEach(btn => {
       btn.addEventListener("click", async () => {
         const card = btn.closest(".border");
@@ -283,17 +292,14 @@
           btn.classList.remove("bg-blue-600");
           btn.classList.add("bg-green-600");
         } else {
-          // Save changes
           const updatedData = {};
           inputs.forEach(input => {
-            updatedData[input.dataset.field] = input.value;
+            updatedData[input.dataset.field] = input.value.trim();
           });
 
           const error = validateForm(updatedData);
-          if (error) {
-            toastr.error(error);
-            return;
-          }
+          if (error) return toastr.error(error);
+
           try {
             const res = await fetch(`/profile/address/edit/${btn.dataset.id}`, {
               method: "PUT",
@@ -311,14 +317,70 @@
             } else {
               toastr.error(data.message || "Failed to update address");
             }
-          } catch (err) {
+          } catch {
             toastr.error("Something went wrong. Try again!");
           }
         }
       });
     });
 
-    // Dropdown scroll handler
+    // DELETE with Swal
+    document.querySelectorAll(".delete-btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        Swal.fire({
+          title: "Are you sure?",
+          text: "This address will be permanently deleted.",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+          confirmButtonText: "Yes, delete it!"
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            try {
+              const res = await fetch(`/profile/address/delete/${btn.dataset.id}`, {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" }
+              });
+              const data = await res.json();
+
+              if (data.success) {
+                toastr.success(data.message || "Address deleted successfully!");
+                setTimeout(() => window.location.reload(), 1000);
+              } else {
+                toastr.error(data.message || "Failed to delete address");
+              }
+            } catch {
+              toastr.error("Something went wrong. Try again!");
+            }
+          }
+        });
+      });
+    });
+
+    // MAKE DEFAULT
+    document.querySelectorAll(".default-btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        try {
+          const res = await fetch(`/profile/address/set-default/${btn.dataset.id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" }
+          });
+          const data = await res.json();
+
+          if (data.success) {
+            toastr.success(data.message || "Default address set!");
+            setTimeout(() => window.location.reload(),500);
+          } else {
+            toastr.error(data.message || "Failed to set default address");
+          }
+        } catch {
+          toastr.error("Something went wrong. Try again!");
+        }
+      });
+    });
+
+    // Dropdown scroll
     const dropdown = document.getElementById("selectedAddress");
     if (dropdown) {
       dropdown.addEventListener("change", (e) => {

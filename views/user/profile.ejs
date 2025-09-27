@@ -71,7 +71,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
+<script src="/js/logout.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const logoutBtn = document.getElementById('logoutBtn');
@@ -83,30 +83,6 @@
       positionClass: "toast-bottom-right",
       timeOut: "2000"
     }
-
-    // Logout function
-    logoutBtn.addEventListener('click', async () => {
-      try {
-        const res = await fetch('/logout', { method: 'GET' });
-        const data = await res.json();
-
-        if (data.success) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Logged out',
-            text: data.message,
-            timer: 2000,
-            showConfirmButton: false
-          }).then(() => {
-            window.location.href = '/auth/login';
-          });
-        } else {
-          Swal.fire({ icon: 'error', title: 'Error', text: data.message });
-        }
-      } catch (error) {
-        Swal.fire({ icon: 'error', title: 'Oops', text: 'Something went wrong' });
-      }
-    });
 
     // Profile image upload
     uploadInput.addEventListener('change', async (event) => {
