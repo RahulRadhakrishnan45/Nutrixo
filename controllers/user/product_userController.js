@@ -5,6 +5,7 @@ const messages = require('../../constants/messages')
 const Product = require('../../models/productSchema')
 const Category = require('../../models/categorySchema')
 const Brand = require('../../models/brandSchema')
+const Address = require('../../models/addressSchema')
 
 
 
@@ -41,12 +42,16 @@ const loadHome = asyncHandler(async (req,res) =>{
 })
 
 const loadProfile = asyncHandler( async (req,res) => {
-    const user = await User.findById(req.session.user).lean()
+    const userId = req.session.user._id
 
-    if(!user) {
+    if(!userId) {
         return res.redirect('/auth/login')
     }
-    res.render('user/profile',{layout:'layouts/user_main',user})
+    
+    const user = await User.findById(userId).lean()
+    const addresses = await Address.find({user_id:userId}).lean()
+
+    res.render('user/profile',{layout:'layouts/user_main',user,addresses})
 })
 
 const logoutUser = asyncHandler( async (req,res) => {

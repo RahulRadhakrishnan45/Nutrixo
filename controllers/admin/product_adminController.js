@@ -12,6 +12,7 @@ const product = require('../../models/productSchema')
 
 
 
+
 const loadProducts = asyncHandler( async( req,res) => {
     const perPage = 7
     const page = parseInt(req.query.page) || 1

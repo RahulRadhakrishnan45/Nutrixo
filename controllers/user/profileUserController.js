@@ -135,5 +135,21 @@ const setDefaultAddress = asyncHandler( async( req,res) => {
     return res.json({success:true,message:messages.ADDRESS.DEFAULT_ADDRESS})
 })
 
+const updateProfile = asyncHandler( async( req,res) => {
+    const {fullname,email,mobile,address} = req.body
+    const userId = req.session.user._id
+    
+    await User.findByIdAndUpdate(userId, {name:fullname,email,mobile})
 
-module.exports ={uploadProfileImage,loadAddress,addAddress,updateAddress,deleteAddress,setDefaultAddress}
+    if(address) {
+        await Address.updateMany(
+            {user_id:userId},{$set:{is_Default:false}}
+        )
+        await Address.findByIdAndUpdate(address,{$set:{is_Default:true}})
+    }
+
+    return res.json({success:true,message:messages.PROFILE.PROFILE_UPDATED})
+})
+
+
+module.exports ={uploadProfileImage,loadAddress,addAddress,updateAddress,deleteAddress,setDefaultAddress,updateProfile}

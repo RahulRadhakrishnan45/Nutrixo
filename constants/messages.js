@@ -100,6 +100,9 @@ const messages = Object.freeze({
         ADDRESS_UPDATED:"Address updated successfully",
         ADDRESS_DELETED:"Address deleted successfully",
         DEFAULT_ADDRESS:"Default address updated successfully",
+    },
+    PROFILE:{
+        PROFILE_UPDATED:"Profile updated successfully"
     }
 });
 

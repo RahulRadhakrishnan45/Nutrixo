@@ -135,196 +135,18 @@
   </div>
 </div>
 
-<!-- Modal (Add New Address) -->
-<div id="addressModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-  <div class="bg-white w-full max-w-lg rounded-lg shadow-lg p-6 relative">
-    
-    <!-- Close Button -->
-    <button id="closeModal" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl">&times;</button>
-    
-    <!-- Modal Title -->
-    <h2 class="text-xl font-bold text-gray-800 mb-4">Add New Address</h2>
-
-    <!-- Address Form -->
-    <form id="addressForm" class="space-y-4">
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="text-sm font-medium">Full Name</label>
-          <input type="text" name="fullname" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black">
-        </div>
-        <div>
-          <label class="text-sm font-medium">Mobile</label>
-          <input type="text" name="mobile" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black">
-        </div>
-      </div>
-
-      <div>
-        <label class="text-sm font-medium">Address</label>
-        <input type="text" name="address" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black">
-      </div>
-
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="text-sm font-medium">District</label>
-          <input type="text" name="district" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black">
-        </div>
-        <div>
-          <label class="text-sm font-medium">State</label>
-          <input type="text" name="state" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black">
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="text-sm font-medium">Country</label>
-          <input type="text" name="country" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black">
-        </div>
-        <div>
-          <label class="text-sm font-medium">Pincode</label>
-          <input type="text" name="pincode" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black">
-        </div>
-      </div>
-
-      <!-- Buttons -->
-      <div class="flex justify-end gap-2 pt-4">
-        <button type="button" id="cancelBtn" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">Cancel</button>
-        <button type="submit" class="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800">Save Address</button>
-      </div>
-    </form>
-  </div>
-</div>
+<%-include('../partials/addressModal.ejs') %>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="/js/logout.js"></script>
+<script src="/js/addressModal.js"></script>
+
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    const modal = document.getElementById("addressModal");
-    const openBtns = document.querySelectorAll(".add-new-btn");
-    const closeBtn = document.getElementById("closeModal");
-    const cancelBtn = document.getElementById("cancelBtn");
-    const form = document.getElementById("addressForm");
-
-    // Toastr config
-    toastr.options = {
-      closeButton: true,
-      progressBar: true,
-      positionClass: "toast-bottom-right",
-      timeOut: "2000"
-    };
-
-    // Open modal
-    openBtns.forEach(btn => {
-      btn.addEventListener("click", () => {
-        modal.classList.remove("hidden");
-        modal.classList.add("flex");
-      });
-    });
-
-    // Close modal
-    const closeModal = () => {
-      modal.classList.add("hidden");
-      modal.classList.remove("flex");
-      form.reset();
-    };
-    closeBtn.addEventListener("click", closeModal);
-    cancelBtn.addEventListener("click", closeModal);
-
-    // Validation helper
-    function validateForm(data) {
-      if (!data.fullname?.trim()) return "Full Name is required";
-      if (!/^[0-9]{10}$/.test(data.mobile)) return "Enter a valid 10-digit Mobile number";
-      if (!data.address?.trim()) return "Address is required";
-      if (!data.district?.trim()) return "District is required";
-      if (!data.state?.trim()) return "State is required";
-      if (!data.country?.trim()) return "Country is required";
-      if (!/^[0-9]{6}$/.test(data.pincode)) return "Enter a valid 6-digit Pincode";
-      return null;
-    }
-
-    // ADD new address
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const formData = {
-        fullname: form.fullname.value,
-        mobile: form.mobile.value,
-        address: form.address.value,
-        district: form.district.value,
-        state: form.state.value,
-        country: form.country.value,
-        pincode: form.pincode.value,
-      };
-
-      const error = validateForm(formData);
-      if (error) return toastr.error(error);
-
-      try {
-        const res = await fetch("/profile/address", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData)
-        });
-        const data = await res.json();
-
-        if (data.success) {
-          toastr.success(data.message || "Address saved!");
-          closeModal();
-          setTimeout(() => window.location.reload(), 1000);
-        } else {
-          toastr.error(data.message || "Failed to save address");
-        }
-      } catch {
-        toastr.error("Something went wrong. Try again!");
-      }
-    });
-
-    // INLINE EDIT
-    document.querySelectorAll(".edit-btn").forEach(btn => {
-      btn.addEventListener("click", async () => {
-        const card = btn.closest(".border");
-        const inputs = card.querySelectorAll("input");
-
-        if (btn.textContent === "Edit") {
-          inputs.forEach(input => input.removeAttribute("readonly"));
-          btn.textContent = "Save Changes";
-          btn.classList.remove("bg-blue-600");
-          btn.classList.add("bg-green-600");
-        } else {
-          const updatedData = {};
-          inputs.forEach(input => {
-            updatedData[input.dataset.field] = input.value.trim();
-          });
-
-          const error = validateForm(updatedData);
-          if (error) return toastr.error(error);
-
-          try {
-            const res = await fetch(`/profile/address/edit/${btn.dataset.id}`, {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(updatedData)
-            });
-            const data = await res.json();
-
-            if (data.success) {
-              toastr.success(data.message || "Address updated successfully!");
-              inputs.forEach(input => input.setAttribute("readonly", true));
-              btn.textContent = "Edit";
-              btn.classList.remove("bg-green-600");
-              btn.classList.add("bg-blue-600");
-            } else {
-              toastr.error(data.message || "Failed to update address");
-            }
-          } catch {
-            toastr.error("Something went wrong. Try again!");
-          }
-        }
-      });
-    });
-
-    // DELETE with Swal
+    // ✅ DELETE with Swal
     document.querySelectorAll(".delete-btn").forEach(btn => {
       btn.addEventListener("click", async () => {
         Swal.fire({
@@ -358,7 +180,7 @@
       });
     });
 
-    // MAKE DEFAULT
+    // ✅ MAKE DEFAULT
     document.querySelectorAll(".default-btn").forEach(btn => {
       btn.addEventListener("click", async () => {
         try {
@@ -370,7 +192,7 @@
 
           if (data.success) {
             toastr.success(data.message || "Default address set!");
-            setTimeout(() => window.location.reload(),500);
+            setTimeout(() => window.location.reload(), 500);
           } else {
             toastr.error(data.message || "Failed to set default address");
           }
@@ -380,7 +202,7 @@
       });
     });
 
-    // Dropdown scroll
+    // ✅ Dropdown scroll
     const dropdown = document.getElementById("selectedAddress");
     if (dropdown) {
       dropdown.addEventListener("change", (e) => {

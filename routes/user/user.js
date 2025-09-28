@@ -29,6 +29,7 @@ router.post('/profile/address',checkSession,profileController.addAddress)
 router.put('/profile/address/edit/:id',checkSession,profileController.updateAddress)
 router.delete('/profile/address/delete/:id',checkSession,profileController.deleteAddress)
 router.put('/profile/address/set-default/:id',checkSession,profileController.setDefaultAddress)
+router.post('/profile/update',checkSession,profileController.updateProfile)
 
 
 module.exports = router 

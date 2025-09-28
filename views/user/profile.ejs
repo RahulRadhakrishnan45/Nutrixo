@@ -52,20 +52,78 @@
         </div>
         <div class="flex items-center p-3 bg-gray-50 rounded-lg">
           <i class="fas fa-map-marker-alt text-gray-500 w-6"></i>
-          <span class="ml-3 text-gray-700"><%= user.address || "No default address set" %></span>
+          <% if (addresses && addresses.length > 0) { %>
+            <% const defaultAddress = addresses.find(addr => addr.is_Default); %>
+          <span class="ml-3 text-gray-700"><%= defaultAddress 
+            ? `${defaultAddress.address}, ${defaultAddress.district}, ${defaultAddress.state}, ${defaultAddress.pincode}, ${defaultAddress.country}` 
+            : "No default address set" %></span>
+            <% } else { %>
+              <span class="ml-3 text-gray-700">No address added</span>
+              <% } %>
         </div>
       </div>
 
       <!-- Edit Profile Button -->
       <div class="mt-6 text-center">
-        <a href="/profile/edit"
+        <button type="button" onclick="openModal()"
            class="px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition">
           <i class="fas fa-pen mr-2"></i> Edit Profile
+        </button>
         </a>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Edit Profile Modal -->
+<div id="editProfileModal" 
+     class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+  <div class="bg-white w-full max-w-lg rounded-lg shadow-lg p-6 relative">
+    <h2 class="text-xl font-bold mb-4">Edit Profile</h2>
+    
+    <form id="editProfileForm">
+      <!-- Full Name -->
+      <label class="block mb-2 text-sm font-medium">Full Name</label>
+      <input type="text" name="fullname" value="<%= user.name %>"
+             class="w-full p-2 border rounded mb-4" />
+
+      <!-- Email -->
+      <label class="block mb-2 text-sm font-medium">Email</label>
+      <input type="email" name="email" value="<%= user.email %>"
+             class="w-full p-2 border rounded mb-4" />
+
+      <!-- Mobile -->
+      <label class="block mb-2 text-sm font-medium">Mobile</label>
+      <input type="text" name="mobile" value="<%= user.mobile || '' %>"
+             class="w-full p-2 border rounded mb-4" />
+
+      <!-- Address Dropdown -->
+      <label class="block mb-2 text-sm font-medium">Select Address</label>
+      <select name="address" class="w-full p-2 border rounded mb-4 max-h-32 overflow-y-auto">
+        <% if (addresses && addresses.length > 0) { %>
+          <% addresses.forEach(addr => { %>
+            <option value="<%= addr._id %>" <%= addr.is_Default ? 'selected' : '' %>>
+              <%= addr.fullname %> - <%= addr.address %>, <%= addr.district %>, 
+              <%= addr.state %>, <%= addr.pincode %>
+            </option>
+          <% }) %>
+        <% } else { %>
+          <option disabled>No addresses available</option>
+        <% } %>
+      </select>
+
+      <!-- Buttons -->
+      <div class="flex justify-end space-x-3">
+        <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded">Cancel</button>
+        <button type="submit" class="px-4 py-2 bg-gray-900 text-white rounded">Save</button>
+      </div>
+    </form>
+
+    <!-- Close Icon -->
+    <button onclick="closeModal()" class="absolute top-3 right-3 text-gray-600 hover:text-black">✕</button>
+  </div>
+</div>
+
 
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
@@ -127,5 +185,40 @@
     });
   });
 
+  const modal = document.getElementById('editProfileModal');
+  
+  function openModal() {
+    modal.classList.remove('hidden');
+  }
+
+  function closeModal() {
+    modal.classList.add('hidden');
+  }
+
+  // Handle form submit (you can call your update API here)
+  document.getElementById('editProfileForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const formData = Object.fromEntries(new FormData(e.target).entries());
+
+    const res = await fetch('/profile/update', {
+      method: 'POST',
+      headers:{
+        'Content-Type': 'application/json'
+      },
+      body:JSON.stringify(formData)
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      toastr.success('Profile updated');
+      closeModal();
+      setTimeout(() => {
+      window.location.reload();
+      },2000)
+    } else {
+      toastr.error(data.message || 'Update failed');
+    }
+  });
 
 </script>
