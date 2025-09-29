@@ -106,7 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (data.success) {
         toastr.success(data.message || (id ? "Address updated!" : "Address added!"));
         closeModal();
-        setTimeout(() => window.location.reload(), 1000);
+        setTimeout(() => window.location.href = `/checkout?selected=${id || "new"}`, 500);
       } else {
         toastr.error(data.message || "Failed to save address");
       }

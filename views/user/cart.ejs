@@ -306,6 +306,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 })
 
+  // 🔹 Checkout button → go to checkout page
+  const checkoutBtn = document.getElementById("checkoutBtn");
+  if (checkoutBtn) {
+    checkoutBtn.addEventListener("click", () => {
+    window.location.href = "/checkout";
+  });
+}
 
 
 </script>

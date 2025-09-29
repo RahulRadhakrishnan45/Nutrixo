@@ -81,7 +81,8 @@ const messages = Object.freeze({
     CART:{
         CART_ADD_FAILED:"Please login to add to cart",
         CART_ADD:"Item added to cart",
-        CART_NOT_FOUND:"Cart not found"
+        CART_NOT_FOUND:"Cart not found",
+        CART_EMPTY:"Cart is empty! please add items before checkout"
     },
     STOCK:{
         OUT_OF_STOCK:"Not enough stock quantity",

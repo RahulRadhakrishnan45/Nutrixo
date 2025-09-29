@@ -1,0 +1,254 @@
+<body class="bg-gray-50 min-h-screen flex flex-col items-center p-10">
+
+  <!-- Breadcrumb -->
+  <div class="w-full flex justify-center mt-6">
+    <nav class="w-full max-w-6xl mb-6 text-sm text-gray-600">
+      <ol class="flex items-center space-x-2">
+        <li><a href="/" class="hover:underline text-gray-700">Home</a></li>
+        <li>/</li>
+        <li class="text-black font-medium">Checkout</li>
+      </ol>
+    </nav>
+  </div>
+
+  <!-- ✅ Centered Checkout Container -->
+  <div class="w-full flex justify-center">
+    <div class="w-full max-w-6xl grid grid-cols-1 mt-10 lg:grid-cols-2 gap-20">
+      
+      <!-- Left Column -->
+      <div>
+        <!-- Shipping Address -->
+        <div class="bg-white shadow-md rounded-lg p-6">
+          <h2 class="text-2xl font-semibold mb-6">Shipping Address</h2>
+
+          <% 
+            
+            let selectedIndex = -1;
+
+            if (selectedId) {
+              selectedIndex = addresses.findIndex(a => a._id.toString() === selectedId);
+            }
+            if (selectedIndex === -1) {
+              selectedIndex = addresses.findIndex(a => a.is_Default);
+            }
+            const selected = selectedIndex !== -1 ? addresses[selectedIndex] : addresses[0];
+          %>
+
+          <div class="flex justify-between items-center mb-4">
+            <select id="addressSelect" class="border px-3 py-2 rounded-md">
+              <% addresses.forEach((addr, index) => { 
+                   const isSelected = selected && addr._id.toString() === selected._id.toString();
+              %>
+                <option value="<%= index %>" <%= isSelected ? "selected" : "" %>>
+                  <%= addr.fullname %>
+                </option>
+              <% }) %>
+            </select>
+            <!-- Add New opens modal -->
+            <button type="button" class="bg-black text-white px-4 py-2 rounded-md add-new-btn">
+              + Add new
+            </button>
+          </div>
+
+          <% if (addresses.length > 0) { %>
+            <div id="addressFields" class="grid grid-cols-2 gap-4">
+              <div class="col-span-2">
+                <label class="block text-sm font-medium text-gray-400 mb-1">Street Address</label>
+                <input type="text" id="street" value="<%= selected.address %>" class="border p-2 rounded w-full" readonly />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-400 mb-1">Full Name</label>
+                <input type="text" id="fullname" value="<%= selected.fullname %>" class="border p-2 rounded w-full" readonly />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-400 mb-1">District</label>
+                <input type="text" id="district" value="<%= selected.district %>" class="border p-2 rounded w-full" readonly />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-400 mb-1">State</label>
+                <input type="text" id="state" value="<%= selected.state %>" class="border p-2 rounded w-full" readonly />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-400 mb-1">Pin Code</label>
+                <input type="text" id="pincode" value="<%= selected.pincode %>" class="border p-2 rounded w-full" readonly />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-400 mb-1">Country</label>
+                <input type="text" id="country" value="<%= selected.country %>" class="border p-2 rounded w-full" readonly />
+              </div>
+
+              <div class="col-span-2">
+                <label class="block text-sm font-medium text-gray-400 mb-1">Mobile</label>
+                <input type="text" id="mobile" value="<%= selected.mobile %>" class="border p-2 rounded w-full" readonly />
+              </div>
+            </div>
+
+            <!-- Edit button -->
+            <button type="button" 
+                    class="mt-4 bg-black text-white px-4 py-2 rounded-md edit-btn" 
+                    data-id="<%= selected._id %>">
+              Edit
+            </button>
+          <% } else { %>
+            <p class="text-gray-500">No saved address. Please add one.</p>
+          <% } %>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="bg-white shadow-md rounded-lg p-6 mt-8">
+          <h3 class="text-xl font-semibold mb-4">Payment Methods</h3>
+          <p class="mb-2 text-gray-600">Select one payment method</p>
+          <div class="space-y-2">
+            <label class="flex items-center space-x-2">
+              <input type="radio" name="payment" value="CARD" checked>
+              <span>Debit Card / Credit Card</span>
+            </label>
+            <label class="flex items-center space-x-2">
+              <input type="radio" name="payment" value="NETBANKING">
+              <span>Net Banking</span>
+            </label>
+            <label class="flex items-center space-x-2">
+              <input type="radio" name="payment" value="WALLET">
+              <span>Wallet</span>
+            </label>
+            <label class="flex items-center space-x-2">
+              <input type="radio" name="payment" value="COD">
+              <span>Cash on Delivery</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Order Summary -->
+      <div class="bg-white shadow-md rounded-lg p-6 h-fit lg:ml-12 xl:ml-20">
+        <h2 class="text-2xl font-semibold mb-6">Your Order</h2>
+
+        <!-- Cart Thumbnails + Edit Cart -->
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex space-x-2 flex-wrap">
+            <% cart.items.forEach(item => { 
+              const variant = item.product_id?.variants.find(v => v._id.toString() === item.variant_id.toString());
+              const firstImage = variant?.images?.length > 0 ? variant.images[0] : '/images/no-image.png';
+            %>
+              <img src="<%= firstImage %>" 
+                   class="w-12 h-12 rounded object-cover border" 
+                   alt="Product">
+            <% }) %>
+          </div>
+          <form action="/cart" method="GET">
+            <button type="submit" 
+                    class="bg-gray-200 text-gray-700 text-sm px-4 py-2 rounded hover:bg-gray-300">
+              Edit Cart
+            </button>
+          </form>
+        </div>
+
+        <!-- Price Breakdown -->
+        <div class="space-y-4 text-gray-700 mb-6">
+          <div class="flex justify-between">
+            <span>Subtotal:</span>
+            <span>₹<%= subtotal.toFixed(2) %></span>
+          </div>
+          <div class="flex justify-between text-green-600">
+            <span>Total discount:</span>
+            <span>-₹<%= discount.toFixed(2) %></span>
+          </div>
+          <div class="flex justify-between">
+            <span>Shipping:</span>
+            <span>Free</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Tax:</span>
+            <span>₹<%= tax.toFixed(2) %></span>
+          </div>
+          <div class="border-t pt-3 flex justify-between font-semibold text-lg">
+            <span>Total</span>
+            <span>₹<%= total.toFixed(2) %></span>
+          </div>
+        </div>
+
+        <!-- Place Order -->
+        <form action="/checkout/place-order" method="POST" class="mb-6">
+          <input type="hidden" id="selectedAddressIndex" name="addressIndex" value="<%= selectedIndex %>" />
+          <button class="w-full bg-black text-white py-3 rounded-md hover:bg-gray-800">
+            Place Order
+          </button>
+        </form>
+
+        <!-- Coupon -->
+        <div class="border-t pt-6">
+          <div class="flex justify-between text-gray-500 text-sm mb-3">
+            <span>(If you have any Coupon)</span>
+            <a href="/coupons" class="underline">view coupons</a>
+          </div>
+          <form action="/checkout/apply-coupon" method="POST" class="flex space-x-2">
+            <input type="text" name="code" placeholder="Enter Code" 
+                   class="border px-3 py-2 rounded-md w-full">
+            <button class="bg-black text-white px-5 rounded-md">Apply</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden address data for edit modal -->
+  <% addresses.forEach(addr => { %>
+    <div id="address-<%= addr._id %>" class="hidden">
+      <input type="hidden" data-field="fullname" value="<%= addr.fullname %>">
+      <input type="hidden" data-field="mobile" value="<%= addr.mobile %>">
+      <input type="hidden" data-field="address" value="<%= addr.address %>">
+      <input type="hidden" data-field="district" value="<%= addr.district %>">
+      <input type="hidden" data-field="state" value="<%= addr.state %>">
+      <input type="hidden" data-field="country" value="<%= addr.country %>">
+      <input type="hidden" data-field="pincode" value="<%= addr.pincode %>">
+    </div>
+  <% }) %>
+
+  <!-- Address modal -->
+  <%- include('../partials/addressModal.ejs') %>
+  <script src="/js/addressModal.js"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+  <!-- JS for updating address dynamically -->
+  <script>
+    const addresses = <%- JSON.stringify(addresses) %>;
+
+    const addressSelect = document.getElementById("addressSelect");
+    const street = document.getElementById("street");
+    const fullname = document.getElementById("fullname");
+    const district = document.getElementById("district");
+    const state = document.getElementById("state");
+    const pincode = document.getElementById("pincode");
+    const country = document.getElementById("country");
+    const mobile = document.getElementById("mobile");
+    const selectedAddressIndex = document.getElementById("selectedAddressIndex");
+    const editBtn = document.querySelector(".edit-btn");
+
+    addressSelect.addEventListener("change", (e) => {
+      const selected = addresses[e.target.value];
+      street.value = selected.address;
+      fullname.value = selected.fullname;
+      district.value = selected.district;
+      state.value = selected.state;
+      pincode.value = selected.pincode;
+      country.value = selected.country;
+      mobile.value = selected.mobile;
+
+      // update hidden input for backend
+      selectedAddressIndex.value = e.target.value;
+
+      // update edit button data-id
+      if (editBtn) {
+        editBtn.dataset.id = selected._id;
+      }
+    });
+  </script>
+</body>

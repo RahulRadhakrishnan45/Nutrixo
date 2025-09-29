@@ -4,6 +4,7 @@ const {checkSession} = require('../../middlewares/checkSession')
 const userController = require('../../controllers/user/product_userController')
 const cartController = require('../../controllers/user/cart_userController')
 const profileController = require('../../controllers/user/profileUserController')
+const checkoutController = require('../../controllers/user/checkoutUserController')
 const {uploadProfile} = require('../../config/multer')
 
 
@@ -31,5 +32,7 @@ router.delete('/profile/address/delete/:id',checkSession,profileController.delet
 router.put('/profile/address/set-default/:id',checkSession,profileController.setDefaultAddress)
 router.post('/profile/update',checkSession,profileController.updateProfile)
 
+
+router.get('/checkout',checkSession,checkoutController.loadCheckout)
 
 module.exports = router 
