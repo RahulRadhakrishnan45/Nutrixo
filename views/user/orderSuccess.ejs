@@ -1,0 +1,53 @@
+<div class="bg-green-50 min-h-screen flex flex-col items-center p-10">
+  <!-- Success Animation + Heading -->
+  <div class="text-center mt-8"> <!-- lowered margin -->
+    <!-- Animation -->
+    <dotlottie-wc 
+      src="https://lottie.host/7abab5e9-3217-49e5-a846-5d2fbac80097/pALy1o0MKg.lottie" 
+      style="width: 300px; height: 300px; display:block; margin:0 auto 1.5rem;" 
+      autoplay
+      loop="false">
+    </dotlottie-wc>
+
+    <h1 class="text-3xl font-bold text-gray-800">Thank you for shopping</h1>
+    <p class="text-gray-600 mt-2">
+      Your order has been successfully placed and is now being processed
+    </p>
+
+    <!-- Buttons -->
+    <div class="mt-6 flex justify-center space-x-4">
+      <a href="/" class="px-6 py-2 border rounded-lg text-gray-700 bg-white hover:bg-gray-100">
+        Continue Shopping
+      </a>
+      <a href="/order-success/<%= order._id %>" 
+         class="px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800">
+        View Order Details
+      </a>
+    </div>
+  </div>
+
+  <!-- Order Information Card -->
+  <div class="bg-white shadow-md rounded-lg p-8 mt-12 w-full max-w-3xl mx-auto text-left animate-fade-in">
+    <h2 class="text-xl font-semibold mb-6">Order Information</h2>
+    <div class="grid grid-cols-2 gap-y-6 text-gray-700 text-lg">
+      <p><span class="font-medium">Order Number:</span> <%= order.orderNumber %></p>
+      <p><span class="font-medium">Date:</span> 
+        <%= new Date(order.createdAt).toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }) %>
+      </p>
+      <p><span class="font-medium">Email:</span> <%= order.user.email %></p>
+      <p><span class="font-medium">Total:</span> ₹<%= order.totalAmount %></p>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.8.1/dist/dotlottie-wc.js" type="module"></script>
+
+<style>
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-in {
+    animation: fadeIn 0.8s ease-in-out forwards;
+  }
+</style>

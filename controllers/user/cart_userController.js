@@ -156,7 +156,7 @@ const increaseQty = asyncHandler( async( req,res) => {
     if(item.quantity > variant.stock) {
         item.quantity = variant.stock
         await cart.save()
-        const summary = calculateSummary(cart)
+        const summary = await calculateSummary(cart)
         const cartCount = cart.items.reduce((sum, i) => sum + i.quantity, 0)
         return res.json({success:false,newQty:item.quantity,summary,cartLength: cartCount,displayCartLength:cartCount > 5 ? '5+' : String(cartCount),message:`stock reduced to ${variant.stock}`})
     }
@@ -172,7 +172,7 @@ const increaseQty = asyncHandler( async( req,res) => {
     item.quantity += 1
     await cart.save()
 
-    const summary = calculateSummary(cart)
+    const summary = await calculateSummary(cart)
     const cartCount = cart.items.reduce((sum,i) => sum + i.quantity, 0)
     res.json({success:true, newQty:item.quantity,summary,cartLength:cartCount,displayCartLength: cartCount > 5 ? '5+' : String(cartCount)})
         
@@ -199,7 +199,7 @@ const decreaseQty = asyncHandler( async( req,res) => {
     if(item.quantity > variant.stock) {
         item.quantity = variant.stock
         await cart.save()
-        const summary = calculateSummary(cart)
+        const summary = await calculateSummary(cart)
         const cartCount = cart.items.reduce((sum, i) => sum + i.quantity, 0)
         return res.json({success:true,newQty:item.quantity,summary,cartLength: cartCount,displayCartLength: cartCount > 5 ? '5+' : String(cartCount),message:`stock reduced to ${variant.stock}`})
     }
@@ -214,7 +214,7 @@ const decreaseQty = asyncHandler( async( req,res) => {
 
     await cart.save()
 
-    const summary = calculateSummary(cart)
+    const summary = await calculateSummary(cart)
     const cartCount = cart.items.reduce((sum,i) => sum + i.quantity, 0)
     res.json({success:true,newQty:item.quantity,removed,summary,cartLength: cartCount,displayCartLength: cartCount > 5 ? '5+' : String(cartCount)})
 })
@@ -232,17 +232,28 @@ const removeItem = asyncHandler( async( req,res) => {
     cart.items.pull(itemId)
     await cart.save()
 
-    const summary = calculateSummary(cart)
+    const summary = await calculateSummary(cart)
     const cartCount = cart.items.reduce((sum,i) => sum + i.quantity, 0)
     res.json({success:true,removed:true,summary,cartLength: cartCount,displayCartLength:cartCount > 5 ? '5+' : String(cartCount)})
 })
 
-function calculateSummary(cart) {
+async function calculateSummary(cart) {
   let subtotal = 0
-  cart.items.forEach((i) => (subtotal += i.price * i.quantity))
-  const tax = Math.round(subtotal * 0.02)
-  const total = subtotal + tax
-  return { subtotal, tax, total }
+  
+  for(const item of cart.items) {
+    const product = await Product.findById(item.product_id).lean()
+    if(!product) continue
+
+    const variant = product.variants.find(v => v._id.toString() === item.variant_id.toString())
+    if(!variant) continue
+
+    const price = variant.discounted_price || variant.price
+    subtotal += price * item.quantity
+  }
+
+  const tax = Number((subtotal * 0.02).toFixed(2))
+  const total = subtotal +tax
+  return {subtotal,tax,total}
 }
 
 

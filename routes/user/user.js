@@ -34,5 +34,9 @@ router.post('/profile/update',checkSession,profileController.updateProfile)
 
 
 router.get('/checkout',checkSession,checkoutController.loadCheckout)
+router.post('/checkout/place-order',checkSession,checkoutController.placeOrder)
+
+
+router.get('/order-success/:id',checkSession,checkoutController.viewOrderSuccess)
 
 module.exports = router 
