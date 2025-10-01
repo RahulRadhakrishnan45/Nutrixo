@@ -104,6 +104,9 @@ const messages = Object.freeze({
     },
     PROFILE:{
         PROFILE_UPDATED:"Profile updated successfully"
+    },
+    ORDER:{
+        ORDER_NOT_FOUND:"Order not found"
     }
 });
 

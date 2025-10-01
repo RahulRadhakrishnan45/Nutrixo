@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const orderSchema = new mongoose.Schema({
     user:{type:mongoose.Schema.Types.ObjectId,ref:'user',required:true},
-    orderAddress:{type:mongoose.Schema.Types.ObjectId,ref:'Address',required:true},
+    orderAddress:{type:mongoose.Schema.Types.ObjectId,ref:'address',required:true},
     coupon:{type:mongoose.Schema.Types.ObjectId,ref:'Coupon',default:null},
     paymentStatus:{type:String,enum:['PENDING','COMPLETED','FAILED','REFUNDED'],default:'PENDING'},
     paymentMethod:{type:String,enum:['COD','CARD','WALLET','BANK'],default:'COD'},
