@@ -64,21 +64,21 @@
         </div>
 
         <div class="mt-6">
-  <label class="block font-medium mb-2">Price Range</label>
-    <div class="flex gap-2 items-center">
-        <input type="number" id="minPrice" min="100" step="100" 
-           class="w-1/2 border rounded p-2"
-           placeholder="Min" 
-           value="<%= selectedFilters.minPrice || '' %>">
+          <label class="block font-medium mb-2">Price Range</label>
+          <div class="flex gap-2 items-center">
+            <input type="number" id="minPrice" min="100" step="100" 
+              class="w-1/2 border rounded p-2"
+              placeholder="Min" 
+              value="<%= selectedFilters.minPrice || '' %>">
 
-        <input type="number" id="maxPrice" min="100" step="100" 
-           class="w-1/2 border rounded p-2"
-           placeholder="Max" 
-           value="<%= selectedFilters.maxPrice || '' %>">
-      </div>
-      <button onclick="applyFilters()" 
+            <input type="number" id="maxPrice" min="100" step="100" 
+              class="w-1/2 border rounded p-2"
+              placeholder="Max" 
+              value="<%= selectedFilters.maxPrice || '' %>">
+          </div>
+          <button onclick="applyFilters()" 
             class="mt-3 w-full bg-blue-600 text-white py-2 rounded">Apply</button>
-      </div>
+        </div>
 
         <% if (selectedFilters.brand || selectedFilters.flavour || selectedFilters.size || selectedFilters.minPrice || selectedFilters.maxPrice || selectedFilters.category) { %>
           <div class="mt-6">
@@ -87,7 +87,7 @@
               Clear Filters
             </button>
           </div>
-          <% } %>
+        <% } %>
       </aside>
 
       <!-- Products Section -->
@@ -106,18 +106,23 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
           <% products.forEach(variant => { %>
             <a href="/products/<%= variant.productId %>?variant=<%= variant._id %>"
-              class="bg-white rounded-xl shadow hover:shadow-lg transition p-4">
+              class="bg-white rounded-xl shadow hover:shadow-lg transition p-4 block">
                 <img src="<%= variant.image %>" alt="<%= variant.name %>" class="h-48 w-full object-contain mb-4">
-            <h3 class="font-semibold text-lg"><%= variant.name %></h3>
-            <p class="text-gray-500 text-sm">★★★★★</p>
-            <p class="text-green-600 font-semibold">IN STOCK</p>
-            <div class="mt-2">
-                <span class="line-through text-gray-400">₹ <%= variant.original_price %></span>
-                <span class="ml-2 text-xl font-bold text-gray-900">₹ <%= variant.discounted_price %></span>
-            </div>
-          </a>
-        <% }) %>
+                <h3 class="font-semibold text-lg"><%= variant.name %></h3>
+                <p class="text-gray-500 text-sm">★★★★★</p>
 
+                <% if (variant.stock > 0) { %>
+                  <p class="text-green-600 font-semibold">IN STOCK (<%= variant.stock %>)</p>
+                <% } else { %>
+                  <p class="text-red-600 font-semibold">OUT OF STOCK</p>
+                <% } %>
+
+                <div class="mt-2">
+                  <span class="line-through text-gray-400">₹ <%= variant.original_price %></span>
+                  <span class="ml-2 text-xl font-bold text-gray-900">₹ <%= variant.discounted_price %></span>
+                </div>
+            </a>
+          <% }) %>
         </div>
       </main>
     </div>
@@ -128,7 +133,6 @@
 <%- include('../partials/pagination.ejs',{currentPage,totalPages}) %>
 
 <script>
-
 function applyFilters() {
   const params = new URLSearchParams()
 
@@ -159,7 +163,6 @@ function clearFilters() {
   document.getElementById("maxPrice").value = ""
   document.querySelector("input[name='category'][value='All']").checked = true
 
-    window.location.href = "/products"; 
+  window.location.href = "/products"; 
 }
-
 </script>

@@ -260,5 +260,16 @@
                 paymentInput.value = e.target.value; // update hidden field
             });
         });
+
+    toastr.options = {
+        "closeButton": true,
+        "progressBar": true,
+        "positionClass": "toast-bottom-right",
+        "timeOut": "3000"
+    };
+
+    <% if(error === 'noAddress') { %>
+        toastr.error('Please add a addresss before placing order')
+    <% } %>
   </script>
 </body>

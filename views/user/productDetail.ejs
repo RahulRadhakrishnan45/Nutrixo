@@ -40,7 +40,7 @@
       
       <!-- Stock -->
       <p class="mb-4 text-sm text-gray-600" id="productStock">
-        <%= selectedVariant.stock > 0 ? 'IN STOCK' : 'OUT OF STOCK' %>
+        <%= selectedVariant.stock > 0 ? `IN STOCK (${selectedVariant.stock})`: 'OUT OF STOCK' %>
       </p>
 
       <!-- Variant Dropdowns -->
@@ -197,7 +197,7 @@
 
     if (variant) {
       productPrice.innerText = variant.discounted_price || variant.price;
-      productStock.innerText = variant.stock > 0 ? "IN STOCK" : "OUT OF STOCK";
+      productStock.innerText = variant.stock > 0 ? `IN STOCK (${variant.stock})` : "OUT OF STOCK";
 
       // Update images in swiper
       productImages.innerHTML = "";

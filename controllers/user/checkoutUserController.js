@@ -6,6 +6,7 @@ const Cart = require('../../models/cartSchema')
 const Order = require('../../models/orderSchema')
 const User = require('../../models/userSchema')
 const { text } = require('express')
+const Product = require('../../models/productSchema')
 
 
 const loadCheckout = asyncHandler( async( req,res) => {
@@ -60,7 +61,7 @@ const loadCheckout = asyncHandler( async( req,res) => {
         total = subtotal + tax
     }
 
-    res.render('user/checkout',{layout:'layouts/user_main',addresses,cart,subtotal,discount,tax,total,cartLength:cart?.items?.length || 0,selectedId:req.query.selected || null})
+    res.render('user/checkout',{layout:'layouts/user_main',addresses,cart,subtotal,discount,tax,total,cartLength:cart?.items?.length || 0,selectedId:req.query.selected || null,error:req.query.error || null})
 })
 
 const placeOrder = asyncHandler( async( req,res) => {
@@ -71,7 +72,7 @@ const placeOrder = asyncHandler( async( req,res) => {
 
     const addresses = await Address.find({user_id:userId}).lean()
     const selectedAddress = addresses[addressIndex]
-    if(!selectedAddress) return res.redirect('/checkout')
+    if(!selectedAddress) return res.redirect('/checkout?error=noAddress')
 
     const cart = await Cart.findOne({user_id:userId}).populate('items.product_id').lean()
     if(!cart || cart.items.length === 0) return res.redirect('/cart')
@@ -115,6 +116,12 @@ const placeOrder = asyncHandler( async( req,res) => {
         totalAmount:total,
         items:orderItem
     })
+
+    for(const item of orderItem) {
+        await Product.updateOne(
+            {_id:item.product,'variants._id':item.variantId},{$inc:{'variants.$.stock':-item.quantity}}
+        )
+    }
 
     await Cart.findOneAndUpdate({user_id:userId},{$set:{items:[]}})
     res.redirect(`/order-success/${order._id}`)
