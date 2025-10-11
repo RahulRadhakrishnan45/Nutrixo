@@ -12,6 +12,7 @@ const connectDB = require('./config/connectDB')
 const globalMiddleware = require('./middlewares/globalMiddleware')
 const seedAdmin=require('./utils/seedAdmin')
 const headerData = require('./middlewares/headerData')
+const {errorLog,apiLog} = require('./config/logger')
 
 dotenv.config()
 const app = express()
@@ -55,6 +56,11 @@ app.use('/auth',authRoutes)
 
 app.all('/*splat',(req,res)=>{
     res.render('user/404-page',{layout:false})
+})
+
+app.use((err,req,res,next) => {
+  errorLog.error(`Unhandled error: ${err.message} | Stack: ${err.stack}`)
+  res.status(500).send('something went wrong! please try again later')
 })
 
 

@@ -13,117 +13,165 @@
   <!-- <h1 class="text-2xl font-bold mb-6">Your cart</h1> -->
 
   <!-- Dynamic grid: 3 cols if items, 1 col if empty -->
-  <div class="grid <%= cartItems && cartItems.length > 0 ? 'grid-cols-1 lg:grid-cols-3' : 'grid-cols-1' %> gap-10">
-    
+  <div
+    class="grid <%= cartItems && cartItems.length > 0 ? 'grid-cols-1 lg:grid-cols-3' : 'grid-cols-1' %> gap-10"
+  >
     <!-- Cart Items -->
-    <div class="<%= cartItems && cartItems.length > 0 ? 'lg:col-span-2 space-y-6' : 'col-span-1' %>" id="cart-items">
-      <% if(cartItems && cartItems.length > 0) { %>
-        <% cartItems.forEach(item => { %>
-          <div id="item-<%= item._id %>" class="flex items-center border-b pb-4">
-            <!-- Product Image -->
-            <img src="<%= item.variant.images[0] || '/images/no-image.png' %>"
-                 alt="<%= item.product.title %>"
-                 class="w-20 h-20 object-contain rounded border mr-4">
-            
-            <!-- Product Details -->
-            <div class="flex-1">
-              <h2 class="text-lg font-semibold"><%= item.product.title %></h2>
-              <p class="text-sm text-gray-600">
-                <%= item.variant.flavour %> Flavour — Quantity: <%= item.variant.size %>
-              </p>
-              <p class="text-gray-800 font-bold mt-1">
-                ₹ <%= item.variant.discounted_price || item.variant.price %>
-              </p>
-            </div>
+    <div
+      class="<%= cartItems && cartItems.length > 0 ? 'lg:col-span-2 space-y-6' : 'col-span-1' %>"
+      id="cart-items"
+    >
+      <% if(cartItems && cartItems.length > 0) { %> <% cartItems.forEach(item =>
+      { %>
+      <div id="item-<%= item._id %>" class="flex items-center border-b pb-4">
+        <!-- Product Image -->
+        <img
+          src="<%= item.variant.images[0] || '/images/no-image.png' %>"
+          alt="<%= item.product.title %>"
+          class="w-20 h-20 object-contain rounded border mr-4"
+        />
 
-            <!-- Quantity Controls -->
-            <div class="flex items-center space-x-2">
-              <button class="decreaseBtn px-2 py-1 border rounded" data-id="<%= item._id %>">−</button>
-              <span id="qty-<%= item._id %>"><%= item.quantity %></span>
-              <button class="increaseBtn px-2 py-1 border rounded" data-id="<%= item._id %>">+</button>
-            </div>
-
-            <!-- Remove -->
-            <button class="removeBtn ml-4 text-gray-400 hover:text-red-500" data-id="<%= item._id %>">✕</button>
-          </div>
-        <% }) %>
-      <% } else { %>
-        <!-- Empty Cart View -->
-        <div class="flex justify-center items-center w-full">
-          <div class="bg-gray-100 rounded-lg p-10 w-full text-center max-w-2xl">
-            <div class="flex justify-center mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-500" fill="none"
-                   viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                      d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.35 2.7a1 1 0 00.9 1.45h12.1M7 13l1.35-2.7a1 1 0 01.9-.55h8.3a1 1 0 01.9.55L21 13M7 21a1 1 0 100-2 1 1 0 000 2zm10 0a1 1 0 100-2 1 1 0 000 2z" />
-              </svg>
-            </div>
-            <h2 class="text-lg font-semibold mb-2">Your cart is empty</h2>
-            <p class="text-gray-600 mb-6">Looks like you haven't added anything yet.</p>
-            <a href="/products"
-               class="inline-block bg-black text-white px-6 py-2 rounded hover:bg-gray-800 transition">
-              Continue Shopping
-            </a>
-          </div>
+        <!-- Product Details -->
+        <div class="flex-1">
+          <h2 class="text-lg font-semibold"><%= item.product.title %></h2>
+          <p class="text-sm text-gray-600">
+            <%= item.variant.flavour %> Flavour — Quantity: <%=
+            item.variant.size %>
+          </p>
+          <p class="text-gray-800 font-bold mt-1">
+            ₹ <%= item.variant.discounted_price || item.variant.price %>
+          </p>
         </div>
+
+        <!-- Quantity Controls -->
+        <div class="flex items-center space-x-2">
+          <button
+            class="decreaseBtn px-2 py-1 border rounded"
+            data-id="<%= item._id %>"
+          >
+            −
+          </button>
+          <span id="qty-<%= item._id %>"><%= item.quantity %></span>
+          <button
+            class="increaseBtn px-2 py-1 border rounded"
+            data-id="<%= item._id %>"
+          >
+            +
+          </button>
+        </div>
+
+        <!-- Remove -->
+        <button
+          class="removeBtn ml-4 text-gray-400 hover:text-red-500"
+          data-id="<%= item._id %>"
+        >
+          ✕
+        </button>
+      </div>
+      <% }) %> <% } else { %>
+
+      <!-- Empty Cart View -->
+      <div class="flex justify-center items-center w-full">
+        <div class="bg-gray-100 rounded-lg p-10 w-full text-center max-w-2xl">
+          <div class="flex justify-center mb-4">
+            <dotlottie-wc
+              src="https://lottie.host/b8525566-0f9b-4521-9e54-b67a83f04cf8/ACQNbvFZhH.lottie"
+              style="width: 300px; height: 300px"
+              autoplay
+              loop
+            >
+            </dotlottie-wc>
+          </div>
+          <h2 class="text-lg font-semibold mb-2">Your cart is empty</h2>
+          <p class="text-gray-600 mb-6">
+            Looks like you haven't added anything yet.
+          </p>
+          <a
+            href="/products"
+            class="inline-block bg-black text-white px-6 py-2 rounded hover:bg-gray-800 transition"
+          >
+            Continue Shopping
+          </a>
+        </div>
+      </div>
+
       <% } %>
     </div>
 
     <!-- Order Summary (only if items exist) -->
     <% if(cartItems && cartItems.length > 0) { %>
-      <div id="order-summary" class="border rounded-lg p-6 h-fit">
-        <h2 class="text-lg font-semibold mb-4">Order Summary</h2>
-        <div class="space-y-2 text-sm">
-          <div class="flex justify-between">
-            <span>Subtotal</span>
-            <span id="subtotal">₹ <%= subtotal %></span>
-          </div>
-          <div class="flex justify-between">
-            <span>Shipping</span>
-            <span class="text-green-600 font-medium">Free</span>
-          </div>
-          <div class="flex justify-between">
-            <span>Tax</span>
-            <span id="tax">₹ <%= tax %></span>
-          </div>
+    <div id="order-summary" class="border rounded-lg p-6 h-fit">
+      <h2 class="text-lg font-semibold mb-4">Order Summary</h2>
+      <div class="space-y-2 text-sm">
+        <div class="flex justify-between">
+          <span>Subtotal</span>
+          <span id="subtotal">₹ <%= subtotal %></span>
         </div>
-        <div class="border-t mt-4 pt-4 flex justify-between font-bold">
-          <span>Total</span>
-          <span id="total">₹ <%= total %></span>
+        <div class="flex justify-between">
+          <span>Shipping</span>
+          <span class="text-green-600 font-medium">Free</span>
         </div>
-
-        <button id="checkoutBtn" class="w-full mt-6 bg-black text-white py-3 rounded hover:bg-gray-800">
-          Checkout
-        </button>
-        <a href="/products" class="block mt-3 text-center text-sm text-gray-500 hover:underline">
-          Continue Shopping
-        </a>
+        <div class="flex justify-between">
+          <span>Tax</span>
+          <span id="tax">₹ <%= tax %></span>
+        </div>
       </div>
-    <% } %>
+      <div class="border-t mt-4 pt-4 flex justify-between font-bold">
+        <span>Total</span>
+        <span id="total">₹ <%= total %></span>
+      </div>
 
+      <button
+        id="checkoutBtn"
+        class="w-full mt-6 bg-black text-white py-3 rounded hover:bg-gray-800"
+      >
+        Checkout
+      </button>
+      <a
+        href="/products"
+        class="block mt-3 text-center text-sm text-gray-500 hover:underline"
+      >
+        Continue Shopping
+      </a>
+    </div>
+    <% } %>
   </div>
 </div>
 
 <!-- Remove Confirmation Modal -->
-<div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+<div
+  id="confirmModal"
+  class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"
+>
   <div class="bg-white rounded-lg shadow-lg p-6 w-80 text-center">
     <h2 class="text-lg font-semibold mb-4">Remove Item</h2>
-    <p class="text-gray-600 mb-6">Are you sure you want to remove this product from your cart?</p>
+    <p class="text-gray-600 mb-6">
+      Are you sure you want to remove this product from your cart?
+    </p>
     <div class="flex justify-center space-x-4">
-      <button id="cancelRemove" class="px-4 py-2 border rounded hover:bg-gray-100">No</button>
-      <button id="confirmRemove" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Yes</button>
+      <button
+        id="cancelRemove"
+        class="px-4 py-2 border rounded hover:bg-gray-100"
+      >
+        No
+      </button>
+      <button
+        id="confirmRemove"
+        class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+      >
+        Yes
+      </button>
     </div>
   </div>
 </div>
 
 <style>
-  
   #toast-container > .toast-warning {
-    background-color: #000000 !important; 
-    color: #ffffff !important;            
-    font-weight: 600;                     
-    border: 1px solid #333333;            
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    font-weight: 600;
+    border: 1px solid #333333;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
 
   #toast-container > .toast-warning .toast-close-button {
@@ -134,187 +182,192 @@
 </style>
 
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"
+/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 <script>
-toastr.options = {
-  closeButton: true,
-  progressBar: true,
-  positionClass: "toast-bottom-right",
-  timeOut: "2000"
-}
+  toastr.options = {
+    closeButton: true,
+    progressBar: true,
+    positionClass: "toast-bottom-right",
+    timeOut: "2000",
+  };
 
-document.addEventListener('DOMContentLoaded', () => {
-  let itemToRemove = null
+  document.addEventListener("DOMContentLoaded", () => {
+    let itemToRemove = null;
 
-  // 🔹 Helper to update the badge in header
-  function updateCartBadge(cartLength) {
-    const badge = document.getElementById('cartText')
-    if (!badge) return
-    if (cartLength && cartLength !== 0) {
-      badge.textContent = cartLength
-      badge.classList.remove('hidden')
-    } else {
-      badge.classList.add('hidden')
-    }
-  }
-
-  // 🔹 Increase quantity
-  document.querySelectorAll('.increaseBtn').forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      const itemId = btn.dataset.id
-      const res = await fetch(`/cart/increase/${itemId}`, { method:'POST' })
-      const data = await res.json()
-      
-      if (data.success) {
-        document.getElementById(`qty-${itemId}`).innerHTML = data.newQty
-        updateSummary(data.summary)
-        updateCartBadge(data.cartLength)
-        if(data.message) toastr.info(data.message)
+    // 🔹 Helper to update the badge in header
+    function updateCartBadge(cartLength) {
+      const badge = document.getElementById("cartText");
+      if (!badge) return;
+      if (cartLength && cartLength !== 0) {
+        badge.textContent = cartLength;
+        badge.classList.remove("hidden");
       } else {
-        toastr.warning(data.message)
-        if(data.newQty !== undefined) {
-          document.getElementById(`qty-${itemId}`).innerHTML = data.newQty
-          updateSummary(data.summary)
-          updateCartBadge(data.cartLength)
-        }
+        badge.classList.add("hidden");
       }
-    })
-  })
+    }
 
-  // 🔹 Decrease quantity
-  document.querySelectorAll('.decreaseBtn').forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      const itemId = btn.dataset.id
-      const res = await fetch(`/cart/decrease/${itemId}`, { method:'POST' })
-      const data = await res.json()
+    // 🔹 Increase quantity
+    document.querySelectorAll(".increaseBtn").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const itemId = btn.dataset.id;
+        const res = await fetch(`/cart/increase/${itemId}`, { method: "POST" });
+        const data = await res.json();
 
-      if (data.success) {
-        if (data.removed) {
-          document.getElementById(`item-${itemId}`).remove()
-          toastr.info('Item removed from cart')
+        if (data.success) {
+          document.getElementById(`qty-${itemId}`).innerHTML = data.newQty;
+          updateSummary(data.summary);
+          updateCartBadge(data.cartLength);
+          if (data.message) toastr.info(data.message);
         } else {
-          document.getElementById(`qty-${itemId}`).innerHTML = data.newQty
+          toastr.warning(data.message);
+          if (data.newQty !== undefined) {
+            document.getElementById(`qty-${itemId}`).innerHTML = data.newQty;
+            updateSummary(data.summary);
+            updateCartBadge(data.cartLength);
+          }
         }
-        updateSummary(data.summary)
-        updateCartBadge(data.cartLength) 
-        if(data.message) toastr.info(data.message)
+      });
+    });
 
-        if (data.summary.subtotal === 0) {
-          showEmptyCart()
+    // 🔹 Decrease quantity
+    document.querySelectorAll(".decreaseBtn").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const itemId = btn.dataset.id;
+        const res = await fetch(`/cart/decrease/${itemId}`, { method: "POST" });
+        const data = await res.json();
+
+        if (data.success) {
+          if (data.removed) {
+            document.getElementById(`item-${itemId}`).remove();
+            toastr.info("Item removed from cart");
+          } else {
+            document.getElementById(`qty-${itemId}`).innerHTML = data.newQty;
+          }
+          updateSummary(data.summary);
+          updateCartBadge(data.cartLength);
+          if (data.message) toastr.info(data.message);
+
+          if (data.summary.subtotal === 0) {
+            showEmptyCart();
+          }
+        } else {
+          toastr.warning(data.message);
+          if (data.newQty !== undefined) {
+            document.getElementById(`qty-${itemId}`).innerHTML = data.newQty;
+            updateSummary(data.summary);
+            updateCartBadge(data.cartLength);
+          }
         }
-      } else {
-        toastr.warning(data.message)
-        if(data.newQty !== undefined) {
-          document.getElementById(`qty-${itemId}`).innerHTML = data.newQty
-          updateSummary(data.summary)
-          updateCartBadge(data.cartLength)
+      });
+    });
+
+    // 🔹 Remove button click → show modal
+    document.querySelectorAll(".removeBtn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        itemToRemove = btn.dataset.id;
+        document.getElementById("confirmModal").classList.remove("hidden");
+        document.getElementById("confirmModal").classList.add("flex");
+      });
+    });
+
+    // 🔹 Cancel modal
+    document.getElementById("cancelRemove").addEventListener("click", () => {
+      itemToRemove = null;
+      document.getElementById("confirmModal").classList.add("hidden");
+      document.getElementById("confirmModal").classList.remove("flex");
+    });
+
+    // 🔹 Confirm remove
+    document
+      .getElementById("confirmRemove")
+      .addEventListener("click", async () => {
+        if (!itemToRemove) return;
+
+        const res = await fetch(`/cart/remove/${itemToRemove}`, {
+          method: "POST",
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          document.getElementById(`item-${itemToRemove}`).remove();
+          updateSummary(data.summary);
+          updateCartBadge(data.cartLength); // ✅ update badge
+          toastr.error("Item removed from cart");
+
+          if (data.summary.subtotal === 0) {
+            showEmptyCart();
+          }
+        } else {
+          toastr.warning(data.message);
         }
+
+        itemToRemove = null;
+        document.getElementById("confirmModal").classList.add("hidden");
+        document.getElementById("confirmModal").classList.remove("flex");
+      });
+
+    // 🔹 Update totals
+    function updateSummary(summary) {
+      document.getElementById("subtotal").innerText = `₹ ${summary.subtotal}`;
+      document.getElementById("tax").innerText = `₹ ${summary.tax}`;
+      document.getElementById("total").innerText = `₹ ${summary.total}`;
+    }
+
+    // 🔹 Show empty cart template
+    function showEmptyCart() {
+      const cartItems = document.getElementById("cart-items");
+      if (cartItems) {
+        cartItems.outerHTML = `
+  <div class="col-span-1" id="cart-items">
+    <div class="flex justify-center items-center w-full">
+      <div class="bg-gray-100 rounded-lg p-10 w-full text-center max-w-2xl">
+        <div class="flex justify-center mb-4">
+          <dotlottie-wc 
+            src="https://lottie.host/b8525566-0f9b-4521-9e54-b67a83f04cf8/ACQNbvFZhH.lottie" 
+            style="width: 300px; height: 300px"
+            autoplay
+            loop>
+          </dotlottie-wc>
+        </div>
+        <h2 class="text-lg font-semibold mb-2">Your cart is empty</h2>
+        <p class="text-gray-600 mb-6">Looks like you haven't added anything yet.</p>
+        <a href="/products" 
+           class="inline-block bg-black text-white px-6 py-2 rounded hover:bg-gray-800 transition">
+          Continue Shopping
+        </a>
+      </div>
+    </div>
+  </div>`;
       }
-    })
-  })
 
-  // 🔹 Remove button click → show modal
-  document.querySelectorAll('.removeBtn').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      itemToRemove = btn.dataset.id
-      document.getElementById('confirmModal').classList.remove('hidden')
-      document.getElementById('confirmModal').classList.add('flex')
-    })
-  })
-
-  // 🔹 Cancel modal
-  document.getElementById('cancelRemove').addEventListener('click', () => {
-    itemToRemove = null
-    document.getElementById('confirmModal').classList.add('hidden')
-    document.getElementById('confirmModal').classList.remove('flex')
-  })
-
-  // 🔹 Confirm remove
-  document.getElementById('confirmRemove').addEventListener('click', async () => {
-    if (!itemToRemove) return
-
-    const res = await fetch(`/cart/remove/${itemToRemove}`, { method:'POST' })
-    const data = await res.json()
-
-    if (data.success) {
-      document.getElementById(`item-${itemToRemove}`).remove()
-      updateSummary(data.summary)
-      updateCartBadge(data.cartLength) // ✅ update badge
-      toastr.error('Item removed from cart')
-
-      if (data.summary.subtotal === 0) {
-        showEmptyCart()
+      const orderSummary = document.getElementById("order-summary");
+      if (orderSummary) {
+        orderSummary.remove();
       }
-    } else {
-      toastr.warning(data.message)
+
+      const grid = document.querySelector(".grid");
+      if (grid) {
+        grid.classList.remove("lg:grid-cols-3");
+        grid.classList.add("grid-cols-1");
+      }
+
+      // ✅ Also hide the cart badge when empty
+      updateCartBadge(0);
     }
-
-    itemToRemove = null
-    document.getElementById('confirmModal').classList.add('hidden')
-    document.getElementById('confirmModal').classList.remove('flex')
-  })
-
-  // 🔹 Update totals
-  function updateSummary(summary) {
-    document.getElementById('subtotal').innerText = `₹ ${summary.subtotal}`
-    document.getElementById("tax").innerText = `₹ ${summary.tax}`
-    document.getElementById("total").innerText = `₹ ${summary.total}`
-  }
-
-  // 🔹 Show empty cart template
-  function showEmptyCart() {
-    const cartItems = document.getElementById("cart-items");
-    if (cartItems) {
-      cartItems.outerHTML = `
-        <div class="col-span-1" id="cart-items">
-          <div class="flex justify-center items-center w-full">
-            <div class="bg-gray-100 rounded-lg p-10 w-full text-center max-w-2xl">
-              <div class="flex justify-center mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-500" fill="none"
-                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.35 2.7a1 1 0 00.9 1.45h12.1M7 13l1.35-2.7a1 1 0 01.9-.55h8.3a1 1 0 01.9.55L21 13M7 21a1 1 0 100-2 1 1 0 000 2zm10 0a1 1 0 100-2 1 1 0 000 2z" />
-                </svg>
-              </div>
-              <h2 class="text-lg font-semibold mb-2">Your cart is empty</h2>
-              <p class="text-gray-600 mb-6">Looks like you haven't added anything yet.</p>
-              <a href="/products" 
-                 class="inline-block bg-black text-white px-6 py-2 rounded hover:bg-gray-800 transition">
-                Continue Shopping
-              </a>
-            </div>
-          </div>
-        </div>`;
-    }
-
-    const orderSummary = document.getElementById("order-summary");
-    if (orderSummary) {
-      orderSummary.remove();
-    }
-
-    const grid = document.querySelector(".grid");
-    if (grid) {
-      grid.classList.remove("lg:grid-cols-3");
-      grid.classList.add("grid-cols-1");
-    }
-
-    // ✅ Also hide the cart badge when empty
-    updateCartBadge(0)
-  }
-})
+  });
 
   // 🔹 Checkout button → go to checkout page
   const checkoutBtn = document.getElementById("checkoutBtn");
   if (checkoutBtn) {
     checkoutBtn.addEventListener("click", () => {
-    window.location.href = "/checkout";
-  });
-}
-
-
+      window.location.href = "/checkout";
+    });
+  }
 </script>
-
-

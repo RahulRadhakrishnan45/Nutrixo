@@ -12,8 +12,8 @@ const productSchema = new mongoose.Schema({
         is_active:{type:Boolean, default:true},
         createdAt:{type:Date,default:Date.now},
         updatedAt:{type:Date,default:Date.now}}],
-        category_id:{type:mongoose.Schema.Types.ObjectId, ref:'category', required:true},
-        brand_id:{type:mongoose.Schema.Types.ObjectId, ref:'brand', required:true},
+    category_id:{type:mongoose.Schema.Types.ObjectId, ref:'category', required:true},
+    brand_id:{type:mongoose.Schema.Types.ObjectId, ref:'brand', required:true},
         
     },{timestamps:true})
 

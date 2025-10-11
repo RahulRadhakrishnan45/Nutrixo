@@ -7,6 +7,7 @@ const { generateOtp, sendVerificationEmail} = require('../../utils/generator')
 const user = require('../../models/userSchema')
 const httpStatus = require('../../constants/httpStatus')
 const messages = require('../../constants/messages')
+const {apiLog} = require('../../config/logger')
 
 
 
@@ -78,7 +79,7 @@ const signupUser = asyncHandler( async (req,res) =>{
     req.session.userData = {name,email,password,mobile}
     req.session.purpose = 'signup'
 
-    console.log('otp sent',otp)
+    apiLog.info(`OTP sent successfully to ${email}: ${otp}`)
 
     return res.json({success:true,message:messages.OTP.SENT,redirect:'/auth/otp'})
 })
@@ -89,7 +90,7 @@ const forgotPassword = asyncHandler(async (req,res) =>{
 
 const sendResetMail = asyncHandler( async(req,res) =>{
     const {email} = req.body
-    console.log(email)
+    apiLog.info(`Password reset requested for ${email}`)
     const findUser = await User.findOne({email})
     
     if(findUser){
@@ -106,7 +107,7 @@ const sendResetMail = asyncHandler( async(req,res) =>{
         req.session.purpose = 'forgot-password'
 
         
-        console.log('otp sent',otp)
+        apiLog.info(`Password reset OTP sent successfully to ${email}: ${otp}`)
 
         return res.json({success:true, message:messages.OTP.SENT,redirect:'/auth/otp'})
     }else{
@@ -159,7 +160,7 @@ const securePassword = async (password) =>{
 
 const verifyOtp = asyncHandler(async (req,res) =>{
     const {otp} =req.body
-    console.log(otp)
+    apiLog.info(`OTP entered by user: ${otp}`)
 
     if(Date.now() > req.session.otpExpiry) {
         return res.status(httpStatus.bad_request).json({success:false, message:messages.OTP.EXPIRED})
@@ -231,21 +232,21 @@ const resendOtp = asyncHandler(async (req,res)=>{
         }else if (req.session.purpose === 'forgot-password' && req.session.email) {
         email = req.session.email
         }
-        console.log(email)
+        apiLog.info(`Resend OTP requested for ${email}`)
         if(!email){
             return res.status(httpStatus.bad_request).json({success:false, message:messages.OTP.EMAIL_NOT_FOUND})
         }
         
         const otp = generateOtp()
-        req.session.otpExpiry = Date.now() + 2*60*1000
+        req.session.otpExpiry = Date.now() + 2 *60 *1000
         req.session.userOtp = otp
 
         const emailSent = await sendVerificationEmail(email,otp)
         if(emailSent){
-            console.log('Resend otp:',otp)
+            apiLog.info(`Resent OTP to ${email}: ${otp}`)
             res.status(httpStatus.ok).json({success:true,message:messages.OTP.RESENT,expiry:req.session.otpExpiry})
         }else{
-            console.log('OTP resend failed')
+            apiLog.error(`Failed to resend OTP to ${email}`)
             res.status(httpStatus.internal_server_error).json({success:false,message:messages.OTP.RESEND_FAILED})
         }
 })

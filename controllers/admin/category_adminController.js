@@ -1,4 +1,5 @@
 const Category = require('../../models/categorySchema')
+const Product = require('../../models/productSchema')
 const asyncHandler = require('express-async-handler')
 const messages = require('../../constants/messages')
 const httpStatus = require('../../constants/httpStatus')
