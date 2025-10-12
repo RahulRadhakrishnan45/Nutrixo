@@ -11,11 +11,9 @@
         <!-- Profile Avatar -->
         <div class="relative inline-block">
           <% if (user.profile_image) { %>
-            <!-- If user already uploaded profile image -->
             <img src="<%= user.profile_image %>" alt="Profile"
                  class="w-28 h-28 rounded-full border-4 border-gray-200 mx-auto object-cover">
           <% } else { %>
-            <!-- Show First Alphabet -->
             <div class="w-28 h-28 rounded-full border-4 border-gray-200 bg-gray-800 flex items-center justify-center mx-auto text-white text-4xl font-bold">
               <%= user.name.charAt(0).toUpperCase() %>
             </div>
@@ -54,12 +52,14 @@
           <i class="fas fa-map-marker-alt text-gray-500 w-6"></i>
           <% if (addresses && addresses.length > 0) { %>
             <% const defaultAddress = addresses.find(addr => addr.is_Default); %>
-          <span class="ml-3 text-gray-700"><%= defaultAddress 
-            ? `${defaultAddress.address}, ${defaultAddress.district}, ${defaultAddress.state}, ${defaultAddress.pincode}, ${defaultAddress.country}` 
-            : "No default address set" %></span>
-            <% } else { %>
-              <span class="ml-3 text-gray-700">No address added</span>
-              <% } %>
+            <span class="ml-3 text-gray-700">
+              <%= defaultAddress 
+                ? `${defaultAddress.address}, ${defaultAddress.district}, ${defaultAddress.state}, ${defaultAddress.pincode}, ${defaultAddress.country}` 
+                : "No default address set" %>
+            </span>
+          <% } else { %>
+            <span class="ml-3 text-gray-700">No address added</span>
+          <% } %>
         </div>
       </div>
 
@@ -69,7 +69,6 @@
            class="px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition">
           <i class="fas fa-pen mr-2"></i> Edit Profile
         </button>
-        </a>
       </div>
     </div>
   </div>
@@ -88,29 +87,47 @@
              class="w-full p-2 border rounded mb-4" />
 
       <!-- Email -->
-      <label class="block mb-2 text-sm font-medium">Email</label>
-      <input type="email" name="email" value="<%= user.email %>"
-             class="w-full p-2 border rounded mb-4" />
+<label class="block mb-2 text-sm font-medium">Email</label>
+<input 
+  type="email" 
+  name="email" 
+  value="<%= user.email %>"
+  class="w-full p-2 border rounded mb-4 <%= user.googleId ? 'bg-gray-200 text-gray-600 cursor-not-allowed border-gray-300' : 'bg-white text-gray-900 focus:ring-2 focus:ring-gray-900' %>" 
+  <%= user.googleId ? 'disabled' : '' %> 
+/>
+<% if (user.googleId) { %>
+  <p class="text-xs text-gray-500 italic mt-[-6px] mb-3">
+    Email cannot be changed for Google sign-in users.
+  </p>
+<% } %>
+
 
       <!-- Mobile -->
       <label class="block mb-2 text-sm font-medium">Mobile</label>
       <input type="text" name="mobile" value="<%= user.mobile || '' %>"
              class="w-full p-2 border rounded mb-4" />
 
-      <!-- Address Dropdown -->
-      <label class="block mb-2 text-sm font-medium">Select Address</label>
-      <select name="address" class="w-full p-2 border rounded mb-4 max-h-32 overflow-y-auto">
-        <% if (addresses && addresses.length > 0) { %>
+      <!-- Address Section -->
+      <label class="block mb-2 text-sm font-medium">Address</label>
+      <% if (addresses && addresses.length > 0) { %>
+        <select name="address" class="w-full p-2 border rounded mb-4 max-h-32 overflow-y-auto">
           <% addresses.forEach(addr => { %>
             <option value="<%= addr._id %>" <%= addr.is_Default ? 'selected' : '' %>>
               <%= addr.fullname %> - <%= addr.address %>, <%= addr.district %>, 
               <%= addr.state %>, <%= addr.pincode %>
             </option>
           <% }) %>
-        <% } else { %>
-          <option disabled>No addresses available</option>
-        <% } %>
-      </select>
+        </select>
+      <% } else { %>
+        <div class="mb-4">
+          <p class="text-gray-500 mb-2">No addresses found.</p>
+          <button type="button" 
+                  onclick="window.location.href='/profile/address'"
+                  class="px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800 transition">
+            <i class="fas fa-plus mr-2"></i> Add Address
+          </button>
+        </div>
+      <% } %>
 
       <!-- Buttons -->
       <div class="flex justify-end space-x-3">
@@ -125,11 +142,12 @@
 </div>
 
 
-
+<!-- Toastr & JS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script src="/js/logout.js"></script>
+
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const logoutBtn = document.getElementById('logoutBtn');
@@ -142,7 +160,7 @@
       timeOut: "2000"
     }
 
-    // Profile image upload
+    // ✅ Profile Image Upload
     uploadInput.addEventListener('change', async (event) => {
       const file = event.target.files[0];
       if (file) {
@@ -157,9 +175,7 @@
           const data = await res.json();
           
           if (data.success) {
-            toastr.success(data.message || 'profile updated')
-
-            // Update preview instantly
+            toastr.success(data.message || 'Profile updated');
             const avatarImg = document.querySelector('.relative.inline-block img');
             if (avatarImg) {
               avatarImg.src = data.image;
@@ -195,7 +211,7 @@
     modal.classList.add('hidden');
   }
 
-  // Handle form submit (you can call your update API here)
+  // ✅ Handle profile update + OTP flow
   document.getElementById('editProfileForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -203,22 +219,22 @@
 
     const res = await fetch('/profile/update', {
       method: 'POST',
-      headers:{
-        'Content-Type': 'application/json'
-      },
-      body:JSON.stringify(formData)
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
     });
     const data = await res.json();
 
-    if (data.success) {
-      toastr.success('Profile updated');
-      closeModal();
+    if (data.otpRequired) {
+      toastr.info('OTP sent to your new email for verification');
       setTimeout(() => {
-      window.location.reload();
-      },2000)
+        window.location.href = '/auth/otp';
+      }, 1000);
+    } else if (data.success) {
+      toastr.success('Profile updated successfully');
+      closeModal();
+      setTimeout(() => window.location.reload(), 1000);
     } else {
       toastr.error(data.message || 'Update failed');
     }
   });
-
 </script>

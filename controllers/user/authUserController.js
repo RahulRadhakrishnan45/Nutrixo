@@ -207,7 +207,24 @@ const verifyOtp = asyncHandler(async (req,res) =>{
                 redirect:'/auth/reset-password'
             })
 
-        } else {
+        } else if(req.session.purpose === 'email-change') {
+            const userId = req.session.userId
+            const newEmail = req.session.newEmail
+
+            if(!userId || !newEmail) {
+                return res.status(httpStatus.bad_request).json({success:false,message:messages.AUTH.SESSION_EXPIRED})
+            }
+
+            await User.findByIdAndUpdate(userId,{email:newEmail})
+
+            req.session.userOtp = null
+            req.session.newEmail = null
+            req.session.userId = null
+            req.session.otpExpiry = null
+            req.session.purpose = null
+
+            return res.json({success:true,message:messages.PROFILE.PROFILE_UPDATED,redirect:'/profile'})
+        }else {
             
             return res.status(httpStatus.bad_request).json({
                 success:false,

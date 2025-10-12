@@ -3,8 +3,8 @@ const asyncHandler = require('express-async-handler')
 const messages = require('../../constants/messages')
 const httpStatus = require('../../constants/httpStatus')
 const Address = require('../../models/addressSchema')
-const { distinct } = require('../../models/productSchema')
-
+const {generateOtp,sendVerificationEmail} = require('../../utils/generator')
+const {apiLog} = require('../../config/logger')
 
 
 const uploadProfileImage = asyncHandler( async( req,res) => {
@@ -138,8 +138,36 @@ const setDefaultAddress = asyncHandler( async( req,res) => {
 const updateProfile = asyncHandler( async( req,res) => {
     const {fullname,email,mobile,address} = req.body
     const userId = req.session.user._id
-    
-    await User.findByIdAndUpdate(userId, {name:fullname,email,mobile})
+    const user = await User.findById(userId)
+
+    if(!user) {
+        return res.status(httpStatus.not_found).json({success:false,message:messages.USER.USER_NOT_FOUND})
+    }
+
+    if(user.googleId) {
+        await User.findByIdAndUpdate(userId,{name:fullname,mobile})
+    }else{
+        if(email && email !== user.email) {
+            const otp = generateOtp()
+            const otpExpiry = Date.now() + 2 * 60 * 1000
+
+            const emailSent = await sendVerificationEmail(email,otp)
+            if(!emailSent) {
+                return res.status(httpStatus.internal_server_error).json({success:false,message:messages.OTP.FAILED})
+            }
+            apiLog.info(`Email change OTP sent successfully to ${email}: ${otp}`)
+
+            req.session.userOtp = otp
+            req.session.otpExpiry = otpExpiry
+            req.session.newEmail = email
+            req.session.userId = userId
+            req.session.purpose = 'email-change'
+
+            return res.json({success:true,otpRequired:true,message:messages.OTP.SENT,redirect:'/auth/otp'})
+        }else{
+            await User.findByIdAndUpdate(userId,{name:fullname,mobile})
+        }
+    }
 
     if(address) {
         await Address.updateMany(
