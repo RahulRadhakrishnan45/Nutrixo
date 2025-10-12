@@ -5,6 +5,7 @@ const userController = require('../../controllers/user/productUserController')
 const cartController = require('../../controllers/user/cartUserController')
 const profileController = require('../../controllers/user/profileUserController')
 const checkoutController = require('../../controllers/user/checkoutUserController')
+const passwordController = require('../../controllers/user/passwordUserController')
 const {uploadProfile} = require('../../config/multer')
 
 
@@ -41,5 +42,9 @@ router.get('/order-success/:id',checkSession,checkoutController.viewOrderSuccess
 router.get('/orders',checkSession,checkoutController.loadOrders)
 router.get('/orders/:orderId',checkSession,checkoutController.loadOrderTracking)
 router.post('/orders/:orderId/item/:itemId/cancel',checkSession,checkoutController.cancelOrder)
+
+
+router.get('/password',checkSession,passwordController.loadChangePassword)
+router.post('/password',checkSession,passwordController.postChangePassword)
 
 module.exports = router 

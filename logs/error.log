@@ -50,3 +50,10 @@ Or, if you meant to create an async function, pass `async: true` as an option.
     at exports.renderFile [as engine] (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:491:10)
     at View.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\view.js:139:8)
     at tryRender (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:627:10)
+2025-10-13 01:35:48 [error] : Unhandled error: user is not defined | Stack: ReferenceError: user is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\passwordUserController.js:13:99
+    at asyncUtilWrap (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express-async-handler\index.js:3:20)
+    at Layer.handleRequest (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\route.js:157:13)
+    at checkSession (C:\Users\ASUS\Desktop\Nutrixo Project\middlewares\checkSession.js:10:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
