@@ -57,3 +57,113 @@ Or, if you meant to create an async function, pass `async: true` as an option.
     at next (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\route.js:157:13)
     at checkSession (C:\Users\ASUS\Desktop\Nutrixo Project\middlewares\checkSession.js:10:13)
     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-10-13 13:12:05 [error] : Unhandled error: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\cart.ejs:374
+    372|   }
+    373| 
+ >> 374|   <% if (error === 'stock') { %>
+    375|   toastr.warning('Some items were removed because they are out of stock.');
+    376|   <% } %>
+    377| 
+
+error is not defined | Stack: ReferenceError: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\cart.ejs:374
+    372|   }
+    373| 
+ >> 374|   <% if (error === 'stock') { %>
+    375|   toastr.warning('Some items were removed because they are out of stock.');
+    376|   <% } %>
+    377| 
+
+error is not defined
+    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:84:8)
+    at cart (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:703:17)
+    at tryHandleCache (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:274:36)
+    at exports.renderFile [as engine] (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:491:10)
+    at View.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\view.js:139:8)
+    at tryRender (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:627:10)
+    at Function.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:574:3)
+    at ServerResponse.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\response.js:909:7)
+    at res.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express-ejs-layouts\lib\express-layouts.js:77:18)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\cartUserController.js:135:9
+2025-10-13 13:16:27 [error] : Unhandled error: items is not defined | Stack: ReferenceError: items is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\checkoutUserController.js:33:28
+    at Array.filter (<anonymous>)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\checkoutUserController.js:27:29
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-10-13 13:21:40 [error] : Unhandled error: items is not defined | Stack: ReferenceError: items is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\checkoutUserController.js:33:28
+    at Array.filter (<anonymous>)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\checkoutUserController.js:27:29
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-10-13 13:24:58 [error] : Unhandled error: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\cart.ejs:374
+    372|   }
+    373| 
+ >> 374|   <% if (error === 'stock') { %>
+    375|   toastr.warning('Some items were removed because they are out of stock.');
+    376|   <% } %>
+    377| 
+
+error is not defined | Stack: ReferenceError: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\cart.ejs:374
+    372|   }
+    373| 
+ >> 374|   <% if (error === 'stock') { %>
+    375|   toastr.warning('Some items were removed because they are out of stock.');
+    376|   <% } %>
+    377| 
+
+error is not defined
+    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:84:8)
+    at cart (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:703:17)
+    at tryHandleCache (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:274:36)
+    at exports.renderFile [as engine] (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:491:10)
+    at View.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\view.js:139:8)
+    at tryRender (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:627:10)
+    at Function.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:574:3)
+    at ServerResponse.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\response.js:909:7)
+    at res.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express-ejs-layouts\lib\express-layouts.js:77:18)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\cartUserController.js:83:20
+2025-10-13 17:45:45 [error] : Unhandled error: item is not defined | Stack: ReferenceError: item is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\checkoutUserController.js:121:25
+    at Array.forEach (<anonymous>)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\checkoutUserController.js:120:18
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-10-13 17:54:32 [error] : Unhandled error: item is not defined | Stack: ReferenceError: item is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\checkoutUserController.js:121:82
+    at Array.find (<anonymous>)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\checkoutUserController.js:121:51
+    at Array.forEach (<anonymous>)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\checkoutUserController.js:120:18
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-10-13 17:56:34 [error] : Unhandled error: item is not defined | Stack: ReferenceError: item is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\checkoutUserController.js:121:82
+    at Array.find (<anonymous>)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\checkoutUserController.js:121:51
+    at Array.forEach (<anonymous>)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\checkoutUserController.js:120:18
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-10-14 00:53:19 [error] : Unhandled error: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\cart.ejs:377
+    375|     toastr.error('Some items are completely out of stock and were removed.');
+    376|   <% } else if (error === 'stockUpdate') { %>
+ >> 377|     const productList = "<%= decodeURIComponent(products || '') %>";
+    378|     if (productList) {
+    379|       toastr.warning(`Stock updated for: ${productList}`);
+    380|     } else {
+
+products is not defined | Stack: ReferenceError: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\cart.ejs:377
+    375|     toastr.error('Some items are completely out of stock and were removed.');
+    376|   <% } else if (error === 'stockUpdate') { %>
+ >> 377|     const productList = "<%= decodeURIComponent(products || '') %>";
+    378|     if (productList) {
+    379|       toastr.warning(`Stock updated for: ${productList}`);
+    380|     } else {
+
+products is not defined
+    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:90:45)
+    at cart (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:703:17)
+    at tryHandleCache (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:274:36)
+    at exports.renderFile [as engine] (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:491:10)
+    at View.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\view.js:139:8)
+    at tryRender (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:627:10)
+    at Function.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:574:3)
+    at ServerResponse.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\response.js:909:7)
+    at res.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express-ejs-layouts\lib\express-layouts.js:77:18)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\cartUserController.js:130:9

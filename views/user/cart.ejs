@@ -370,4 +370,20 @@
       window.location.href = "/checkout";
     });
   }
+
+  <% if (error === 'stock') { %>
+    toastr.error('Some items are completely out of stock and were removed.');
+  <% } else if (error === 'stockUpdate') { %>
+      <% const safeProducts = typeof products !== 'undefined' && products ? decodeURIComponent(products) : ''; %>
+      const productList = "<%= safeProducts %>";
+      if (productList) {
+        toastr.warning(`Stock updated for: ${productList}`);
+    } else {
+      toastr.warning('Some item quantities were updated due to stock changes.');
+    }
+  <% } %>
+
+
+
+
 </script>

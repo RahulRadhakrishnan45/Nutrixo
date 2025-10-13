@@ -3,6 +3,7 @@ const Product = require('../../models/productSchema')
 const Cart = require('../../models/cartSchema')
 const httpStatus = require('../../constants/httpStatus')
 const messages = require('../../constants/messages')
+const { error } = require('winston')
 
 
 
@@ -76,18 +77,16 @@ const addToCart = asyncHandler( async( req,res) => {
 
 const loadCart = asyncHandler( async( req,res) => {
     const userId = req.session.user._id
-    
     let cart = await Cart.findOne({user_id:userId})
 
     if(!cart || cart.items.length === 0) {
-        return res.render('user/cart',{layout:'layouts/user_main',cartItems:[],subtotal:0,tax:0,total:0,cartLength:0,displayCartLength:'0'})
+        return res.render('user/cart',{layout:'layouts/user_main',cartItems:[],subtotal:0,tax:0,total:0,cartLength:0,displayCartLength:'0',error:req.query.error || null})
     }
 
     const cartItems = []
-    let subtotal = 0
-    let modified = 0
+    let subtotal = 0, modified = false, stockAdjusted = false
 
-    for(const item of [...cart.items]) {
+    for(const item of cart.items) {
         const product = await Product.findById(item.product_id).lean()
         if(!product) {
             cart.items.pull(item._id)
@@ -111,28 +110,24 @@ const loadCart = asyncHandler( async( req,res) => {
 
             item.quantity = variant.stock
             modified = true
+            stockAdjusted = true
         }
 
         const price = variant.discounted_price || variant.price
         const itemSubtotal = price * item.quantity
         subtotal += itemSubtotal
 
-        cartItems.push({
-            _id:item._id,
-            product,
-            variant,
-            quantity:item.quantity,
-            subtotal:itemSubtotal,
-        })
+        cartItems.push({ _id:item._id,product,variant,quantity:item.quantity,subtotal:itemSubtotal,})
     }
 
     if(modified) await cart.save()
+   
 
     const tax = Math.round(subtotal * 0.02)
     const total = subtotal + tax
     const cartCount = cart.items.reduce((sum,i) => sum+ i.quantity, 0)
     
-    res.render('user/cart',{layout:'layouts/user_main',cartItems,subtotal,tax,total,cartLength:cartCount,displayCartLength: cartCount > 5 ? '5+' : String(cartCount)})
+    res.render('user/cart',{layout:'layouts/user_main',cartItems,subtotal,tax,total,cartLength:cartCount,displayCartLength: cartCount > 5 ? '5+' : String(cartCount),error:stockAdjusted ? 'stockUpdate' :req.query.error || null,products:req.query.products || null})
 })
 
 const increaseQty = asyncHandler( async( req,res) => {

@@ -271,5 +271,15 @@
     <% if(error === 'noAddress') { %>
         toastr.error('Please add a addresss before placing order')
     <% } %>
+
+    <% if(error === 'stockAdjusted') { %>
+      toastr.warning('Some products had limited stock. Quantities were adjusted accordingly.');
+    <% } else if(error === 'allOutOfStock') { %>
+      toastr.error('All items in your cart are currently out of stock.');
+    <% } else if(error === 'noAddress') { %>
+      toastr.error('Please add an address before placing your order.');
+    <% } %>
+
+
   </script>
 </body>

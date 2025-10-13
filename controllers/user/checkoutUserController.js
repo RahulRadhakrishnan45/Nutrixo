@@ -19,22 +19,30 @@ const loadCheckout = asyncHandler( async( req,res) => {
 
     const cart = await Cart.findOne({user_id:userId}).populate('items.product_id').lean()
 
-    let subtotal = 0
-    let discount = 0
-    let tax = 0
-    let total = 0
-
-    if(cart && cart.items.length > 0) {
-        cart.items = cart.items.filter(item => {
-            if(!item.product_id) return false
-
-            const variant = item.product_id.variants.find(v => v._id.toString() === item.variant_id.toString())
-            if(!variant) return false
-
-            return variant.is_active !== false && variant.stock >= item.quantity
-        })
-        await Cart.updateOne({_id:cart._id},{$set:{items:cart.items}})
+    if(!cart || cart.items.length === 0) {
+        return res.redirect('/cart')
     }
+    let removedItems = false
+
+    cart.items = cart.items.filter(item => {
+        if(!item.product_id) return false
+
+        const variant = item.product_id.variants.find(v => v._id.toString() === item.variant_id.toString())
+        if (!variant || !variant.is_active) return false
+
+        if(variant.stock < item.quantity) {
+            removedItems = true
+            return false
+        }
+        return true
+    })
+
+    if(removedItems) {
+        await Cart.updateOne({_id:cart._id},{$set:{items:cart.items}})
+        return res.redirect('/cart?error=stock')
+    }
+
+    let subtotal = 0, discount = 0, tax = 0, total = 0
 
     if(cart && cart.items.length > 0) {
         subtotal = cart.items.reduce((acc,item) => {
@@ -77,18 +85,63 @@ const placeOrder = asyncHandler( async( req,res) => {
     const cart = await Cart.findOne({user_id:userId}).populate('items.product_id').lean()
     if(!cart || cart.items.length === 0) return res.redirect('/cart')
 
+    let stockIssue =false
+    let updatedItems = []
+    let stockAdjustedProducts = []
+    for(const item of cart.items) {
+        const product = item.product_id
+        if(!product) continue
+        const variant = item.product_id?.variants.find((v) => v._id.toString() === item.variant_id.toString())
+        if(!variant || !variant.is_active) {
+            stockIssue = true
+            continue
+        }
+        if(variant.stock === 0) {
+            stockIssue =true
+            continue
+        }
+
+        if(variant.stock < item.quantity) {
+            stockIssue = true
+            stockAdjustedProducts.push({
+                name:product.title,requested:item.quantity,available:variant.stock,
+            })
+            
+            updatedItems.push({
+                ...item,quantity:variant.stock,
+            })
+        }else{
+            updatedItems.push(item)
+        }
+    }
+
+    await Cart.updateOne({_id:cart._id},{$set:{items:updatedItems}})
+
+    if(updatedItems.length === 0) {
+        return res.redirect('/cart?error=stock')
+    }
+
+    if(stockIssue) {
+        const productList = stockAdjustedProducts.map((p) => `${p.name} (only ${p.available} left)`).join(', ')
+        return res.redirect(`/cart?error=stockUpdate&products=${encodeURIComponent(productList)}`)
+    }
+    
     let subtotal = 0, discount = 0
-    subtotal = cart.items.reduce((acc,item) => {
+    updatedItems.forEach(item => {
         const variant = item.product_id.variants.find(v => v._id.toString() === item.variant_id.toString())
-        if(!variant) return acc
+        if(!variant) return 
         const price = variant.discounted_price || variant.price
-        return acc + price * item.quantity 
-    },0)
+        subtotal += price * item.quantity
+
+        if(variant.discounted_price && variant.discounted_price < variant.price) {
+            discount += (variant.price - variant.discounted_price) * item.quantity
+        }
+    })
 
     const tax = Number((subtotal * 0.02).toFixed(2))
     const total = subtotal + tax
 
-    const orderItem = cart.items.map(item => {
+    const orderItem = updatedItems.map((item) => {
         const variant = item.product_id.variants.find(v => v._id.toString() === item.variant_id.toString())
         return {
             product: item.product_id._id,
