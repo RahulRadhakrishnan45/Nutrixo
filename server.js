@@ -5,9 +5,9 @@ const session = require('express-session')
 const nocache = require('nocache')
 const expressLayouts = require('express-ejs-layouts')
 const passport = require('./config/passport')
-const userRoutes = require('./routes/user/user')
-const adminRoutes = require('./routes/admin/admin_auth')
-const authRoutes = require('./routes/user/auth_routes')
+const userRoutes = require('./routes/user')
+const adminRoutes = require('./routes/admin')
+const authRoutes = require('./routes/user/authRoutes')
 const connectDB = require('./config/connectDB')
 const globalMiddleware = require('./middlewares/globalMiddleware')
 const seedAdmin=require('./utils/seedAdmin')
@@ -52,7 +52,7 @@ app.use(passport.session())
 
 app.use(userRoutes)
 app.use('/admin',adminRoutes)
-app.use('/auth',authRoutes)
+
 
 app.all('/*splat',(req,res)=>{
     res.render('user/404-page',{layout:false})

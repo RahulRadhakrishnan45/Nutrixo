@@ -119,17 +119,23 @@
         </div>
       <% } else { %>
         <!-- If no addresses -->
-        <div class="flex flex-col items-center justify-center py-20 text-center">
-          <svg xmlns="http://www.w3.org/2000/svg" 
-               fill="none" viewBox="0 0 24 24" stroke-width="1.5" 
-               stroke="currentColor" class="w-10 h-10 text-blue-500 mb-4">
-            <path stroke-linecap="round" stroke-linejoin="round" 
-                  d="M12 2.25c4.556 0 8.25 3.694 8.25 8.25 0 6.322-8.25 11.25-8.25 11.25S3.75 16.822 3.75 10.5c0-4.556 3.694-8.25 8.25-8.25z" />
-            <path stroke-linecap="round" stroke-linejoin="round" 
-                  d="M12 13.5a3 3 0 100-6 3 3 0 000 6z" />
-          </svg>
-          <p class="text-gray-500">No address found. Add a new one to continue.</p>
-        </div>
+<div class="flex flex-col items-center justify-center py-5 text-center">
+  
+  <!-- Lottie Animation -->
+  <dotlottie-wc
+    src="https://lottie.host/d3fc8aff-8670-4850-ab07-c21624e934ad/q64xZVENGn.lottie"
+    style="width: 280px; height: 280px"
+    autoplay
+    loop
+  ></dotlottie-wc>
+
+  <!-- Message -->
+  <p class="mt-6 text-gray-600 text-lg font-medium">
+    No address found. Add a new one to continue.
+  </p>
+
+</div>
+
       <% } %>
     </div>
   </div>

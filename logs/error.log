@@ -167,3 +167,94 @@ products is not defined
     at ServerResponse.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\response.js:909:7)
     at res.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express-ejs-layouts\lib\express-layouts.js:77:18)
     at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\cartUserController.js:130:9
+2025-10-25 19:47:13 [error] : Unhandled error: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\order.ejs:39
+    37|                         <p class="text-sm text-gray-600">
+    38|                           Delivering to: 
+ >> 39|                           <%= order.orderAddress.fullname %>, 
+    40|                           <%= order.orderAddress.address %>, 
+    41|                           <%= order.orderAddress.district %>, 
+    42|                           <%= order.orderAddress.state %>, 
+
+Cannot read properties of null (reading 'fullname') | Stack: TypeError: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\order.ejs:39
+    37|                         <p class="text-sm text-gray-600">
+    38|                           Delivering to: 
+ >> 39|                           <%= order.orderAddress.fullname %>, 
+    40|                           <%= order.orderAddress.address %>, 
+    41|                           <%= order.orderAddress.district %>, 
+    42|                           <%= order.orderAddress.state %>, 
+
+Cannot read properties of null (reading 'fullname')
+    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:44:45)
+    at Array.forEach (<anonymous>)
+    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:27:20)
+    at Array.forEach (<anonymous>)
+    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:18:15)
+    at order (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:703:17)
+    at tryHandleCache (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:274:36)
+    at exports.renderFile [as engine] (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:491:10)
+    at View.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\view.js:139:8)
+    at tryRender (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:627:10)
+2025-10-25 19:50:22 [error] : Unhandled error: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\order.ejs:39
+    37|                         <p class="text-sm text-gray-600">
+    38|                           Delivering to: 
+ >> 39|                           <%= order.orderAddress.fullname %>, 
+    40|                           <%= order.orderAddress.address %>, 
+    41|                           <%= order.orderAddress.district %>, 
+    42|                           <%= order.orderAddress.state %>, 
+
+Cannot read properties of null (reading 'fullname') | Stack: TypeError: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\order.ejs:39
+    37|                         <p class="text-sm text-gray-600">
+    38|                           Delivering to: 
+ >> 39|                           <%= order.orderAddress.fullname %>, 
+    40|                           <%= order.orderAddress.address %>, 
+    41|                           <%= order.orderAddress.district %>, 
+    42|                           <%= order.orderAddress.state %>, 
+
+Cannot read properties of null (reading 'fullname')
+    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:44:45)
+    at Array.forEach (<anonymous>)
+    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:27:20)
+    at Array.forEach (<anonymous>)
+    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:18:15)
+    at order (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:703:17)
+    at tryHandleCache (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:274:36)
+    at exports.renderFile [as engine] (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:491:10)
+    at View.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\view.js:139:8)
+    at tryRender (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:627:10)
+2025-10-25 19:50:44 [error] : Unhandled error: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\order.ejs:39
+    37|                         <p class="text-sm text-gray-600">
+    38|                           Delivering to: 
+ >> 39|                           <%= order.orderAddress.fullname %>, 
+    40|                           <%= order.orderAddress.address %>, 
+    41|                           <%= order.orderAddress.district %>, 
+    42|                           <%= order.orderAddress.state %>, 
+
+Cannot read properties of null (reading 'fullname') | Stack: TypeError: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\order.ejs:39
+    37|                         <p class="text-sm text-gray-600">
+    38|                           Delivering to: 
+ >> 39|                           <%= order.orderAddress.fullname %>, 
+    40|                           <%= order.orderAddress.address %>, 
+    41|                           <%= order.orderAddress.district %>, 
+    42|                           <%= order.orderAddress.state %>, 
+
+Cannot read properties of null (reading 'fullname')
+    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:44:45)
+    at Array.forEach (<anonymous>)
+    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:27:20)
+    at Array.forEach (<anonymous>)
+    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:18:15)
+    at order (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:703:17)
+    at tryHandleCache (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:274:36)
+    at exports.renderFile [as engine] (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:491:10)
+    at View.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\view.js:139:8)
+    at tryRender (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:627:10)
+2025-10-26 00:09:06 [error] : Unhandled error: Order validation failed: orderAddress.pincode: Path `orderAddress.pincode` is required., orderAddress.country: Path `orderAddress.country` is required., orderAddress.state: Path `orderAddress.state` is required., orderAddress.district: Path `orderAddress.district` is required., orderAddress.address: Path `orderAddress.address` is required., orderAddress.mobile: Path `orderAddress.mobile` is required., orderAddress.fullname: Path `orderAddress.fullname` is required. | Stack: ValidationError: Order validation failed: orderAddress.pincode: Path `orderAddress.pincode` is required., orderAddress.country: Path `orderAddress.country` is required., orderAddress.state: Path `orderAddress.state` is required., orderAddress.district: Path `orderAddress.district` is required., orderAddress.address: Path `orderAddress.address` is required., orderAddress.mobile: Path `orderAddress.mobile` is required., orderAddress.fullname: Path `orderAddress.fullname` is required.
+    at Document.invalidate (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\document.js:3354:32)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\document.js:3115:17
+    at C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\schemaType.js:1410:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+2025-10-26 00:15:50 [error] : Unhandled error: Order validation failed: orderAddress.pincode: Path `orderAddress.pincode` is required., orderAddress.country: Path `orderAddress.country` is required., orderAddress.state: Path `orderAddress.state` is required., orderAddress.district: Path `orderAddress.district` is required., orderAddress.address: Path `orderAddress.address` is required., orderAddress.mobile: Path `orderAddress.mobile` is required., orderAddress.fullname: Path `orderAddress.fullname` is required. | Stack: ValidationError: Order validation failed: orderAddress.pincode: Path `orderAddress.pincode` is required., orderAddress.country: Path `orderAddress.country` is required., orderAddress.state: Path `orderAddress.state` is required., orderAddress.district: Path `orderAddress.district` is required., orderAddress.address: Path `orderAddress.address` is required., orderAddress.mobile: Path `orderAddress.mobile` is required., orderAddress.fullname: Path `orderAddress.fullname` is required.
+    at Document.invalidate (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\document.js:3354:32)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\document.js:3115:17
+    at C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\schemaType.js:1410:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)

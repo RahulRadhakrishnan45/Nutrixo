@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeBtn = document.getElementById("closeModal");
   const cancelBtn = document.getElementById("cancelBtn");
 
-  // ✅ Toastr config
+  // ✅ Toastr setup
   toastr.options = {
     closeButton: true,
     progressBar: true,
@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
     timeOut: "2000"
   };
 
-  // ✅ Validation helper
+  // ✅ Form validation helper
   function validateForm(data) {
     if (!data.fullname?.trim()) return "Full Name is required";
     if (!/^[0-9]{10}$/.test(data.mobile)) return "Enter a valid 10-digit Mobile number";
@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return null;
   }
 
-  // ✅ Open modal (Add New)
+  // ✅ Open modal (Add)
   document.querySelectorAll(".add-new-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       modalTitle.textContent = "Add New Address";
@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // ✅ Close modal
+  // ✅ Close modal function
   const closeModal = () => {
     modal.classList.add("hidden");
     modal.classList.remove("flex");
@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
   closeBtn?.addEventListener("click", closeModal);
   cancelBtn?.addEventListener("click", closeModal);
 
-  // ✅ Submit form (Add or Edit)
+  // ✅ Submit handler
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -101,17 +101,35 @@ document.addEventListener("DOMContentLoaded", () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)
       });
+
       const data = await res.json();
 
       if (data.success) {
         toastr.success(data.message || (id ? "Address updated!" : "Address added!"));
         closeModal();
-        setTimeout(() => window.location.href = `/checkout?selected=${id || "new"}`, 500);
+
+        // ✅ Smart redirect logic:
+        const currentPath = window.location.pathname;
+
+        if (currentPath.startsWith("/checkout")) {
+          // If currently on checkout → stay there
+          setTimeout(() => {
+            window.location.href = `/checkout?selected=${id || "new"}`;
+          }, 600);
+        } else if (currentPath.startsWith("/profile/address")) {
+          // If on address page → reload
+          setTimeout(() => window.location.reload(), 600);
+        } else {
+          // fallback for any other route
+          setTimeout(() => window.location.reload(), 600);
+        }
+
       } else {
         toastr.error(data.message || "Failed to save address");
       }
-    } catch {
+    } catch (err) {
       toastr.error("Something went wrong. Try again!");
     }
   });
 });
+

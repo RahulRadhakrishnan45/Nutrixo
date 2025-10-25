@@ -88,6 +88,7 @@ const placeOrder = asyncHandler( async( req,res) => {
     let stockIssue =false
     let updatedItems = []
     let stockAdjustedProducts = []
+
     for(const item of cart.items) {
         const product = item.product_id
         if(!product) continue
@@ -159,9 +160,11 @@ const placeOrder = asyncHandler( async( req,res) => {
         }
     })
 
+    const embeddedAddress = {fullname: selectedAddress.fullname,mobile: selectedAddress.mobile,address: selectedAddress.address,district: selectedAddress.district,state: selectedAddress.state,country: selectedAddress.country,pincode: selectedAddress.pincode}
+
     const order = await Order.create({
         user:userId,
-        orderAddress:selectedAddress._id,
+        orderAddress:embeddedAddress,
         paymentMethod,
         subtotal,
         tax,
@@ -177,7 +180,7 @@ const placeOrder = asyncHandler( async( req,res) => {
     }
 
     await Cart.findOneAndUpdate({user_id:userId},{$set:{items:[]}})
-    res.redirect(`/order-success/${order._id}`)
+    res.redirect(`/checkout/order-success/${order._id}`)
 })
 
 const viewOrderSuccess = asyncHandler( async( req,res) => {

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const orderSchema = new mongoose.Schema({
     user:{type:mongoose.Schema.Types.ObjectId,ref:'user',required:true},
-    orderAddress:{type:mongoose.Schema.Types.ObjectId,ref:'address',required:true},
+    orderAddress:{fullname:{type:String,required:true},mobile: { type: String, required: true },address: { type: String, required: true },district: { type: String, required: true },state: { type: String, required: true },country: { type: String, required: true },pincode: { type: String, required: true },},
     coupon:{type:mongoose.Schema.Types.ObjectId,ref:'Coupon',default:null},
     paymentStatus:{type:String,enum:['PENDING','COMPLETED','FAILED','REFUNDED'],default:'PENDING'},
     paymentMethod:{type:String,enum:['COD','CARD','WALLET','BANK'],default:'COD'},
@@ -42,7 +42,7 @@ const orderSchema = new mongoose.Schema({
     returnRequest: {status: {type: String,enum: ['NONE', 'REQUESTED', 'APPROVED', 'REJECTED', 'COMPLETED'],default: 'NONE',},reason: String,requestedAt: Date,resolvedAt: Date,refundAmount: Number,},
   },],
 
-},{timestamps:true})
+},{timestamps:true}) 
 
     orderSchema.pre('save', async function (next) {
         if (!this.orderNumber) {

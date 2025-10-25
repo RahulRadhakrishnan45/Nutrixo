@@ -19,11 +19,10 @@ router.post('/reset-password',authController.postResetPassword)
 
 router.post('/verify-otp',authController.verifyOtp)
 router.get('/otp',authController.loadOtpPage)
-
 router.post('/resend-otp',authController.resendOtp)
 
-router.get('/google',passport.authenticate('google',{scope:['profile','email']}))
 
+router.get('/google',passport.authenticate('google',{scope:['profile','email']}))
 router.get('/google/callback',passport.authenticate('google',{failureRedirect:'/auth/signup'}),async (req,res)=>{
     if(!req.user.is_active) {
         req.session.destroy(() => {
