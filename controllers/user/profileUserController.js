@@ -5,6 +5,7 @@ const httpStatus = require('../../constants/httpStatus')
 const Address = require('../../models/addressSchema')
 const {generateOtp,sendVerificationEmail} = require('../../utils/generator')
 const {apiLog} = require('../../config/logger')
+const { query } = require('winston')
 
 
 const uploadProfileImage = asyncHandler( async( req,res) => {
@@ -26,9 +27,27 @@ const loadAddress = asyncHandler( async( req,res) => {
         return res.redirect('/auth/login')
     }
 
-    const addresses = await Address.find({user_id:userId}).lean()
+    const page = parseInt(req.query.page) || 1
+    const limit = 2
 
-    res.render('user/address',{layout:'layouts/user_main',addresses})
+    if(page < 1) page = 1
+
+    const totalAddresses = await Address.countDocuments({user_id:userId})
+    const totalPages = Math.ceil(totalAddresses / limit)
+
+    if(totalAddresses === 0) {
+        return res.render('user/address',{layout:'layouts/user_main',addresses:[],currentPage:1,totalPages:1,query:req.query})
+    }
+    
+    if(page > totalPages) {
+        return res.redirect(`/profile/address?page=${totalPages}`)
+    }
+
+    const skip = (page - 1) * limit
+
+    const addresses = await Address.find({user_id:userId}).skip(skip).limit(limit).lean()
+
+    res.render('user/address',{layout:'layouts/user_main',addresses,currentPage:page,totalPages,query:req.query})
 })
 
 const addAddress = asyncHandler( async( req,res) => {

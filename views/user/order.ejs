@@ -17,10 +17,12 @@
 
         <!-- Orders Section -->
         <% if (orders && orders.length > 0) { %>
-          <div class="space-y-6">
+          <div class="space-y-8">
             <% orders.forEach(order => { %>
               <!-- Each Order Card -->
               <div class="border border-gray-200 rounded-lg p-6 bg-gray-50 hover:shadow-md transition">
+                
+                <!-- Order Header -->
                 <div class="flex justify-between items-center mb-4">
                   <p class="text-sm text-gray-600">
                     Ordered On: <%= order.createdAt.toDateString() %>
@@ -30,6 +32,7 @@
                   </p>
                 </div>
 
+                <!-- Order Items -->
                 <div class="space-y-4">
                   <% order.items.forEach(item => { %>
                     <div class="flex items-start justify-between border-b pb-4 last:border-b-0">
@@ -69,13 +72,6 @@
                         <% } %>
 
                         <a
-                          href="/orders/<%= order._id %>/invoice"
-                          class="flex items-center text-sm text-gray-600 hover:text-gray-800"
-                        >
-                          📄 Invoice
-                        </a>
-
-                        <a
                           href="/orders/<%= order._id %>?itemId=<%= item._id %>"
                           class="px-4 py-2 bg-black text-white rounded hover:bg-gray-800"
                         >
@@ -85,6 +81,17 @@
                     </div>
                   <% }) %>
                 </div>
+
+                <!-- 📄 Single Invoice Button (Moved Outside Loop) -->
+                <div class="flex justify-end mt-5 border-t pt-4">
+                  <a
+                    href="/orders/<%= order._id %>/invoice"
+                    class="flex items-center text-sm text-gray-700 font-medium hover:text-gray-900 transition"
+                  >
+                    📄 Download Invoice
+                  </a>
+                </div>
+
               </div>
             <% }) %>
           </div>
@@ -116,5 +123,7 @@
     </div>
   </div>
 </body>
+
+<%- include('../partials/pagination.ejs', { currentPage, totalPages, query }) %>
 
 <script src="/js/logout.js"></script>

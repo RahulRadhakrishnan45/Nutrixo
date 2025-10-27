@@ -258,3 +258,43 @@ Cannot read properties of null (reading 'fullname')
     at C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\document.js:3115:17
     at C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\schemaType.js:1410:9
     at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+2025-10-27 13:48:26 [error] : Unhandled error: Assignment to constant variable. | Stack: TypeError: Assignment to constant variable.
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\profileUserController.js:31:24
+    at asyncUtilWrap (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express-async-handler\index.js:3:20)
+    at Layer.handleRequest (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\route.js:157:13)
+    at checkSession (C:\Users\ASUS\Desktop\Nutrixo Project\middlewares\checkSession.js:10:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-10-27 13:50:01 [error] : Unhandled error: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\address.ejs:145
+    143| 
+    144| <%-include('../partials/addressModal.ejs') %>
+ >> 145| <%- include('../partials/pagination.ejs',{currentPage,totalPages,query}) %>
+    146| 
+    147| <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    148| <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+currentPage is not defined | Stack: ReferenceError: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\address.ejs:145
+    143| 
+    144| <%-include('../partials/addressModal.ejs') %>
+ >> 145| <%- include('../partials/pagination.ejs',{currentPage,totalPages,query}) %>
+    146| 
+    147| <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    148| <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+currentPage is not defined
+    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:97:55)
+    at address (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:703:17)
+    at tryHandleCache (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:274:36)
+    at exports.renderFile [as engine] (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:491:10)
+    at View.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\view.js:139:8)
+    at tryRender (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:627:10)
+    at Function.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:574:3)
+    at ServerResponse.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\response.js:909:7)
+    at res.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express-ejs-layouts\lib\express-layouts.js:77:18)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\profileUserController.js:38:9
+2025-10-27 18:23:25 [error] : Unhandled error: startX is not defined | Stack: ReferenceError: startX is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\orderUserController.js:117:30
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-10-27 18:27:47 [error] : Unhandled error: summaryX is not defined | Stack: ReferenceError: summaryX is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\orderUserController.js:150:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
