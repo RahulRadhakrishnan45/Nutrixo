@@ -75,6 +75,43 @@ const cancelOrder = asyncHandler( async( req,res) => {
     }
 })
 
+const cancelEntireOrder = asyncHandler( async( req,res) => {
+    const {orderId} = req.params
+    const {reason} = req.body
+    const userId = req.session.user._id
+
+    if(!reason || reason.trim().length === 0) {
+        return res.status(httpStatus.bad_request).json({success:false,message:messages.AUTH.CANCEL_REASON_REQUIRED})
+    }
+
+    const order = await Order.findOne({_id:orderId,user:userId})
+    if(!order) return res.status(httpStatus.not_found).json({success:false,message:messages.ORDER.ORDER_NOT_FOUND})
+
+    let anyUpdated = false
+    order.items.forEach(item => {
+        if(item.status === 'PROCESSING') {
+            item.status = 'RETURN REQUESTED'
+            item.statusHistory.push({
+                status:'RETURN REQUESTED',
+                note:`Cancellation requested by user: ${reason}`
+            })
+            item.returnRequest = {
+                status:'REQUESTED',
+                reason,
+                requestedAt: new Date()
+            }
+            anyUpdated = true
+        }
+    })
+
+    if(!anyUpdated) {
+        return res.status(httpStatus.bad_request).json({success:false,message:messages.ORDER.ORDER_CANNONT_CANCEL})
+    }
+
+    await order.save()
+    res.status(httpStatus.ok).json({success:true,message:messages.ORDER.ORDER_CANCELATION_REQUESTED})
+})
+
 const downloadInvoice = asyncHandler(async (req, res) => {
   const userId = req.session.user._id
   if (!userId) return res.redirect('/auth/login')
@@ -176,4 +213,4 @@ const downloadInvoice = asyncHandler(async (req, res) => {
 
 
 
-module.exports = {loadOrders,loadOrderTracking,cancelOrder,downloadInvoice}
+module.exports = {loadOrders,loadOrderTracking,cancelOrder,cancelEntireOrder,downloadInvoice}

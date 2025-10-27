@@ -20,7 +20,7 @@
           <div class="space-y-8">
             <% orders.forEach(order => { %>
               <!-- Each Order Card -->
-              <div class="border border-gray-200 rounded-lg p-6 bg-gray-50 hover:shadow-md transition">
+              <div class="border border-gray-200 rounded-lg p-6 bg-gray-50 hover:shadow-md transition order-card" data-order-id="<%= order._id %>">
                 
                 <!-- Order Header -->
                 <div class="flex justify-between items-center mb-4">
@@ -64,11 +64,13 @@
                       <!-- RIGHT -->
                       <div class="flex flex-col items-end space-y-2">
                         <% if (item.status === 'PROCESSING') { %>
-                          <span class="px-3 py-1 text-sm rounded-full bg-yellow-100 text-yellow-800">Processing</span>
+                          <span class="status-badge px-3 py-1 text-sm rounded-full bg-yellow-100 text-yellow-800">Processing</span>
                         <% } else if (item.status === 'CANCELLED') { %>
-                          <span class="px-3 py-1 text-sm rounded-full bg-red-100 text-red-800">Cancelled</span>
+                          <span class="status-badge px-3 py-1 text-sm rounded-full bg-red-100 text-red-800">Cancelled</span>
                         <% } else if (item.status === 'DELIVERED') { %>
-                          <span class="px-3 py-1 text-sm rounded-full bg-green-100 text-green-800">Delivered</span>
+                          <span class="status-badge px-3 py-1 text-sm rounded-full bg-green-100 text-green-800">Delivered</span>
+                        <% } else if (item.status === 'RETURN REQUESTED') { %>
+                          <span class="status-badge px-3 py-1 text-sm rounded-full bg-orange-100 text-orange-800">Return Requested</span>
                         <% } %>
 
                         <a
@@ -82,14 +84,24 @@
                   <% }) %>
                 </div>
 
-                <!-- 📄 Single Invoice Button (Moved Outside Loop) -->
-                <div class="flex justify-end mt-5 border-t pt-4">
+                <!-- 📄 Footer Buttons -->
+                <div class="flex justify-end mt-5 border-t pt-4 space-x-6">
                   <a
                     href="/orders/<%= order._id %>/invoice"
                     class="flex items-center text-sm text-gray-700 font-medium hover:text-gray-900 transition"
                   >
                     📄 Download Invoice
                   </a>
+
+                  <% const isCancellable = order.items.some(item => item.status === 'PROCESSING'); %>
+                  <% if (isCancellable) { %>
+                    <button
+                      onclick="openCancelModal('<%= order._id %>')"
+                      class="text-sm font-medium text-red-600 hover:text-red-800 transition"
+                    >
+                      ❌ Cancel Order
+                    </button>
+                  <% } %>
                 </div>
 
               </div>
@@ -126,4 +138,90 @@
 
 <%- include('../partials/pagination.ejs', { currentPage, totalPages, query }) %>
 
+<!-- ❗ Cancel Order Modal -->
+<div id="cancelModal" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50">
+  <div class="bg-white rounded-lg p-6 w-96 shadow-lg">
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">Cancel Order</h2>
+    <textarea id="cancelReason" rows="4" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring focus:ring-red-200 outline-none" placeholder="Enter cancellation reason..."></textarea>
+    <div class="flex justify-end mt-4 space-x-3">
+      <button onclick="closeCancelModal()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">Close</button>
+      <button onclick="submitCancelOrder()" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Submit</button>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ Toastr JS + CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
 <script src="/js/logout.js"></script>
+
+<script>
+  // Toastr config
+  toastr.options = {
+    closeButton: true,
+    progressBar: true,
+    positionClass: "toast-bottom-right",
+    timeOut: 3000,
+  };
+
+  let selectedOrderId = null;
+
+  function openCancelModal(orderId) {
+    selectedOrderId = orderId;
+    document.getElementById('cancelModal').classList.remove('hidden');
+    document.getElementById('cancelModal').classList.add('flex');
+  }
+
+  function closeCancelModal() {
+    selectedOrderId = null;
+    document.getElementById('cancelReason').value = '';
+    document.getElementById('cancelModal').classList.remove('flex');
+    document.getElementById('cancelModal').classList.add('hidden');
+  }
+
+  async function submitCancelOrder() {
+    const reason = document.getElementById('cancelReason').value.trim();
+    if (!reason) {
+      toastr.warning('Please enter a reason for cancellation.');
+      return;
+    }
+
+    try {
+      const res = await fetch(`/orders/${selectedOrderId}/cancel`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason })
+      });
+
+      if (res.ok) {
+        toastr.success('Order cancellation requested successfully.');
+        // Update status badges in UI
+        document.querySelectorAll(`[data-order-id="${selectedOrderId}"] .status-badge`).forEach(badge => {
+          badge.textContent = 'Return Requested';
+          badge.className = 'status-badge px-3 py-1 text-sm rounded-full bg-orange-100 text-orange-800';
+        });
+
+        const orderCard = document.querySelector(`[data-order-id="${selectedOrderId}"]`);
+        const cancelButton = orderCard.querySelector('button');
+
+      if (cancelButton) {
+          const disabledButton = document.createElement('button');
+          disabledButton.disabled = true;
+          disabledButton.textContent = '⏳ Return Requested';
+          disabledButton.className =
+            'text-sm font-medium text-gray-400 cursor-not-allowed bg-gray-100 px-3 py-1 rounded transition';
+          cancelButton.replaceWith(disabledButton);
+        }
+      } else {
+        toastr.error('Failed to cancel order. Please try again.');
+      }
+    } catch (err) {
+      console.error(err);
+      toastr.error('Error cancelling order.');
+    } finally {
+      closeCancelModal();
+    }
+  }
+</script>

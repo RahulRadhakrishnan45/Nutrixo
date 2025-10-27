@@ -7,5 +7,6 @@ router.get('/', checkSession, orderController.loadOrders)
 router.get('/:orderId', checkSession, orderController.loadOrderTracking)
 router.post('/:orderId/item/:itemId/cancel', checkSession, orderController.cancelOrder)
 router.get('/:orderId/invoice',checkSession,orderController.downloadInvoice)
+router.post('/:orderId/cancel',checkSession,orderController.cancelEntireOrder)
 
 module.exports = router
