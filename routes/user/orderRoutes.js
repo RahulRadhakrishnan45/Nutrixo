@@ -5,7 +5,7 @@ const orderController = require('../../controllers/user/orderUserController')
 
 router.get('/', checkSession, orderController.loadOrders)
 router.get('/:orderId', checkSession, orderController.loadOrderTracking)
-router.post('/:orderId/item/:itemId/cancel', checkSession, orderController.cancelOrder)
+router.post('/:orderId/item/:itemId/cancel', checkSession, orderController.cancelSingleOrder)
 router.get('/:orderId/invoice',checkSession,orderController.downloadInvoice)
 router.post('/:orderId/cancel',checkSession,orderController.cancelEntireOrder)
 

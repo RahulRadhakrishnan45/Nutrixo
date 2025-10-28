@@ -45,34 +45,47 @@ const loadOrderTracking = asyncHandler( async( req,res) => {
     res.render('user/trackingPage',{layout:'layouts/user_main',order,primaryItem})
 })
 
-const cancelOrder = asyncHandler( async( req,res) => {
+const cancelSingleOrder = asyncHandler( async( req,res) => {
     const orderId = req.params.orderId
     const itemId = req.params.itemId
     const userId = req.session.user._id
+    const reason = (req.body.reason || '').trim()
 
     const order = await Order.findOne({_id:orderId,user:userId})
 
     if(!order) {
-        return res.status(httpStatus.not_found).json({success:false,message:messages.ORDER.ORDER_NOT_FOUND})
+        return req.xhr ? res.status(httpStatus.not_found).json({success:false,message:messages.ORDER.ORDER_NOT_FOUND}): res.redirect('/orders')
     }
 
-    const item = order.items.id(itemId)
+    const item = order.items.find(i => i._id.toString() === itemId)
 
     if(!item) {
-        return res.status(httpStatus.not_found).json({success:false,message:messages.PRODUCT.PRODUCT_NOT_FOUND})
+        return req.xhr ? res.status(httpStatus.not_found).json({success:false,message:messages.PRODUCT.PRODUCT_NOT_FOUND}) : res.redirect('/orders')
     }
 
-    if(item.status === 'PROCESSING' || item.status === "PACKED") {
-        item.status === 'CANCELLED'
-        item.statusHistory.push({
-            status:'CANCELLED',
-            note:'Item cancelled by the user'
-        })
-        await order.save()
-        return res.redirect(`/order/${orderId}`)
-    }else{
-        return res.status(httpStatus.bad_request).json({success:false,message:'This item cannot be cancelled at this stage'})
+    const notAllowed = ['DELIVERED','RETURNED','CANCELLED']
+    if(notAllowed.includes(item.status)) {
+        return req.xhr ? res.status(httpStatus.bad_request).json({success:false,message:messages.ORDER.ORDER_CANNONT_CANCEL}) : res.redirect('/orders')
     }
+
+    item.status = 'CANCELLATION REQUESTED'
+    item.cancelReason = reason || 'No reason provided',
+    item.cancelRequestAt = new Date()
+
+    item.statusHistory = item.statusHistory || []
+    item.statusHistory.push({
+        status:'CANCELLATION REQUESTED',
+        note:reason? `User reason : ${reason}`:'User requested cancellation',
+        date:new Date()
+    })
+    
+    await order.save()
+
+    if(req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+        return res.status(httpStatus.ok).json({success:true,message:messages.ORDER.ORDER_CANCELATION_REQUESTED})
+    }
+
+    return res.redirect(`/order/${orderId}`)
 })
 
 const cancelEntireOrder = asyncHandler( async( req,res) => {
@@ -89,17 +102,15 @@ const cancelEntireOrder = asyncHandler( async( req,res) => {
 
     let anyUpdated = false
     order.items.forEach(item => {
-        if(item.status === 'PROCESSING') {
-            item.status = 'RETURN REQUESTED'
+        if(item.status === 'PROCESSING' || item.status === 'PACKED') {
+            item.status = 'CANCELLATION REQUESTED'
             item.statusHistory.push({
-                status:'RETURN REQUESTED',
-                note:`Cancellation requested by user: ${reason}`
+                status:'CANCELLATION REQUESTED',
+                note:`Full order cancellation requested by user: ${reason}`,
+                date: new Date()
             })
-            item.returnRequest = {
-                status:'REQUESTED',
-                reason,
-                requestedAt: new Date()
-            }
+            item.cancelReason = reason
+            item.cancelRequestAt = new Date()
             anyUpdated = true
         }
     })
@@ -200,7 +211,7 @@ const downloadInvoice = asyncHandler(async (req, res) => {
   doc.text('Subtotal (After Offer):', summaryX, doc.y, { continued: true })
   doc.text(`Rs. ${subtotal.toFixed(2)}`, { align: 'right' })
 
-  doc.text('Tax (5%):', summaryX, doc.y, { continued: true })
+  doc.text('Tax (2%):', summaryX, doc.y, { continued: true })
   doc.text(`Rs. ${tax.toFixed(2)}`, { align: 'right' })
 
   doc.moveDown(0.8)
@@ -213,4 +224,5 @@ const downloadInvoice = asyncHandler(async (req, res) => {
 
 
 
-module.exports = {loadOrders,loadOrderTracking,cancelOrder,cancelEntireOrder,downloadInvoice}
+module.exports = {loadOrders,loadOrderTracking,cancelSingleOrder,cancelEntireOrder,downloadInvoice}
+   

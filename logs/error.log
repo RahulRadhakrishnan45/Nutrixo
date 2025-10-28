@@ -298,3 +298,90 @@ currentPage is not defined
 2025-10-27 18:27:47 [error] : Unhandled error: summaryX is not defined | Stack: ReferenceError: summaryX is not defined
     at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\orderUserController.js:150:33
     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-10-28 17:42:07 [error] : Unhandled error: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\trackingPage.ejs:19
+    17| 
+    18|         <!-- Orders Section -->
+ >> 19|         <% if (orders && orders.length > 0) { %>
+    20|           <div class="space-y-8">
+    21|             <% orders.forEach(order => { %>
+    22|               <!-- Each Order Card -->
+
+orders is not defined | Stack: ReferenceError: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\trackingPage.ejs:19
+    17| 
+    18|         <!-- Orders Section -->
+ >> 19|         <% if (orders && orders.length > 0) { %>
+    20|           <div class="space-y-8">
+    21|             <% orders.forEach(order => { %>
+    22|               <!-- Each Order Card -->
+
+orders is not defined
+    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:15:8)
+    at trackingPage (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:703:17)
+    at tryHandleCache (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:274:36)
+    at exports.renderFile [as engine] (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:491:10)
+    at View.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\view.js:139:8)
+    at tryRender (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:627:10)
+    at Function.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:574:3)
+    at ServerResponse.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\response.js:909:7)
+    at res.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express-ejs-layouts\lib\express-layouts.js:77:18)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\orderUserController.js:45:9
+2025-10-28 17:45:35 [error] : Unhandled error: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\trackingPage.ejs:19
+    17| 
+    18|         <!-- Orders Section -->
+ >> 19|         <% if (orders && orders.length > 0) { %>
+    20|           <div class="space-y-8">
+    21|             <% orders.forEach(order => { %>
+    22|               <!-- Each Order Card -->
+
+orders is not defined | Stack: ReferenceError: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\trackingPage.ejs:19
+    17| 
+    18|         <!-- Orders Section -->
+ >> 19|         <% if (orders && orders.length > 0) { %>
+    20|           <div class="space-y-8">
+    21|             <% orders.forEach(order => { %>
+    22|               <!-- Each Order Card -->
+
+orders is not defined
+    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:15:8)
+    at trackingPage (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:703:17)
+    at tryHandleCache (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:274:36)
+    at exports.renderFile [as engine] (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:491:10)
+    at View.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\view.js:139:8)
+    at tryRender (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:627:10)
+    at Function.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:574:3)
+    at ServerResponse.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\response.js:909:7)
+    at res.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express-ejs-layouts\lib\express-layouts.js:77:18)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\orderUserController.js:45:9
+2025-10-28 17:45:39 [error] : Unhandled error: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\trackingPage.ejs:19
+    17| 
+    18|         <!-- Orders Section -->
+ >> 19|         <% if (orders && orders.length > 0) { %>
+    20|           <div class="space-y-8">
+    21|             <% orders.forEach(order => { %>
+    22|               <!-- Each Order Card -->
+
+orders is not defined | Stack: ReferenceError: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\trackingPage.ejs:19
+    17| 
+    18|         <!-- Orders Section -->
+ >> 19|         <% if (orders && orders.length > 0) { %>
+    20|           <div class="space-y-8">
+    21|             <% orders.forEach(order => { %>
+    22|               <!-- Each Order Card -->
+
+orders is not defined
+    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:15:8)
+    at trackingPage (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:703:17)
+    at tryHandleCache (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:274:36)
+    at exports.renderFile [as engine] (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:491:10)
+    at View.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\view.js:139:8)
+    at tryRender (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:627:10)
+    at Function.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:574:3)
+    at ServerResponse.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\response.js:909:7)
+    at res.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express-ejs-layouts\lib\express-layouts.js:77:18)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\orderUserController.js:45:9
+2025-10-29 00:01:53 [error] : Unhandled error: Order validation failed: items.0.status: `CANCELLATION REQUESTED` is not a valid enum value for path `status`. | Stack: ValidationError: Order validation failed: items.0.status: `CANCELLATION REQUESTED` is not a valid enum value for path `status`.
+    at Document.invalidate (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\document.js:3354:32)
+    at Subdocument.invalidate (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\types\subdocument.js:229:12)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\document.js:3115:17
+    at C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\schemaType.js:1410:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
