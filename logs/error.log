@@ -385,3 +385,69 @@ orders is not defined
     at C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\document.js:3115:17
     at C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\schemaType.js:1410:9
     at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+2025-10-29 22:29:10 [error] : Unhandled error: paymentStatus is not defined | Stack: ReferenceError: paymentStatus is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\admin\orderAdminController.js:19:5
+    at asyncUtilWrap (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express-async-handler\index.js:3:20)
+    at Layer.handleRequest (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\route.js:157:13)
+    at checkAdminSession (C:\Users\ASUS\Desktop\Nutrixo Project\middlewares\checkSession.js:30:9)
+    at Layer.handleRequest (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\route.js:117:3)
+    at handle (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\layer.js:152:17)
+2025-10-29 22:31:02 [error] : Unhandled error: The comparison function must be either a function or undefined: #<Object> | Stack: TypeError: The comparison function must be either a function or undefined: #<Object>
+    at Array.toSorted (<anonymous>)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\admin\orderAdminController.js:25:72
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-10-29 22:34:27 [error] : Unhandled error: The comparison function must be either a function or undefined: #<Object> | Stack: TypeError: The comparison function must be either a function or undefined: #<Object>
+    at Array.sort (<anonymous>)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\admin\orderAdminController.js:25:72
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-10-29 22:36:15 [error] : Unhandled error: C:\Users\ASUS\Desktop\Nutrixo Project\views\admin\order.ejs:74
+    72|             </tr>
+    73|           <% } else { %>
+ >> 74|             <% orders.forEach(order => { 
+    75|               const hasCancelReq = order.items.some(item => item.status === "CANCELLATION REQUESTED");
+    76|               const hasReturnReq = order.items.some(item => item.returnRequest?.status === "REQUESTED");
+    77|             %>
+
+orders.forEach is not a function | Stack: TypeError: C:\Users\ASUS\Desktop\Nutrixo Project\views\admin\order.ejs:74
+    72|             </tr>
+    73|           <% } else { %>
+ >> 74|             <% orders.forEach(order => { 
+    75|               const hasCancelReq = order.items.some(item => item.status === "CANCELLATION REQUESTED");
+    76|               const hasReturnReq = order.items.some(item => item.returnRequest?.status === "REQUESTED");
+    77|             %>
+
+orders.forEach is not a function
+    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:39:15)
+    at order (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:703:17)
+    at tryHandleCache (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:274:36)
+    at exports.renderFile [as engine] (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:491:10)
+    at View.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\view.js:139:8)
+    at tryRender (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:627:10)
+    at Function.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:574:3)
+    at ServerResponse.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\response.js:909:7)
+    at res.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express-ejs-layouts\lib\express-layouts.js:77:18)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\admin\orderAdminController.js:27:9
+2025-10-29 22:38:42 [error] : Unhandled error: Failed to lookup view "layout" in views directory "C:\Users\ASUS\Desktop\Nutrixo Project\views" | Stack: Error: Failed to lookup view "layout" in views directory "C:\Users\ASUS\Desktop\Nutrixo Project\views"
+    at Function.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:562:17)
+    at ServerResponse.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\response.js:909:7)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express-ejs-layouts\lib\express-layouts.js:113:20
+    at renderTick (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\view.js:154:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+2025-10-29 23:18:46 [error] : Unhandled error: page is not defined | Stack: ReferenceError: page is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\admin\orderAdminController.js:26:34
+    at asyncUtilWrap (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express-async-handler\index.js:3:20)
+    at Layer.handleRequest (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\route.js:157:13)
+    at checkAdminSession (C:\Users\ASUS\Desktop\Nutrixo Project\middlewares\checkSession.js:30:9)
+    at Layer.handleRequest (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\route.js:117:3)
+    at handle (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\layer.js:152:17)
+2025-10-29 23:20:13 [error] : Unhandled error: totalOrders is not defined | Stack: ReferenceError: totalOrders is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\admin\orderAdminController.js:30:34
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)

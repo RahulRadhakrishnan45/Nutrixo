@@ -27,9 +27,18 @@
           >
             <!-- Order Header -->
             <div class="flex justify-between items-center mb-4">
-              <p class="text-sm text-gray-600">
-                Ordered On: <%= order.createdAt.toDateString() %>
-              </p>
+              <div>
+                <p class="text-sm text-gray-600">
+                  Ordered On: <%= order.createdAt.toDateString() %>
+                </p>
+                <p class="text-xs text-gray-500 mt-1">
+                  Order ID:
+                  <span class="font-medium"
+                    ><%= order.orderNumber || order._id %></span
+                  >
+                </p>
+              </div>
+
               <p class="text-lg font-bold text-gray-800">
                 ₹<%= order.totalAmount.toFixed(2) %>
               </p>
