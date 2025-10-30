@@ -68,15 +68,16 @@ const cancelSingleOrder = asyncHandler( async( req,res) => {
         return req.xhr ? res.status(httpStatus.bad_request).json({success:false,message:messages.ORDER.ORDER_CANNONT_CANCEL}) : res.redirect('/orders')
     }
 
-    item.status = 'CANCELLATION REQUESTED'
-    item.cancelReason = reason || 'No reason provided',
-    item.cancelRequestAt = new Date()
+    item.status = "CANCELLATION REQUESTED"
+    item.cancellationRequest.status = "REQUESTED"
+    item.cancellationRequest.reason = reason || "No reason provided"
+    item.cancellationRequest.requestedAt = new Date()
 
     item.statusHistory = item.statusHistory || []
     item.statusHistory.push({
         status:'CANCELLATION REQUESTED',
         note:reason? `User reason : ${reason}`:'User requested cancellation',
-        date:new Date()
+        timestamp: new Date()
     })
     
     await order.save()
@@ -101,16 +102,18 @@ const cancelEntireOrder = asyncHandler( async( req,res) => {
     if(!order) return res.status(httpStatus.not_found).json({success:false,message:messages.ORDER.ORDER_NOT_FOUND})
 
     let anyUpdated = false
-    order.items.forEach(item => {
-        if(item.status === 'PROCESSING' || item.status === 'PACKED') {
+    order.items.forEach((item) => {
+        if(['PROCESSING','PACKED'].includes(item.status)) {
             item.status = 'CANCELLATION REQUESTED'
+            item.cancellationRequest.status = 'REQUESTED'
+            item.cancellationRequest.reason = reason
+            item.cancellationRequest.requestedAt = new Date()
+
             item.statusHistory.push({
                 status:'CANCELLATION REQUESTED',
                 note:`Full order cancellation requested by user: ${reason}`,
-                date: new Date()
+                timestamp: new Date()
             })
-            item.cancelReason = reason
-            item.cancelRequestAt = new Date()
             anyUpdated = true
         }
     })
@@ -222,7 +225,53 @@ const downloadInvoice = asyncHandler(async (req, res) => {
   doc.end()
 })
 
+const returnSingleOrder = asyncHandler( async( req,res) => {
+    const {orderId,itemId} = req.params
+    const userId = req.session.user._id
+    const reason = (req.body.reason || '').trim()
+
+    const order = await Order.findOne({_id:orderId,user:userId})
+    if(!order) {
+        return req.xhr ? res.status(httpStatus.not_found).json({success:false,message:messages.ORDER.ORDER_NOT_FOUND}) : res.redirect('/orders')
+    }
+
+    const item = order.items.find((i) => i._id.toString() === itemId)
+    if(!item) {
+        return res.xhr ? res.status(httpStatus.not_found).json({success:false,message:messages.PRODUCT.PRODUCT_NOT_FOUND}) : res.redirect('/orders')
+    }
+
+    if(item.status !== 'DELIVERED') {
+        return req.xhr ? res.status(httpStatus.bad_request).json({success:false,message:messages.RETURN.RETURN_ALLOWED_ONLY_DELIVERED}) : res.redirect(`/orders/${orderId}`)
+    }
+
+    if(item.returnRequest && item.returnRequest.status === 'REQUESTED') {
+        return req.xhr ? res.status(httpStatus.bad_request).json({success:false,message:messages.RETURN.RETURN_ALREDY_SUBMITTED}) : res.redirect(`/orders/${orderId}`)
+    }
+
+    item.status = 'RETURN REQUESTED'
+    item.returnRequest = {
+        status:'REQUESTED',
+        reason:reason || 'No reason provided',
+        requestedAt: new Date()
+    }
+
+    item.statusHistory = item.statusHistory || []
+    item.statusHistory.push({
+        status:'RETURN REQUESTED',
+        note:reason ? `User reason : ${reason}` : 'User requested return',
+        timestamp: new Date()
+    })
+
+    await order.save()
+
+    if(req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+        return res.status(httpStatus.ok).json({success:true,message:messages.RETURN.RETURN_SUBMITTED})
+    }
+
+    return res.redirect(`/orders/${orderId}`)
+})
 
 
-module.exports = {loadOrders,loadOrderTracking,cancelSingleOrder,cancelEntireOrder,downloadInvoice}
+
+module.exports = {loadOrders,loadOrderTracking,cancelSingleOrder,cancelEntireOrder,downloadInvoice,returnSingleOrder}
    

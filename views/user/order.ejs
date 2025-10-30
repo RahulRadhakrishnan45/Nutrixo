@@ -88,6 +88,11 @@
                     class="status-badge px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800"
                     >Packed</span
                   >
+                  <% } else if (item.status === 'SHIPPED') { %>
+                  <span
+                    class="status-badge px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800"
+                    >Shipped</span
+                  >
                   <% } else if (item.status === 'CANCELLATION REQUESTED') { %>
                   <span
                     class="status-badge px-3 py-1 text-sm rounded-full bg-orange-100 text-orange-800"

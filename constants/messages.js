@@ -113,6 +113,20 @@ const messages = Object.freeze({
         ORDER_NOT_FOUND:"Order not found",
         ORDER_CANNONT_CANCEL:"Order cannot be cancelled at this stage",
         ORDER_CANCELATION_REQUESTED:"Order cancellation requested successfully",
+    },
+    CANCELLATION:{
+        CANCELLATION_APPROVED:"Cancellation approved successfully",
+        CANCELLATION_REJECTED:"Cancellation request rejected",
+    },
+    ITEM:{
+        ITEM_UPDATED:"Item status updatedd successfully",
+    },
+    RETURN:{
+        RETURN_REJECT:"Return request rejected",
+        RETURN_APPROVED:"Return request approved successfully",
+        RETURN_ALLOWED_ONLY_DELIVERED:"Return is allowed only for deliverd products",
+        RETURN_ALREDY_SUBMITTED:"Return request already submitted",
+        RETURN_SUBMITTED:"Return request submitted successfully",
     }
 });
 

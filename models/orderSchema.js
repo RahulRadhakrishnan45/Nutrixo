@@ -94,6 +94,17 @@ const orderSchema = new mongoose.Schema(
           resolvedAt: Date,
           refundAmount: Number,
         },
+        cancellationRequest: {
+          status: {
+            type: String,
+            enum: ["NONE", "REQUESTED", "APPROVED", "REJECTED"],
+            default: "NONE",
+          },
+          reason: String,
+          requestedAt: Date,
+          resolvedAt: Date,
+          refundAmount: Number,
+        },
       },
     ],
   },
