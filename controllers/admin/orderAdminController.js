@@ -98,7 +98,12 @@ const rejectCancellation = asyncHandler( async( req,res) => {
     if(!item) return res.status(httpStatus.not_found).json({success:false,message:messages.PRODUCT.PRODUCT_NOT_FOUND})
 
     item.cancellationRequest.status = 'REJECTED'
-    item.status = 'PROCESSING'
+    
+    if(item.status === 'CANCELLATION REQUESTED') {
+        item.status = item.previousStatus
+        item.previousStatus = null
+    }
+
     order.markModified('items')
     await order.save()
 

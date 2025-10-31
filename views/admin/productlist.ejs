@@ -648,10 +648,16 @@ function validateVariant(box, idx) {
     valid = false
   }
 
-  if(!stockVal || stockVal < 0) {
+  if(stock === '') {
     if(stockError) {
-    stockError.innerText = "Stock is required and cannot be negative"
-    stockError.classList.remove("hidden")
+      stockError.innerHTML = 'Stock is required'
+      stockError.classList.remove("hidden")
+    }
+    valid = false
+  }else if(stockVal < 0) {
+    if(stockError) {
+      stockError.innerHTML = 'Stock cannot be negative'
+      stockError.classList.remove("hidden")
     }
     valid = false
   }

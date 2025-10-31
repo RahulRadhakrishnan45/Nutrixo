@@ -473,3 +473,84 @@ orders.forEach is not a function
     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
     at async model.Query.exec (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\query.js:4604:63)
     at async C:\Users\ASUS\Desktop\Nutrixo Project\controllers\admin\orderAdminController.js:40:19
+2025-10-31 10:29:24 [error] : Unhandled error: all is not defined | Stack: ReferenceError: all is not defined
+    at model.<anonymous> (C:\Users\ASUS\Desktop\Nutrixo Project\models\orderSchema.js:128:3)
+    at callMiddlewareFunction (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\kareem\index.js:628:27)
+    at model.next (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\kareem\index.js:93:7)
+    at _next (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\kareem\index.js:146:10)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\kareem\index.js:653:30
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+2025-10-31 10:29:43 [error] : Unhandled error: all is not defined | Stack: ReferenceError: all is not defined
+    at model.<anonymous> (C:\Users\ASUS\Desktop\Nutrixo Project\models\orderSchema.js:128:3)
+    at callMiddlewareFunction (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\kareem\index.js:628:27)
+    at model.next (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\kareem\index.js:93:7)
+    at _next (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\kareem\index.js:146:10)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\kareem\index.js:653:30
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+2025-11-01 02:55:27 [error] : Unhandled error: Invalid or unexpected token in C:\Users\ASUS\Desktop\Nutrixo Project\views\user\trackingPage.ejs while compiling ejs
+
+If the above error is not helpful, you may want to try EJS-Lint:
+https://github.com/RyanZim/EJS-Lint
+Or, if you meant to create an async function, pass `async: true` as an option. | Stack: SyntaxError: Invalid or unexpected token in C:\Users\ASUS\Desktop\Nutrixo Project\views\user\trackingPage.ejs while compiling ejs
+
+If the above error is not helpful, you may want to try EJS-Lint:
+https://github.com/RyanZim/EJS-Lint
+Or, if you meant to create an async function, pass `async: true` as an option.
+    at new Function (<anonymous>)
+    at Template.compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12)
+    at Object.compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:398:16)
+    at handleCache (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:235:18)
+    at tryHandleCache (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:274:16)
+    at exports.renderFile [as engine] (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:491:10)
+    at View.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\view.js:139:8)
+    at tryRender (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:627:10)
+    at Function.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:574:3)
+    at ServerResponse.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\response.js:909:7)
+2025-11-01 03:12:47 [error] : Unhandled error: subtotal is not defined | Stack: ReferenceError: subtotal is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\orderUserController.js:234:19
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-01 03:12:48 [error] : Unhandled error: subtotal is not defined | Stack: ReferenceError: subtotal is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\orderUserController.js:234:19
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-01 03:12:53 [error] : Unhandled error: subtotal is not defined | Stack: ReferenceError: subtotal is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\orderUserController.js:234:19
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-01 03:14:06 [error] : Unhandled error: subTotal is not defined | Stack: ReferenceError: subTotal is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\orderUserController.js:222:9
+    at Array.forEach (<anonymous>)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\orderUserController.js:190:15
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-01 03:14:07 [error] : Unhandled error: subTotal is not defined | Stack: ReferenceError: subTotal is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\orderUserController.js:222:9
+    at Array.forEach (<anonymous>)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\orderUserController.js:190:15
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-01 03:14:12 [error] : Unhandled error: subTotal is not defined | Stack: ReferenceError: subTotal is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\orderUserController.js:222:9
+    at Array.forEach (<anonymous>)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\orderUserController.js:190:15
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-01 03:14:35 [error] : Unhandled error: tax is not defined | Stack: ReferenceError: tax is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\orderUserController.js:240:19
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-01 03:14:36 [error] : Unhandled error: tax is not defined | Stack: ReferenceError: tax is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\orderUserController.js:240:19
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-01 03:14:41 [error] : Unhandled error: tax is not defined | Stack: ReferenceError: tax is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\orderUserController.js:240:19
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-01 03:15:12 [error] : Unhandled error: tax is not defined | Stack: ReferenceError: tax is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\orderUserController.js:240:19
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-01 03:19:08 [error] : Unhandled error: startX is not defined | Stack: ReferenceError: startX is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\orderUserController.js:174:28
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-01 03:19:09 [error] : Unhandled error: startX is not defined | Stack: ReferenceError: startX is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\orderUserController.js:174:28
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-01 03:19:14 [error] : Unhandled error: startX is not defined | Stack: ReferenceError: startX is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\orderUserController.js:174:28
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-01 03:19:45 [error] : Unhandled error: startX is not defined | Stack: ReferenceError: startX is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\orderUserController.js:174:28
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)

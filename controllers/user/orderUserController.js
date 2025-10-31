@@ -68,6 +68,7 @@ const cancelSingleOrder = asyncHandler( async( req,res) => {
         return req.xhr ? res.status(httpStatus.bad_request).json({success:false,message:messages.ORDER.ORDER_CANNONT_CANCEL}) : res.redirect('/orders')
     }
 
+    item.previousStatus = item.status
     item.status = "CANCELLATION REQUESTED"
     item.cancellationRequest.status = "REQUESTED"
     item.cancellationRequest.reason = reason || "No reason provided"
@@ -103,7 +104,8 @@ const cancelEntireOrder = asyncHandler( async( req,res) => {
 
     let anyUpdated = false
     order.items.forEach((item) => {
-        if(['PROCESSING','PACKED'].includes(item.status)) {
+        if(['PROCESSING','PACKED','SHIPPED'].includes(item.status)) {
+            item.previousStatus = item.status
             item.status = 'CANCELLATION REQUESTED'
             item.cancellationRequest.status = 'REQUESTED'
             item.cancellationRequest.reason = reason
@@ -151,13 +153,13 @@ const downloadInvoice = asyncHandler(async (req, res) => {
   doc.text(`Order Number: ${order.orderNumber}`)
   doc.text(`Invoice Date: ${new Date().toLocaleDateString()}`)
   doc.text(`Order Date: ${new Date(order.createdAt).toLocaleDateString()}`)
+  doc.text(`Payment Method: ${order.paymentMethod || 'N/A'}`)
   doc.text(`Payment Status: ${order.paymentStatus || 'PENDING'}`)
-  doc.text(`Payment Method: ${order.paymentMethod}`)
   doc.moveDown(0.8)
 
   const addr = order.orderAddress
   doc.font('Helvetica-Bold').text('Shipping Address', { underline: true })
-  doc.moveDown(0.4);
+  doc.moveDown(0.4)
   doc.font('Helvetica')
   doc.text(`${addr.fullname}`)
   doc.text(`${addr.address}`)
@@ -171,10 +173,11 @@ const downloadInvoice = asyncHandler(async (req, res) => {
 
   doc.font('Helvetica-Bold')
   doc.text('Product Name', startX, tableTop)
-  doc.text('Qty', 280, tableTop)
-  doc.text('Price Paid', 330, tableTop)
-  doc.text('Status', 430, tableTop)
-  doc.text('Total Paid', 520, tableTop, { align: 'right' })
+  doc.text('Qty', 250, tableTop)
+  doc.text('Price', 300, tableTop)
+  doc.text('Status', 380, tableTop)
+  doc.text('Payment', 470, tableTop)
+  doc.text('Total', 540, tableTop, { align: 'right' })
 
   doc.moveDown(0.3)
   doc.moveTo(startX, doc.y).lineTo(560, doc.y).stroke()
@@ -182,48 +185,71 @@ const downloadInvoice = asyncHandler(async (req, res) => {
 
   doc.font('Helvetica').fontSize(10)
 
+  let subtotal = 0
+  let taxTotal = 0
+  let totalPaid = 0
+  const TAX_RATE = 0.02
+
   order.items.forEach((item) => {
     const lineY = doc.y
 
-    doc.text(item.title, startX, lineY, {
-      width: 200,
-      continued: false,
-    })
+    let itemPaymentStatus = 'PENDING';
+    if (order.paymentStatus === 'COMPLETED') {
+      itemPaymentStatus = 'PAID'
+    } else {
+      if (['DELIVERED', 'RETURNED'].includes(item.status)) {
+        itemPaymentStatus = 'PAID'
+      } else if (['CANCELLATION REQUESTED', 'CANCELLED'].includes(item.status)) {
+        itemPaymentStatus = 'REFUND IN PROCESS'
+      } else {
+        itemPaymentStatus = 'PENDING'
+      }
+    }
 
-    doc.text(`${item.quantity}`, 280, lineY)
-    doc.text(`Rs. ${item.price.toFixed(2)}`, 330, lineY)
-    doc.text(item.status, 430, lineY)
-    doc.text(`Rs. ${item.totalPrice.toFixed(2)}`, 520, lineY, { align: 'right' })
+    const includeInTotal = !['CANCELLED', 'RETURNED'].includes(item.status)
+    const itemTotal = item.price * item.quantity
+
+    doc.text(item.title, startX, lineY, { width: 180 })
+    doc.text(`${item.quantity}`, 250, lineY)
+    doc.text(`Rs. ${item.price.toFixed(2)}`, 300, lineY)
+    doc.text(item.status, 380, lineY)
+    doc.text(itemPaymentStatus, 470, lineY)
+    doc.text(`Rs. ${itemTotal.toFixed(2)}`, 540, lineY, { align: 'right' })
 
     doc.moveDown(0.6)
+
+    if (includeInTotal) {
+      subtotal += itemTotal
+      taxTotal += itemTotal * TAX_RATE
+      totalPaid += itemTotal + itemTotal * TAX_RATE
+    }
   })
 
   doc.moveTo(startX, doc.y).lineTo(560, doc.y).stroke()
   doc.moveDown(1.5)
 
-  const subtotal = order.subtotal || 0
-  const tax = order.tax || 0
-  const total = order.totalAmount || 0
-
-  doc.fontSize(11)
   const summaryX = 350
-
-  doc.text('Original Price:', summaryX, doc.y, { continued: true })
-  doc.text(`Rs. ${subtotal.toFixed(2)}`, { align: 'right' })
-
-  doc.text('Subtotal (After Offer):', summaryX, doc.y, { continued: true })
+  doc.fontSize(11).font('Helvetica')
+  doc.text('Subtotal:', summaryX, doc.y, { continued: true })
   doc.text(`Rs. ${subtotal.toFixed(2)}`, { align: 'right' })
 
   doc.text('Tax (2%):', summaryX, doc.y, { continued: true })
-  doc.text(`Rs. ${tax.toFixed(2)}`, { align: 'right' })
+  doc.text(`Rs. ${taxTotal.toFixed(2)}`, { align: 'right' })
 
-  doc.moveDown(0.8)
+  doc.moveDown(0.8);
   doc.font('Helvetica-Bold')
-  doc.text('Item Total (Inc. Tax):', summaryX, doc.y, { continued: true })
-  doc.text(`Rs. ${total.toFixed(2)}`, { align: 'right' })
+  doc.text('Total Amount:', summaryX, doc.y, { continued: true })
+  doc.text(`Rs. ${totalPaid.toFixed(2)}`, { align: 'right' })
+
+  doc.moveDown(1)
+  doc.fontSize(10).font('Helvetica-Oblique').text(
+    '*Cancelled or returned products are excluded from total calculations.',
+    { align: 'center' }
+  )
 
   doc.end()
 })
+
 
 const returnSingleOrder = asyncHandler( async( req,res) => {
     const {orderId,itemId} = req.params
@@ -271,7 +297,57 @@ const returnSingleOrder = asyncHandler( async( req,res) => {
     return res.redirect(`/orders/${orderId}`)
 })
 
+const returnEntireOrder = asyncHandler( async( req,res) => {
+    const orderId = req.params.orderId
+    const {reason} = req.body
+    const userId = req.session.user._id
+
+    if(!reason || reason.trim().length === 0) {
+        return res.status(httpStatus.bad_request).json({success:false,message:messages.RETURN.RETURN_REASON_REQUIRED})
+    }
+
+    const order = await Order.findOne({_id:orderId,user:userId})
+    if(!order) return res.status(httpStatus.not_found).json({success:false,message:messages.ORDER.ORDER_NOT_FOUND})
+    
+    let allDelivered = order.items.every((item) => item.status === 'DELIVERED')
+    if(!allDelivered) {
+        return res.status(httpStatus.bad_request).json({success:false,message:messages.RETURN.RETURN_NOT_AVAILABLE})
+    }
+
+    for(const item of order.items) {
+        item.previousStatus = item.status
+        item.status = "RETURN REQUESTED"
+        item.returnRequest = {
+            status:'REQUESTED',
+            reason:reason,
+            requestedAt: new Date()
+        }
+
+        item.statusHistory = item.statusHistory || []
+        item.statusHistory.push({
+            status:'RETURN REQUESTED',
+            note:`Full order return requested by user : ${reason}`,
+            timestamp: new Date()
+        })
+
+        const product = await Product.findById(item.product)
+        if(product && product.variants && product.variants.length > 0) {
+            const variant = product.variants.id(item.variantId)
+            if(variant) {
+                variant.stock += item.quantity
+            }
+            await product.save()
+        }else if(product) {
+            product.stock += item.quantity
+            await product.save()
+        }
+    }
+
+    await order.save()
+
+    res.status(httpStatus.ok).json({success:true,message:messages.RETURN.RETURN_SUBMITTED})
+})
 
 
-module.exports = {loadOrders,loadOrderTracking,cancelSingleOrder,cancelEntireOrder,downloadInvoice,returnSingleOrder}
+module.exports = {loadOrders,loadOrderTracking,cancelSingleOrder,cancelEntireOrder,downloadInvoice,returnSingleOrder,returnEntireOrder}
    

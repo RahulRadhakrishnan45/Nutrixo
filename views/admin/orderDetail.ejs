@@ -1,5 +1,5 @@
 <body class="bg-gray-50 p-6">
-  <div class="max-w-6xl mx-auto">
+  <div class="max-w-6xl mx-auto space-y-10">
     <!-- 🔙 Back link -->
     <a href="/admin/orders" class="text-blue-600 mb-4 inline-block hover:underline">&larr; Back to All Orders</a>
 
@@ -7,7 +7,7 @@
     <h1 class="text-2xl font-semibold mb-6">Order #<%= order.orderNumber %></h1>
 
     <!-- 💳 Top Summary Cards -->
-    <div class="grid grid-cols-3 gap-4 mb-8">
+    <div class="grid grid-cols-3 gap-4">
       <!-- Customer -->
       <div class="bg-white p-5 rounded-lg shadow-md">
         <h2 class="text-lg font-bold mb-2">Customer Details</h2>
@@ -32,9 +32,8 @@
             <p><span class="font-semibold">Payment Method:</span> <%= order.paymentMethod || "—" %></p>
             <p><span class="font-semibold">Coupon Applied:</span>
                 <%= order.couponCode ? order.couponCode : "None" %>
-                (<span class="text-green-600">₹<%= order.couponDiscount || 0 %></span> off)
+                <span class="text-green-600">₹<%= order.couponDiscount || 0 %></span>
                 </p>
-                <p><span class="font-semibold">Tax:</span> ₹<%= order.taxAmount || 0 %></p>
                 <p class="font-semibold text-lg mt-3 border-t pt-2">
                     Total Amount: ₹<%= order.totalAmount %>
                 </p>
@@ -43,7 +42,7 @@
     </div>
 
     <!-- 📦 Order Details -->
-    <div class="bg-white rounded p-6 shadow-sm mb-8">
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8 max-w-6xl mx-auto">
       <div class="flex items-center mb-4">
         <svg class="w-6 h-6 text-blue-600 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path d="M4 6h16M4 12h16M4 18h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />

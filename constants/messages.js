@@ -127,6 +127,8 @@ const messages = Object.freeze({
         RETURN_ALLOWED_ONLY_DELIVERED:"Return is allowed only for deliverd products",
         RETURN_ALREDY_SUBMITTED:"Return request already submitted",
         RETURN_SUBMITTED:"Return request submitted successfully",
+        RETURN_REASON_REQUIRED:"Return reason required",
+        RETURN_NOT_AVAILABLE:"Return available only if all products are delivered",
     }
 });
 

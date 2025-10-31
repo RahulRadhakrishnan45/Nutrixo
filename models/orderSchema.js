@@ -68,6 +68,7 @@ const orderSchema = new mongoose.Schema(
           ],
           default: "PROCESSING",
         },
+        previousStatus: {type: String},       
         statusHistory: [
           {
             status: String,
@@ -119,5 +120,29 @@ orderSchema.pre("save", async function (next) {
   }
   next();
 });
+
+orderSchema.pre("save",function (next) {
+  const allStatus = this.items.map((item) => item.status)
+
+  if(this.paymentStatus === 'FAILED') return next()
+
+  if(allStatus.every((s) => s === 'RETURNED')) {
+    this.paymentStatus = 'REFUNDED'
+  }
+  else if(this.paymentStatus === 'COD' && allStatus.every((s) => s === 'DELIVERED')) {
+    this.paymentStatus = 'COMPLETED'
+  }
+  else if(this.paymentStatus !== 'COD' && allStatus.every((s) => s === 'DELIVERED')) {
+    this.paymentStatus = 'COMPLETED'
+  }
+  else if(allStatus.some((s) => ["PROCESSING", "PACKED", "SHIPPED", "RETURN REQUESTED", "CANCELLATION REQUESTED"].includes(s))) {
+    this.paymentStatus = 'PENDING'
+  }
+  else if(allStatus.every((s) => s === 'CANCELLED')) {
+    this.paymentStatus = 'FAILED'
+  }
+
+  next()
+})
 
 module.exports = mongoose.model("Order", orderSchema);

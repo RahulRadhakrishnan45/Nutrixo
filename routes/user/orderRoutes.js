@@ -9,6 +9,7 @@ router.post('/:orderId/item/:itemId/cancel', checkSession, orderController.cance
 router.post('/:orderId/cancel',checkSession,orderController.cancelEntireOrder)
 router.get('/:orderId/invoice',checkSession,orderController.downloadInvoice)
 router.post('/:orderId/item/:itemId/return',checkSession,orderController.returnSingleOrder)
+router.post('/:orderId/return',checkSession,orderController.returnEntireOrder)
 
 
 module.exports = router
