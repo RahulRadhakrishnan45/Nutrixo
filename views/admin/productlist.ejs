@@ -208,6 +208,7 @@ document.addEventListener("click", (e) => {
 
       div.innerHTML = `
         <h4 class="font-semibold mb-3 text-lg">Variant ${idx + 1}</h4>
+        <input type="hidden" name="variantIds[]" value="${variant._id}">
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium mb-1">Flavour</label>
@@ -647,10 +648,16 @@ function validateVariant(box, idx) {
     valid = false
   }
 
-  if(!stockVal || stockVal < 0) {
+  if(stock === '') {
     if(stockError) {
-    stockError.innerText = "Stock is required and cannot be negative"
-    stockError.classList.remove("hidden")
+      stockError.innerHTML = 'Stock is required'
+      stockError.classList.remove("hidden")
+    }
+    valid = false
+  }else if(stockVal < 0) {
+    if(stockError) {
+      stockError.innerHTML = 'Stock cannot be negative'
+      stockError.classList.remove("hidden")
     }
     valid = false
   }
@@ -668,14 +675,6 @@ function validateVariant(box, idx) {
 
   return valid
 }
-
-// const products = <%-JSON.stringify(rows) %>
-
-// const total = products.reduce((tot,p) =>{
-//   const price = p.discounted_price
-//   return tot+price
-// })
-// console.log('sum is :',sum)
 
 
 </script>

@@ -5,13 +5,14 @@ const session = require('express-session')
 const nocache = require('nocache')
 const expressLayouts = require('express-ejs-layouts')
 const passport = require('./config/passport')
-const userRoutes = require('./routes/user/user')
-const adminRoutes = require('./routes/admin/admin_auth')
-const authRoutes = require('./routes/user/auth_routes')
+const userRoutes = require('./routes/user')
+const adminRoutes = require('./routes/admin')
+const authRoutes = require('./routes/user/authRoutes')
 const connectDB = require('./config/connectDB')
 const globalMiddleware = require('./middlewares/globalMiddleware')
 const seedAdmin=require('./utils/seedAdmin')
-
+const headerData = require('./middlewares/headerData')
+const {errorLog,apiLog} = require('./config/logger')
 
 dotenv.config()
 const app = express()
@@ -27,6 +28,7 @@ app.use(express.urlencoded({extended:true}))
 app.use(expressLayouts) 
 app.use(nocache())
 app.use(globalMiddleware)
+
 
 app.set('view engine','ejs')
 app.set('views',path.join(__dirname,'views'))
@@ -44,15 +46,21 @@ app.use(
   })
 )
 
+app.use(headerData)
 app.use(passport.initialize())
 app.use(passport.session())
 
 app.use(userRoutes)
 app.use('/admin',adminRoutes)
-app.use('/auth',authRoutes)
+
 
 app.all('/*splat',(req,res)=>{
     res.render('user/404-page',{layout:false})
+})
+
+app.use((err,req,res,next) => {
+  errorLog.error(`Unhandled error: ${err.message} | Stack: ${err.stack}`)
+  res.status(500).send('something went wrong! please try again later')
 })
 
 

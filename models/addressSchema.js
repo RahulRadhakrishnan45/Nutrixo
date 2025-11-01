@@ -8,12 +8,13 @@ const addressSchema = new mongoose.Schema(
       required: true,
     },
     fullname: { type: String, required: true, trim: true },
-    email: { type: String, required: true, lowercase: true, trim: true },
     mobile: { type: String, required: true, trim: true },
-    city: { type: String, required: true, trim: true },
+    address:{type:String, required: true, trim :true},
+    district: { type: String, required: true, trim: true },
     state: { type: String, required: true, trim: true },
-    zip_code: { type: Number, required: true },
+    pincode: { type: Number, required: true },
     country: { type: String, required: true, trim: true },
+    is_Default:{type:Boolean, default:false}
   },
   { timestamps: true }
 );

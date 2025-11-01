@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const passport = require('../../config/passport')
-const authController = require('../../controllers/user/auth_userController')
+const authController = require('../../controllers/user/authUserController')
 
 
 
@@ -19,11 +19,10 @@ router.post('/reset-password',authController.postResetPassword)
 
 router.post('/verify-otp',authController.verifyOtp)
 router.get('/otp',authController.loadOtpPage)
-
 router.post('/resend-otp',authController.resendOtp)
 
-router.get('/google',passport.authenticate('google',{scope:['profile','email']}))
 
+router.get('/google',passport.authenticate('google',{scope:['profile','email']}))
 router.get('/google/callback',passport.authenticate('google',{failureRedirect:'/auth/signup'}),async (req,res)=>{
     if(!req.user.is_active) {
         req.session.destroy(() => {
@@ -32,7 +31,7 @@ router.get('/google/callback',passport.authenticate('google',{failureRedirect:'/
         return
     }
 
-    req.session.user = req.user._id
+    req.session.user = {_id:req.user._id}
     req.session.userOtp = null
     req.session.purpose = null
     req.session.otpExpiry = null

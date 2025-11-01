@@ -1,0 +1,377 @@
+<body class="bg-gray-50 min-h-screen">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <div class="w-64 bg-white shadow-md">
+      <%- include('../partials/userSidebar') %>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex justify-center items-start p-10">
+      <!-- White Card Container -->
+      <div
+        class="w-full max-w-6xl bg-white shadow-md rounded-lg p-10 min-h-[600px]"
+      >
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+          <h1 class="text-2xl font-bold text-gray-800">Orders</h1>
+        </div>
+
+        <!-- Orders Section -->
+        <% if (orders && orders.length > 0) { %>
+        <div class="space-y-8">
+          <% orders.forEach(order => { %>
+          <!-- Each Order Card -->
+          <div
+            class="border border-gray-200 rounded-lg p-6 bg-gray-50 hover:shadow-md transition order-card"
+            data-order-id="<%= order._id %>"
+          >
+            <!-- Order Header -->
+            <div class="flex justify-between items-center mb-4">
+              <div>
+                <p class="text-sm text-gray-600">
+                  Ordered On: <%= order.createdAt.toDateString() %>
+                </p>
+                <p class="text-xs text-gray-500 mt-1">
+                  Order ID:
+                  <span class="font-medium"
+                    ><%= order.orderNumber || order._id %></span
+                  >
+                </p>
+              </div>
+
+              <p class="text-lg font-bold text-gray-800">
+                ₹<%= order.totalAmount.toFixed(2) %>
+              </p>
+            </div>
+
+            <!-- Order Items -->
+            <div class="space-y-4">
+              <% order.items.forEach(item => { %>
+              <div
+                class="flex items-start justify-between border-b pb-4 last:border-b-0"
+              >
+                <!-- LEFT -->
+                <div class="flex gap-4">
+                  <img
+                    src="<%= item.image %>"
+                    alt="Product Image"
+                    class="w-20 h-20 object-cover rounded"
+                  />
+                  <div>
+                    <h2 class="font-semibold text-lg text-gray-800">
+                      <%= item.title %>
+                    </h2>
+                    <p class="text-sm text-gray-600">
+                      Qty: <%= item.quantity %> | Size: <%= item.size %>
+                    </p>
+                    <p class="text-sm text-gray-600">₹<%= item.price %> each</p>
+                    <p class="text-sm text-gray-600">
+                      Delivering to: <%= order.orderAddress.fullname %>, <%= order.orderAddress.address %>, <%= order.orderAddress.district %>, <%= order.orderAddress.state %>, <%= order.orderAddress.pincode %>, <%= order.orderAddress.country %>
+                    </p>
+                  </div>
+                </div>
+
+                <!-- RIGHT -->
+                <div class="flex flex-col items-end space-y-2">
+                  <% if (item.status === 'PROCESSING') { %>
+                  <span class="status-badge px-3 py-1 text-sm rounded-full bg-yellow-100 text-yellow-800">Processing</span>
+                  <% } else if (item.status === 'PACKED') { %>
+                  <span class="status-badge px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800">Packed</span>
+                  <% } else if (item.status === 'SHIPPED') { %>
+                  <span class="status-badge px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800">Shipped</span>
+                  <% } else if (item.status === 'CANCELLATION REQUESTED') { %>
+                  <span class="status-badge px-3 py-1 text-sm rounded-full bg-orange-100 text-orange-800">Cancellation Requested</span>
+                  <% } else if (item.status === 'CANCELLED') { %>
+                  <span class="status-badge px-3 py-1 text-sm rounded-full bg-red-100 text-red-800">Cancelled</span>
+                  <% } else if (item.status === 'DELIVERED') { %>
+                  <span class="status-badge px-3 py-1 text-sm rounded-full bg-green-100 text-green-800">Delivered</span>
+                  <% } else if (item.status === 'RETURNED') { %>
+                  <span class="status-badge px-3 py-1 text-sm rounded-full bg-orange-100 text-orange-800">Returned</span>
+                  <% } else if (item.status === 'RETURN REQUESTED') { %>
+                  <span class="status-badge px-3 py-1 text-sm rounded-full bg-orange-100 text-orange-800">Return Requested</span>
+                  <% } %>
+
+                  <a
+                    href="/orders/<%= order._id %>?itemId=<%= item._id %>"
+                    class="px-4 py-2 bg-black text-white rounded hover:bg-gray-800"
+                  >
+                    View Order
+                  </a>
+                </div>
+              </div>
+              <% }) %>
+            </div>
+
+            <!-- 📄 Footer Buttons -->
+            <div class="flex justify-end mt-5 border-t pt-4 space-x-6">
+              <a
+                href="/orders/<%= order._id %>/invoice"
+                class="flex items-center text-sm text-gray-700 font-medium hover:text-gray-900 transition"
+              >
+                📄 Download Invoice
+              </a>
+
+              <% 
+                const allDelivered = order.items.every(item => item.status === 'DELIVERED');
+                const isCancellable = order.items.some(item => ['PROCESSING','PACKED','SHIPPED'].includes(item.status));
+              %> 
+              <% if (allDelivered) { %>
+                <button
+                  onclick="openReturnModal('<%= order._id %>')"
+                  class="return-btn text-sm font-medium text-green-600 hover:text-green-800 transition"
+                >
+                  🔁 Return All Products
+                </button>
+              <% } else if (isCancellable) { %>
+                <button
+                  onclick="openCancelModal('<%= order._id %>')"
+                  class="cancel-btn text-sm font-medium text-red-600 hover:text-red-800 transition"
+                >
+                  ❌ Cancel Order
+                </button>
+              <% } %>
+            </div>
+          </div>
+          <% }) %>
+        </div>
+
+        <% } else { %>
+        <!-- If No Orders -->
+        <div class="flex flex-col items-center justify-center text-center py-10">
+          <dotlottie-wc
+            src="https://lottie.host/d3fc8aff-8670-4850-ab07-c21624e934ad/q64xZVENGn.lottie"
+            style="width: 300px; height: 300px"
+            autoplay
+            loop
+          ></dotlottie-wc>
+          <p class="mt-6 text-gray-600 text-lg font-medium">No orders found</p>
+        </div>
+        <% } %>
+
+        <!-- Footer -->
+        <div
+          class="mt-10 border-t pt-6 flex justify-center bg-gray-50 rounded-b-lg -mx-10 -mb-10 p-6"
+        >
+          <a
+            href="/products"
+            class="px-6 py-2 border rounded-lg text-gray-700 hover:bg-gray-100 transition"
+          >
+            ← Continue Shopping
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+<%- include('../partials/pagination.ejs', { currentPage, totalPages, query }) %>
+
+<!-- ❗ Cancel Order Modal -->
+<div
+  id="cancelModal"
+  class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50"
+>
+  <div class="bg-white rounded-lg p-6 w-96 shadow-lg">
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">Cancel Order</h2>
+    <textarea
+      id="cancelReason"
+      rows="4"
+      class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring focus:ring-red-200 outline-none"
+      placeholder="Enter cancellation reason..."
+    ></textarea>
+    <div class="flex justify-end mt-4 space-x-3">
+      <button
+        onclick="closeCancelModal()"
+        class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+      >
+        Close
+      </button>
+      <button
+        onclick="submitCancelOrder()"
+        class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+      >
+        Submit
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ♻ Return All Modal -->
+<div
+  id="returnModal"
+  class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50"
+>
+  <div class="bg-white rounded-lg p-6 w-96 shadow-lg">
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">Return All Products</h2>
+    <textarea
+      id="returnReason"
+      rows="4"
+      class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring focus:ring-green-200 outline-none"
+      placeholder="Enter return reason..."
+    ></textarea>
+    <div class="flex justify-end mt-4 space-x-3">
+      <button
+        onclick="closeReturnModal()"
+        class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+      >
+        Close
+      </button>
+      <button
+        onclick="submitReturnOrder()"
+        class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+      >
+        Submit
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ Toastr JS + CSS -->
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"
+/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script src="/js/logout.js"></script>
+
+<script>
+  // Toastr config
+  toastr.options = {
+    closeButton: true,
+    progressBar: true,
+    positionClass: "toast-bottom-right",
+    timeOut: 3000,
+  };
+
+  let selectedOrderId = null;
+
+  function openCancelModal(orderId) {
+    selectedOrderId = orderId;
+    document.getElementById("cancelModal").classList.remove("hidden");
+    document.getElementById("cancelModal").classList.add("flex");
+  }
+
+  function closeCancelModal() {
+    selectedOrderId = null;
+    document.getElementById("cancelReason").value = "";
+    document.getElementById("cancelModal").classList.remove("flex");
+    document.getElementById("cancelModal").classList.add("hidden");
+  }
+
+  async function submitCancelOrder() {
+    const reason = document.getElementById("cancelReason").value.trim();
+    if (!reason) {
+      toastr.warning("Please enter a reason for cancellation.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`/orders/${selectedOrderId}/cancel`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason }),
+      });
+
+      if (res.ok) {
+        toastr.success("Order cancellation requested successfully.");
+        document
+          .querySelectorAll(
+            `[data-order-id="${selectedOrderId}"] .status-badge`
+          )
+          .forEach((badge) => {
+            badge.textContent = "Cancellation Requested";
+            badge.className =
+              "status-badge px-3 py-1 text-sm rounded-full bg-orange-100 text-orange-800";
+          });
+
+        const orderCard = document.querySelector(
+          `[data-order-id="${selectedOrderId}"]`
+        );
+        const cancelButton = orderCard.querySelector(".cancel-btn");
+
+        if (cancelButton) {
+          const disabledButton = document.createElement("button");
+          disabledButton.disabled = true;
+          disabledButton.textContent = "⏳ Cancellation Requested";
+          disabledButton.className =
+            "text-sm font-medium text-gray-400 cursor-not-allowed bg-gray-100 px-3 py-1 rounded transition";
+          cancelButton.replaceWith(disabledButton);
+        }
+      } else {
+        toastr.error("Failed to cancel order. Please try again.");
+      }
+    } catch (err) {
+      console.error(err);
+      toastr.error("Error cancelling order.");
+    } finally {
+      closeCancelModal();
+    }
+  }
+
+  let selectedReturnOrderId = null;
+
+  function openReturnModal(orderId) {
+    selectedReturnOrderId = orderId;
+    document.getElementById("returnModal").classList.remove("hidden");
+    document.getElementById("returnModal").classList.add("flex");
+  }
+
+  function closeReturnModal() {
+    selectedReturnOrderId = null;
+    document.getElementById("returnReason").value = "";
+    document.getElementById("returnModal").classList.remove("flex");
+    document.getElementById("returnModal").classList.add("hidden");
+  }
+
+  async function submitReturnOrder() {
+    const reason = document.getElementById("returnReason").value.trim();
+    if (!reason) {
+      toastr.warning("Please enter a reason for return.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`/orders/${selectedReturnOrderId}/return`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason }),
+      });
+
+      if (res.ok) {
+        toastr.success("Return request submitted successfully.");
+        document
+          .querySelectorAll(
+            `[data-order-id="${selectedReturnOrderId}"] .status-badge`
+          )
+          .forEach((badge) => {
+            badge.textContent = "Return Requested";
+            badge.className =
+              "status-badge px-3 py-1 text-sm rounded-full bg-orange-100 text-orange-800";
+          });
+
+        const orderCard = document.querySelector(
+          `[data-order-id="${selectedReturnOrderId}"]`
+        );
+        const returnButton = orderCard.querySelector(".return-btn");
+
+        if (returnButton) {
+          const disabledButton = document.createElement("button");
+          disabledButton.disabled = true;
+          disabledButton.textContent = "⏳ Return Requested";
+          disabledButton.className =
+            "text-sm font-medium text-gray-400 cursor-not-allowed bg-gray-100 px-3 py-1 rounded transition";
+          returnButton.replaceWith(disabledButton);
+        }
+      } else {
+        toastr.error("Failed to request return. Please try again.");
+      }
+    } catch (err) {
+      console.error(err);
+      toastr.error("Error submitting return request.");
+    } finally {
+      closeReturnModal();
+    }
+  }
+</script>

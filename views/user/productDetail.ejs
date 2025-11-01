@@ -40,7 +40,7 @@
       
       <!-- Stock -->
       <p class="mb-4 text-sm text-gray-600" id="productStock">
-        <%= selectedVariant.stock > 0 ? 'IN STOCK' : 'OUT OF STOCK' %>
+        <%= selectedVariant.stock > 0 ? `IN STOCK (${selectedVariant.stock})`: 'OUT OF STOCK' %>
       </p>
 
       <!-- Variant Dropdowns -->
@@ -79,7 +79,7 @@
 
       <!-- Add to Cart + Wishlist -->
       <div class="flex items-center gap-3 mt-12"> 
-        <button class="bg-black text-white px-8 py-3 rounded text-base font-semibold w-auto min-w-[350px]">
+        <button id="addToCartBtn" type="button" onclick="return false;" class="bg-black text-white px-8 py-3 rounded text-base font-semibold w-auto min-w-[350px]">
           Add to cart
         </button>
         <!-- Wishlist Icon -->
@@ -197,7 +197,7 @@
 
     if (variant) {
       productPrice.innerText = variant.discounted_price || variant.price;
-      productStock.innerText = variant.stock > 0 ? "IN STOCK" : "OUT OF STOCK";
+      productStock.innerText = variant.stock > 0 ? `IN STOCK (${variant.stock})` : "OUT OF STOCK";
 
       // Update images in swiper
       productImages.innerHTML = "";
@@ -222,6 +222,11 @@
     }
   }
 
+  if (!window.location.search.includes("variant=") && selectedVariantId) {
+    const newUrl = `${window.location.pathname}?variant=${selectedVariantId}`;
+    window.location.replace(newUrl);
+  }  
+
   flavourSelect.addEventListener("change", updateProductDetails);
   sizeSelect.addEventListener("change", updateProductDetails);
 
@@ -229,7 +234,7 @@
   toastr.options = {
     closeButton: true,
     progressBar: true,
-    positionClass: "toast-top-center",
+    positionClass: "toast-bottom-right",
     timeOut: "2000"
   };
 
@@ -290,7 +295,59 @@
     document.querySelectorAll(".zoom-container").forEach(enableZoom);
   }
 
-  
+  const addToCartBtn = document.getElementById('addToCartBtn')
+
+  addToCartBtn.addEventListener('click', async (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if(addToCartBtn.textContent.trim() === 'Add to cart') {
+      const selectedFlavour = flavourSelect.value
+      const selectedSize = sizeSelect.value
+      const quantity = parseInt(document.getElementById('quantityInput').value)
+
+      const variant = variants.find(v => v.flavour === selectedFlavour && v.size === selectedSize)
+
+      if(!variant) {
+        toastr.error('Please select a valid variant')
+        return
+      }
+
+      try{
+        const res = await fetch('/cart/add', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({
+            productId:'<%= product._id %>',
+            variantId:variant._id,
+            quantity:quantity
+          })
+        })
+
+        if(res.status === 401) {
+          toastr.error('please login to add items to cart')
+          setTimeout(() => window.location.href = '/auth/login',1500)
+          return 
+        }
+
+        const data = await res.json()
+
+        if(res.ok) {
+          toastr.success('Added to cart')
+          addToCartBtn.textContent = 'Go to cart'
+
+          if(data.cartLength !== undefined) {
+            updateCartBadge(data.cartLength)
+          }
+        }else{
+          toastr.error(data.message || 'Failed to add to cart')
+        }
+      }catch(err) {
+        toastr.error('something went wrong')
+      }
+    }else{
+      window.location.href = '/cart'
+    }
+  })
   
 
 
