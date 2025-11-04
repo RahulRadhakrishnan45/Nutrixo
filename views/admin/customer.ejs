@@ -106,7 +106,7 @@
       if(!result.isConfirmed) return
     
 
-    const res = await fetch(`/admin/customers/${userId}/block`, { method: 'PATCH' });
+    const res = await fetch(`/admin/customers/${userId}/status`, { method: 'PATCH' });
     const data = await res.json();
 
     if (data.success) {

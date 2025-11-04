@@ -20,7 +20,7 @@
     <input type="text" id="searchInput" placeholder="Search products..."
       class="px-3 py-2 border rounded-md w-64 focus:outline-none focus:ring focus:ring-blue-300">
 
-    <a href="/admin/products/add"
+    <a href="/admin/products/new"
       class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 inline-block">
       + Add Product
     </a>
@@ -443,7 +443,7 @@ document.getElementById('closeEditModal').addEventListener('click', () => {
     const formData = new FormData(this);
 
     try {
-      const res = await fetch(`/admin/products/${productId}/edit`, { method: 'PATCH', body: formData });
+      const res = await fetch(`/admin/products/${productId}`, { method: 'PATCH', body: formData });
       const data = await res.json();
       if (data.success) {
         Swal.fire({ icon: "success", title: "Updated!", text: data.message || "Product updated successfully" })
@@ -486,7 +486,7 @@ document.addEventListener("click", async (e) => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const res = await fetch(`/admin/products/${productId}/variants/${variantId}/delete`, {
+          const res = await fetch(`/admin/products/${productId}/variants/${variantId}`, {
             method: "DELETE",
           });
           const data = await res.json();

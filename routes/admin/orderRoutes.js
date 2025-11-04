@@ -5,10 +5,10 @@ const { checkAdminSession} = require('../../middlewares/checkSession')
 
 router.get('/',checkAdminSession,orderController.loadOrders)
 router.get('/:orderId',checkAdminSession,orderController.loadOrderDetails)
-router.post('/:orderId/items/:itemId/status',checkAdminSession,orderController.updateItemStatus)
-router.post('/:orderId/items/:itemId/cancellation/approve',checkAdminSession,orderController.approveCancellation)
-router.post('/:orderId/items/:itemId/cancellation/reject',checkAdminSession,orderController.rejectCancellation)
-router.post('/:orderId/items/:itemId/return/approve',checkAdminSession,orderController.approveReturn)
-router.post('/:orderId/items/:itemId/return/reject',checkAdminSession,orderController.rejectReturn)
+router.patch('/:orderId/items/:itemId/status',checkAdminSession,orderController.updateItemStatus)
+router.patch('/:orderId/items/:itemId/cancellation/approve',checkAdminSession,orderController.approveCancellation)
+router.patch('/:orderId/items/:itemId/cancellation/reject',checkAdminSession,orderController.rejectCancellation)
+router.patch('/:orderId/items/:itemId/return/approve',checkAdminSession,orderController.approveReturn)
+router.patch('/:orderId/items/:itemId/return/reject',checkAdminSession,orderController.rejectReturn)
 
 module.exports = router

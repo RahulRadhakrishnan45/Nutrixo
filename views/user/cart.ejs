@@ -217,7 +217,7 @@
     document.querySelectorAll(".increaseBtn").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const itemId = btn.dataset.id;
-        const res = await fetch(`/cart/increase/${itemId}`, { method: "POST" });
+        const res = await fetch(`/cart/${itemId}/increase`, { method: "PATCH" });
         const data = await res.json();
 
         if (data.success) {
@@ -240,7 +240,7 @@
     document.querySelectorAll(".decreaseBtn").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const itemId = btn.dataset.id;
-        const res = await fetch(`/cart/decrease/${itemId}`, { method: "POST" });
+        const res = await fetch(`/cart/${itemId}/decrease`, { method: "PATCH" });
         const data = await res.json();
 
         if (data.success) {
@@ -290,8 +290,8 @@
       .addEventListener("click", async () => {
         if (!itemToRemove) return;
 
-        const res = await fetch(`/cart/remove/${itemToRemove}`, {
-          method: "POST",
+        const res = await fetch(`/cart/${itemToRemove}`, {
+          method: "DELETE",
         });
         const data = await res.json();
 

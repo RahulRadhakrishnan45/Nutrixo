@@ -100,7 +100,7 @@
   document.getElementById('addBrandForm').onsubmit = async (e) => {
     e.preventDefault()
     const formData = new FormData(e.target)
-    const res = await fetch('/admin/brands/add', { method: 'POST', body: formData })
+    const res = await fetch('/admin/brands', { method: 'POST', body: formData })
     const data = await res.json()
 
     if(data.success){
@@ -114,7 +114,7 @@
   // Toggle Brand (Activate/Block)
   async function toggleBrand(id) {
     try {
-      const res = await fetch(`/admin/brands/toggle/${id}`, { method: 'PATCH' })
+      const res = await fetch(`/admin/brands/${id}/status`, { method: 'PATCH' })
       const data = await res.json()
       if(data.success){
         Swal.fire({ icon:'success', title:data.message, timer:1500, showConfirmButton:false })
@@ -138,7 +138,7 @@
     confirmButtonText: 'Yes, delete it!'
   }).then(async (result) => {
     if (result.isConfirmed) {
-      const res = await fetch(`/admin/brands/${id}/delete`, { method: 'DELETE' })
+      const res = await fetch(`/admin/brands/${id}`, { method: 'DELETE' })
       const data = await res.json()
       if (data.success) {
         Swal.fire({ icon: 'success', title: data.message, timer: 1500, showConfirmButton: false })

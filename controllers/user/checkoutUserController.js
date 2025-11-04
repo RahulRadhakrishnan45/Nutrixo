@@ -179,7 +179,7 @@ const placeOrder = asyncHandler( async( req,res) => {
     }
 
     await Cart.findOneAndUpdate({user_id:userId},{$set:{items:[]}})
-    res.redirect(`/checkout/order-success/${order._id}`)
+    res.redirect(`/checkout/${order._id}/success`)
 })
 
 const viewOrderSuccess = asyncHandler( async( req,res) => {

@@ -167,7 +167,7 @@
         }).then(async (result) => {
           if (result.isConfirmed) {
             try {
-              const res = await fetch(`/profile/address/delete/${btn.dataset.id}`, {
+              const res = await fetch(`/profile/address/${btn.dataset.id}`, {
                 method: "DELETE",
                 headers: { "Content-Type": "application/json" }
               });
@@ -191,8 +191,8 @@
     document.querySelectorAll(".default-btn").forEach(btn => {
       btn.addEventListener("click", async () => {
         try {
-          const res = await fetch(`/profile/address/set-default/${btn.dataset.id}`, {
-            method: "PUT",
+          const res = await fetch(`/profile/address/${btn.dataset.id}/default`, {
+            method: "PATCH",
             headers: { "Content-Type": "application/json" }
           });
           const data = await res.json();

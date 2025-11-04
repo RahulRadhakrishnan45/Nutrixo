@@ -92,7 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (error) return toastr.error(error);
 
     const id = addressIdInput.value;
-    const url = id ? `/profile/address/edit/${id}` : "/profile/address";
+    const url = id ? `/profile/address/${id}` : "/profile/address";
     const method = id ? "PUT" : "POST";
 
     try {

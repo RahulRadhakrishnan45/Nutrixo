@@ -155,7 +155,7 @@
 
           try {
             const res = await fetch(`/admin/orders/${orderId}/items/${itemId}/status`, {
-              method: "POST",
+              method: "PATCH",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ status }),
             });
@@ -186,7 +186,7 @@
             const orderId = "<%= order._id %>";
             const url = `/admin/orders/${orderId}/items/${itemId}/${urlSuffix}`;
             try {
-              const res = await fetch(url, { method: "POST" });
+              const res = await fetch(url, { method: "PATCH" });
               if (!res.ok) throw new Error("Server error");
               location.reload();
             } catch (err) {
