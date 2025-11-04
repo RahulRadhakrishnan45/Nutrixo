@@ -541,3 +541,86 @@ Or, if you meant to create an async function, pass `async: true` as an option.
 2025-11-01 03:19:45 [error] : Unhandled error: startX is not defined | Stack: ReferenceError: startX is not defined
     at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\orderUserController.js:174:28
     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-04 22:06:47 [error] : Unhandled error: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\product.ejs:108
+    106|         <!-- Product Grid -->
+    107|         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+ >> 108|           <% products.forEach(variant => { 
+    109|               const inWishlist = userWishlist?.includes(variant._id.toString());
+    110|           %>
+    111|             <a href="/products/<%= variant.productId %>?variant=<%= variant._id %>"
+
+userWishlist is not defined | Stack: ReferenceError: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\product.ejs:108
+    106|         <!-- Product Grid -->
+    107|         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+ >> 108|           <% products.forEach(variant => { 
+    109|               const inWishlist = userWishlist?.includes(variant._id.toString());
+    110|           %>
+    111|             <a href="/products/<%= variant.productId %>?variant=<%= variant._id %>"
+
+userWishlist is not defined
+    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:105:34)
+    at Array.forEach (<anonymous>)
+    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:104:17)
+    at product (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:703:17)
+    at tryHandleCache (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:274:36)
+    at exports.renderFile [as engine] (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:491:10)
+    at View.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\view.js:139:8)
+    at tryRender (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:627:10)
+    at Function.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:574:3)
+    at ServerResponse.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\response.js:909:7)
+2025-11-04 22:42:08 [error] : Unhandled error: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\product.ejs:108
+    106|         <!-- Product Grid -->
+    107|         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+ >> 108|           <% products.forEach(variant => { 
+    109|               const inWishlist = userWishlist?.includes(variant._id.toString());
+    110|           %>
+    111|             <a href="/products/<%= variant.productId %>?variant=<%= variant._id %>"
+
+userWishlist is not defined | Stack: ReferenceError: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\product.ejs:108
+    106|         <!-- Product Grid -->
+    107|         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+ >> 108|           <% products.forEach(variant => { 
+    109|               const inWishlist = userWishlist?.includes(variant._id.toString());
+    110|           %>
+    111|             <a href="/products/<%= variant.productId %>?variant=<%= variant._id %>"
+
+userWishlist is not defined
+    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:105:34)
+    at Array.forEach (<anonymous>)
+    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:104:17)
+    at product (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:703:17)
+    at tryHandleCache (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:274:36)
+    at exports.renderFile [as engine] (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:491:10)
+    at View.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\view.js:139:8)
+    at tryRender (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:627:10)
+    at Function.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:574:3)
+    at ServerResponse.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\response.js:909:7)
+2025-11-05 01:14:35 [error] : Unhandled error: wishlist validation failed: items.0.variant_id: Path `variant_id` is required. | Stack: ValidationError: wishlist validation failed: items.0.variant_id: Path `variant_id` is required.
+    at Document.invalidate (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\document.js:3354:32)
+    at Subdocument.invalidate (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\types\subdocument.js:229:12)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\document.js:3115:17
+    at C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\schemaType.js:1410:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+2025-11-05 01:14:45 [error] : Unhandled error: wishlist validation failed: items.0.variant_id: Path `variant_id` is required. | Stack: ValidationError: wishlist validation failed: items.0.variant_id: Path `variant_id` is required.
+    at Document.invalidate (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\document.js:3354:32)
+    at Subdocument.invalidate (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\types\subdocument.js:229:12)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\document.js:3115:17
+    at C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\schemaType.js:1410:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+2025-11-05 01:58:39 [error] : Unhandled error: wishlist validation failed: items.1.variant_id: Path `variant_id` is required. | Stack: ValidationError: wishlist validation failed: items.1.variant_id: Path `variant_id` is required.
+    at Document.invalidate (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\document.js:3354:32)
+    at Subdocument.invalidate (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\types\subdocument.js:229:12)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\document.js:3115:17
+    at C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\schemaType.js:1410:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+2025-11-05 03:01:52 [error] : Unhandled error: Cannot read properties of undefined (reading 'toString') | Stack: TypeError: Cannot read properties of undefined (reading 'toString')
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\productUserController.js:150:65
+    at Array.map (<anonymous>)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\productUserController.js:150:41
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-05 03:34:17 [error] : Unhandled error: wishList is not defined | Stack: ReferenceError: wishList is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\wishlistUserController.js:80:30
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-05 03:34:18 [error] : Unhandled error: wishList is not defined | Stack: ReferenceError: wishList is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\wishlistUserController.js:80:30
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)

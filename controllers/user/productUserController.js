@@ -6,7 +6,7 @@ const Product = require('../../models/productSchema')
 const Category = require('../../models/categorySchema')
 const Brand = require('../../models/brandSchema')
 const Address = require('../../models/addressSchema')
-
+const Wishlist = require('../../models/wishlistSchema')
 
 
 
@@ -36,7 +36,7 @@ const loadHome = asyncHandler(async (req,res) =>{
     variants = variants.slice(0,4)
 
     const categories = await Category.find({is_active:true,is_deleted:false}).select('name -_id')
-    const brands = await Brand.find({is_active:true,is_delete:false}).select('name =_id')
+    const brands = await Brand.find({is_active:true,is_delete:false}).select('name -_id')
 
     res.render('user/home',{layout:'layouts/user_main',newArrivals:variants,categories:categories.map(c=>c.name),brands:brands.map(b=>b.name)})
 })
@@ -85,17 +85,17 @@ const loadProducts = asyncHandler( async( req,res) => {
     const products = []
     dbProducts.forEach(p => {
 
-        if(!p.brand_id?.is_active || !p.category_id?.is_active) {
-            return
-        }
+        if(!p.brand_id?.is_active || !p.category_id?.is_active) return
+
         p.variants.filter(v => v.is_active).forEach(v => {
 
-            if (brand && brand !== "All" && p.brand_id?.name !== brand) return;
-            if (flavour && flavour !== "All" && v.flavour !== flavour) return;
-            if (size && size !== "All" && v.size !== size) return;
-            const priceToCheck = v.discounted_price || v.price;
-            if (minPrice && priceToCheck < Number(minPrice)) return;
-            if (maxPrice && priceToCheck > Number(maxPrice)) return;
+            if (brand && brand !== "All" && p.brand_id?.name !== brand) return
+            if (flavour && flavour !== "All" && v.flavour !== flavour) return
+            if (size && size !== "All" && v.size !== size) return
+
+            const priceToCheck = v.discounted_price || v.price
+            if (minPrice && priceToCheck < Number(minPrice)) return
+            if (maxPrice && priceToCheck > Number(maxPrice)) return
 
             if (
                 q &&
@@ -144,7 +144,13 @@ const loadProducts = asyncHandler( async( req,res) => {
     const sizes = await Product.distinct("variants.size", { "variants.is_active": true })
     const categories = await Category.find({is_active:true,is_deleted:false}).select('name -_id')
 
-    res.render('user/product',{layout:'layouts/user_main',products:paginatedVariants,currentPage:page,totalPages,brands:brands.map(b =>b.name),flavours,sizes,categories:categories.map(c => c.name),selectedFilters:{brand:brand && brand !== "All" ? brand: null,flavour: flavour && flavour !== "All" ? flavour: null,size: size && size !== "All" ? size: null,minPrice,maxPrice,category: category && category !== "All" ? category : null,sort:sort || null,q:q || null,},query:req.query})
+    let userWishlist = []
+    if(req.session.user) {
+        const wishlist = await Wishlist.findOne({user_id:req.session.user._id}).select('items.variant_id').lean()
+        userWishlist = wishlist?.items?.map((i) => i.variant_id.toString()) || []
+    }
+
+    res.render('user/product',{layout:'layouts/user_main',products:paginatedVariants,currentPage:page,totalPages,brands:brands.map(b =>b.name),flavours,sizes,categories:categories.map(c => c.name),selectedFilters:{brand:brand && brand !== "All" ? brand: null,flavour: flavour && flavour !== "All" ? flavour: null,size: size && size !== "All" ? size: null,minPrice,maxPrice,category: category && category !== "All" ? category : null,sort:sort || null,q:q || null,},query:req.query,userWishlist})
 })
 
 const loadSingleProduct = asyncHandler( async( req,res) => {

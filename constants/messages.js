@@ -1,7 +1,7 @@
 // constants/messages.js
 const messages = Object.freeze({
     AUTH: {
-        USER_NOT_FOUND: "User not found. Please sign up",
+        USER_NOT_FOUND: "User not found",
         USER_EXISTS: "User already exists",
         NUMBER_EXISTS: "Number already exists",
         SESSION_EXPIRED: "Session expired. Please try again",
@@ -129,6 +129,12 @@ const messages = Object.freeze({
         RETURN_SUBMITTED:"Return request submitted successfully",
         RETURN_REASON_REQUIRED:"Return reason required",
         RETURN_NOT_AVAILABLE:"Return available only if all products are delivered",
+    },
+    WISHLIST:{
+        WISHLIST_ADDED:"Added to wishlist",
+        WISHLIST_REMOVED:"Removed from wishlist",
+        WISHLIST_DUPLICATE:"Item already exists in your wishlist",
+        WISHLIST_NOT_FOUND:"Item not found in wishlist",
     }
 });
 

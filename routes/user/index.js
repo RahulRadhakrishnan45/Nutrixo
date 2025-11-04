@@ -8,5 +8,6 @@ router.use('/profile', require('./profileRoutes'))
 router.use('/checkout', require('./checkoutRoutes'))
 router.use('/orders', require('./orderRoutes'))
 router.use('/password', require('./passwordRoutes'))
+router.use('/wishlist',require('./wishlistRoutes'))
 
 module.exports = router
