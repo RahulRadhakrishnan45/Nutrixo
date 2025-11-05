@@ -152,8 +152,23 @@
   <!-- 📄 Pagination -->
   <%- include('../partials/pagination.ejs', { currentPage, totalPages }) %>
 
-  <!-- ⚙️ Scripts -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+  
+  
   <script>
+    toastr.options = {
+      "closeButton": true,
+      "progressBar": true,
+      "positionClass": "toast-bottom-right",
+      "timeOut": "1500",
+      "showDuration": "300",
+      "hideDuration": "1000",
+      "showMethod": "fadeIn",
+      "hideMethod": "fadeOut"
+    }
+  
   // ✅ Apply Filters
   function applyFilters() {
     const params = new URLSearchParams();
@@ -187,7 +202,7 @@
     window.location.href = "/products";
   }
 
-  // ✅ Wishlist Toggle (no duplicates + dynamic badge)
+  // ✅ Wishlist Toggle
   async function toggleWishlist(event, variantId) {
     event.preventDefault();
     event.stopPropagation();
@@ -195,61 +210,58 @@
     const heart = document.getElementById(`heart-${variantId}`);
     const isFilled = heart.getAttribute("fill") === "red";
 
-    if (isFilled) {
-      await removeFromWishlist(variantId);
-      heart.setAttribute("fill", "none");
-    } else {
-      await addToWishlist(variantId);
-      heart.setAttribute("fill", "red");
+    try {
+      if (isFilled) {
+        await removeFromWishlist(variantId);
+        heart.setAttribute("fill", "none");
+        toastr.warning("Removed from wishlist");
+      } else {
+        const added = await addToWishlist(variantId);
+        if (added) {
+          heart.setAttribute("fill", "red");
+          toastr.success("Added to wishlist");
+        }
+      }
+      await updateBadgesFromServer();
+    } catch (err) {
+      console.error("Error toggling wishlist:", err);
+      toastr.error("Something went wrong! ⚠️");
     }
-
-    await updateWishlistBadgeFromServer(); // ✅ live header sync
   }
 
   // ✅ Add to Wishlist
   async function addToWishlist(variantId) {
     try {
       const res = await fetch(`/wishlist/${variantId}`, { method: "POST" });
+      await updateBadgesFromServer();
       const data = await res.json();
-      if (!data.success && data.message?.includes("Duplicate")) {
-        console.warn("Already in wishlist");
+      if (data.success) return true;
+      if (data.message?.includes("Duplicate")) {
+        toastr.info("Already in wishlist");
+        return false;
       }
     } catch (err) {
       console.error("Error adding to wishlist:", err);
+      toastr.error("Failed to add! Try again later.");
     }
+    return false;
   }
 
   // ✅ Remove from Wishlist
   async function removeFromWishlist(variantId) {
     try {
       const res = await fetch(`/wishlist/${variantId}`, { method: "DELETE" });
+      await updateBadgesFromServer();
       const data = await res.json();
-      if (!data.success) console.warn(data.message);
+      return data.success;
     } catch (err) {
       console.error("Error removing from wishlist:", err);
+      toastr.error("Failed to remove! Try again later.");
+      return false;
     }
   }
 
-  // ✅ Dynamic Badge Refresh (header)
-  async function updateWishlistBadgeFromServer() {
-    try {
-      const res = await fetch("/wishlist/count");
-      const data = await res.json();
-      const badge = document.getElementById("wishlistText");
-      if (!badge) return;
 
-      if (data.count > 0) {
-        badge.textContent = data.count;
-        badge.classList.remove("hidden");
-      } else {
-        badge.classList.add("hidden");
-      }
-    } catch (err) {
-      console.error("Error updating wishlist badge:", err);
-    }
-  }
-
-  // ✅ Auto sync on page load
-  document.addEventListener("DOMContentLoaded", updateWishlistBadgeFromServer);
+  document.addEventListener("DOMContentLoaded", updateBadgesFromServer);
   </script>
 </body>

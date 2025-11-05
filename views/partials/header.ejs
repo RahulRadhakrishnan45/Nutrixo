@@ -79,7 +79,7 @@
         </button>
       </form>
 
-      <!-- ❤️ Wishlist Button -->
+      <!-- Wishlist Button -->
       <a href="/wishlist" class="relative text-gray-700 hover:text-gray-900">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -107,7 +107,7 @@
         </span>
       </a>
 
-      <!-- 👤 Profile -->
+      <!-- Profile -->
       <a href="/profile" class="text-gray-700 hover:text-gray-900">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -118,14 +118,14 @@
   </div>
 </header>
 
-<!-- 🎨 Styles -->
+>
 <style>
-  /* Smooth dropdown animation for nav menus */
+
   .group:hover .group-hover\:opacity-100 {
     transition-delay: 150ms;
   }
 
-  /* Custom scrollbar for dropdowns */
+  
   .overflow-y-auto::-webkit-scrollbar { width: 4px; }
   .overflow-y-auto::-webkit-scrollbar-track { background: #f1f1f1; }
   .overflow-y-auto::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
@@ -134,25 +134,6 @@
 
 <!-- ⚙️ JS Badge Updaters -->
 <script>
-  function updateCartBadge(cartLength) {
-    const badge = document.getElementById('cartText');
-    if (!badge) return;
-    if (cartLength && cartLength !== 0) {
-      badge.textContent = cartLength;
-      badge.classList.remove('hidden');
-    } else {
-      badge.classList.add('hidden');
-    }
-  }
-
-  function updateWishlistBadge(wishlistLength) {
-    const badge = document.getElementById('wishlistText');
-    if (!badge) return;
-    if (wishlistLength && wishlistLength !== 0) {
-      badge.textContent = wishlistLength;
-      badge.classList.remove('hidden');
-    } else {
-      badge.classList.add('hidden');
-    }
-  }
+  ... (updateCartBadge, updateWishlistBadge, updateBadgesFromServer)
 </script>
+

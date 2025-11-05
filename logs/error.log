@@ -624,3 +624,50 @@ userWishlist is not defined
 2025-11-05 03:34:18 [error] : Unhandled error: wishList is not defined | Stack: ReferenceError: wishList is not defined
     at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\wishlistUserController.js:80:30
     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-05 22:27:03 [error] : Unhandled error: wishlistLength is not defined | Stack: ReferenceError: wishlistLength is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\wishlistUserController.js:86:15
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-05 22:27:11 [error] : Unhandled error: wishlistLength is not defined | Stack: ReferenceError: wishlistLength is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\wishlistUserController.js:86:15
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-05 22:27:14 [error] : Unhandled error: wishlistLength is not defined | Stack: ReferenceError: wishlistLength is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\wishlistUserController.js:86:15
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-05 22:27:16 [error] : Unhandled error: wishlistLength is not defined | Stack: ReferenceError: wishlistLength is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\wishlistUserController.js:86:15
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-05 22:27:16 [error] : Unhandled error: wishlistLength is not defined | Stack: ReferenceError: wishlistLength is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\wishlistUserController.js:86:15
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-05 22:27:18 [error] : Unhandled error: wishlistLength is not defined | Stack: ReferenceError: wishlistLength is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\wishlistUserController.js:86:15
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-05 22:27:18 [error] : Unhandled error: wishlistLength is not defined | Stack: ReferenceError: wishlistLength is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\wishlistUserController.js:86:15
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-05 22:27:21 [error] : Unhandled error: wishlistLength is not defined | Stack: ReferenceError: wishlistLength is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\wishlistUserController.js:86:15
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-05 22:27:22 [error] : Unhandled error: wishlistLength is not defined | Stack: ReferenceError: wishlistLength is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\wishlistUserController.js:86:15
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-05 22:27:23 [error] : Unhandled error: wishlistLength is not defined | Stack: ReferenceError: wishlistLength is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\wishlistUserController.js:86:15
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-05 22:27:23 [error] : Unhandled error: wishlistLength is not defined | Stack: ReferenceError: wishlistLength is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\wishlistUserController.js:86:15
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-05 22:27:25 [error] : Unhandled error: wishlistLength is not defined | Stack: ReferenceError: wishlistLength is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\wishlistUserController.js:86:15
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-05 22:27:35 [error] : Unhandled error: wishlistLength is not defined | Stack: ReferenceError: wishlistLength is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\wishlistUserController.js:86:15
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-05 22:27:37 [error] : Unhandled error: wishlistLength is not defined | Stack: ReferenceError: wishlistLength is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\wishlistUserController.js:86:15
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-05 23:52:21 [error] : Unhandled error: Cannot read properties of undefined (reading 'toString') | Stack: TypeError: Cannot read properties of undefined (reading 'toString')
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\productUserController.js:197:65
+    at Array.map (<anonymous>)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\productUserController.js:197:41
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)

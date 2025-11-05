@@ -3,6 +3,7 @@ const Wishlist = require('../../models/wishlistSchema')
 const httpStatus = require('../../constants/httpStatus')
 const messages = require('../../constants/messages')
 const Product = require('../../models/productSchema')
+const Cart = require('../../models/cartSchema')
 const { trusted } = require('mongoose')
 
 
@@ -77,9 +78,12 @@ const getWishlistCount = asyncHandler( async( req,res) => {
     }
     const userId = req.session.user._id
     const wishlist = await Wishlist.findOne({user_id:userId}).lean()
-    const count = wishlist ? wishlist.items.length : 0
+    const cart = await Cart.findOne({user_id:userId}).lean()
+    
+    const wishlistLength = wishlist ? wishlist.items.length : 0
+    const cartLength = cart ? cart.items.reduce((sum,item) => sum+ item.quantity, 0) : 0
 
-    res.json({count})
+    res.json({wishlistLength,cartLength:cartLength > 5 ? '5+' : cartLength})
 })
 
 

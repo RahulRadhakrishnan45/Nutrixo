@@ -82,10 +82,15 @@
         <button id="addToCartBtn" type="button" onclick="return false;" class="bg-black text-white px-8 py-3 rounded text-base font-semibold w-auto min-w-[350px]">
           Add to cart
         </button>
-        <!-- Wishlist Icon -->
-        <button class="border border-gray-300 rounded p-2 hover:bg-gray-100">
-          <i class="fa fa-heart text-red-500 text-[1.2rem]"></i>
+        <!-- Wishlist Heart -->
+        <button id="wishlistBtn"
+          class="border border-gray-300 rounded p-2 hover:bg-gray-100 transition"
+          onclick="toggleWishlistDetail()">
+            <i id="wishlistIcon"
+              class="fa fa-heart text-[1.2rem] <%= userWishlist?.includes(selectedVariant._id.toString()) ? 'text-red-500' : 'text-gray-400' %>">
+            </i>
         </button>
+
       </div>
     </div>
   </div>
@@ -349,6 +354,98 @@
     }
   })
   
+    async function toggleWishlistDetail() {
+    const heartIcon = document.getElementById("wishlistIcon");
+    const selectedFlavour = flavourSelect.value;
+    const selectedSize = sizeSelect.value;
+    const variant = variants.find(v => v.flavour === selectedFlavour && v.size === selectedSize);
 
+    if (!variant) {
+      toastr.error("Please select a valid variant");
+      return;
+    }
+
+    const isWishlisted = heartIcon.classList.contains("text-red-500");
+
+    try {
+      if (isWishlisted) {
+        // 🗑 Remove from wishlist
+        const res = await fetch(`/wishlist/${variant._id}`, { method: "DELETE" });
+        const data = await res.json();
+        if (data.success) {
+          heartIcon.classList.remove("text-red-500");
+          heartIcon.classList.add("text-gray-400");
+          toastr.warning("Removed from wishlist");
+          await updateBadgesFromServer(); // ✅ instantly refresh header badge
+        } else {
+          toastr.error(data.message || "Failed to remove from wishlist");
+        }
+      } else {
+        // ❤️ Add to wishlist
+        const res = await fetch(`/wishlist/${variant._id}`, { method: "POST" });
+        const data = await res.json();
+        if (data.success) {
+          heartIcon.classList.add("text-red-500");
+          heartIcon.classList.remove("text-gray-400");
+          toastr.success("Added to wishlist");
+          await updateBadgesFromServer();
+        } else if (data.message?.includes("Duplicate")) {
+          toastr.info("Already in wishlist");
+        } else {
+          toastr.error(data.message || "Failed to add to wishlist");
+        }
+      }
+    } catch (err) {
+      console.error("Wishlist toggle error:", err);
+      toastr.error("Something went wrong");
+    }
+  }
+
+  // 🧠 Update heart color automatically when variant changes
+  const userWishlist = <%- JSON.stringify(userWishlist || []) %>;
+
+  function updateWishlistHeart(variantId) {
+    const heartIcon = document.getElementById("wishlistIcon");
+    if (userWishlist.includes(variantId)) {
+      heartIcon.classList.add("text-red-500");
+      heartIcon.classList.remove("text-gray-400");
+    } else {
+      heartIcon.classList.add("text-gray-400");
+      heartIcon.classList.remove("text-red-500");
+    }
+  }
+
+  // Update wishlist heart when variant changes
+  function updateProductDetails() {
+    const selectedFlavour = flavourSelect.value;
+    const selectedSize = sizeSelect.value;
+    const variant = variants.find(v => v.flavour === selectedFlavour && v.size === selectedSize);
+
+    if (variant) {
+      productPrice.innerText = variant.discounted_price || variant.price;
+      productStock.innerText = variant.stock > 0 ? `IN STOCK (${variant.stock})` : "OUT OF STOCK";
+
+      productImages.innerHTML = "";
+      variant.images.forEach(img => {
+        const slide = document.createElement("div");
+        slide.className = "swiper-slide";
+        slide.innerHTML = `
+          <div class="zoom-container w-full h-96 rounded-lg overflow-hidden cursor-zoom-in">
+            <img src="${img}" alt="${variant.flavour}" class="zoom-image w-full h-full object-contain rounded-lg" />
+          </div>`;
+        productImages.appendChild(slide);
+      });
+
+      swiper.update();
+      swiper.slideTo(0);
+      applyZoomAgain();
+
+      const newUrl = `${window.location.pathname}?variant=${variant._id}`;
+      window.history.replaceState({}, "", newUrl);
+
+      // ✅ Automatically update wishlist heart color when user switches variants
+      updateWishlistHeart(variant._id.toString());
+    }
+  }
 
 </script>

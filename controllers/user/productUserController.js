@@ -154,6 +154,7 @@ const loadProducts = asyncHandler( async( req,res) => {
 })
 
 const loadSingleProduct = asyncHandler( async( req,res) => {
+    const userId = req.session.user._id
     const productId = req.params.id
     const variantId = req.query.variant
 
@@ -190,7 +191,13 @@ const loadSingleProduct = asyncHandler( async( req,res) => {
         'variants.is_active':true
     }).limit(4).lean()
 
-    res.render('user/productDetail',{layout:'layouts/user_main',product:{...product,variants:activeVariants}, relatedProducts,selectedVariant})
+    let userWishlist = []
+    if(req.session.user?._id) {
+        const wishlist = await Wishlist.findOne({user_id:userId}).select('items.variant_id').lean()
+        userWishlist = wishlist?.items?.map((i) => i.variant_id.toString() || [])
+    }
+
+    res.render('user/productDetail',{layout:'layouts/user_main',product:{...product,variants:activeVariants}, relatedProducts,selectedVariant,userWishlist})
 })
 
 const searchProducts = asyncHandler( async( req,res) => {
@@ -224,8 +231,6 @@ const searchProducts = asyncHandler( async( req,res) => {
 
     res.json(result.slice(0,8))
 })
-
-
 
 
 module.exports = {loadHome,loadProfile,logoutUser,loadProducts,loadSingleProduct,searchProducts}

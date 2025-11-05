@@ -80,23 +80,45 @@
     <% } %>
   </div>
 
-  <script>
-  function removeFromWishlist(variantId) {
-    fetch(`/wishlist/${variantId}`, { method: "DELETE" })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          // Remove the product card instantly (optional UX improvement)
-          const card = document.querySelector(`[data-variant="${variantId}"]`);
-          if (card) card.remove();
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
-          // If wishlist is empty, reload to show empty animation
-          if (document.querySelectorAll(".wishlist-card").length === 0) {
-            window.location.reload();
-          }
+<script>
+  toastr.options = {
+    closeButton: true,
+    progressBar: true,
+    positionClass: "toast-bottom-right",
+    timeOut: "2500",
+    showDuration: "300",
+    hideDuration: "1000",
+    showMethod: "fadeIn",
+    hideMethod: "fadeOut"
+  };
+
+  async function removeFromWishlist(variantId) {
+    try {
+      const res = await fetch(`/wishlist/${variantId}`, { method: "DELETE" })
+      const data = await res.json()
+
+      if (data.success) {
+        toastr.success("Item removed from wishlist")
+
+        const card = document.querySelector(`[data-variant="${variantId}"]`)
+        if (card) card.remove()
+
+        await updateBadgesFromServer()
+
+        if (document.querySelectorAll(".wishlist-card").length === 0) {
+          setTimeout(() => window.location.reload(), 600)
         }
-      })
-      .catch(err => console.error(err));
+      } else {
+        toastr.error(data.message || "Failed to remove item")
+      }
+    } catch (err) {
+      console.error("Error removing from wishlist:", err)
+      toastr.error("Something went wrong")
+    }
   }
 
   async function addToCart(productId, variantId) {
@@ -105,32 +127,29 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ productId, variantId, quantity: 1 })
-      });
-      const data = await res.json();
+      })
+      const data = await res.json()
 
       if (data.success) {
-        // ✅ Step 1: Show success
-        console.log("Added to cart successfully!");
-        // Optional: alert("Added to cart!");
+        toastr.success("Added to cart successfully!")
 
-        // ✅ Step 2: Remove from wishlist automatically
-        await fetch(`/wishlist/${variantId}`, { method: "DELETE" });
+        await fetch(`/wishlist/${variantId}`, { method: "DELETE" })
 
-        // ✅ Step 3: Instantly update UI
-        const card = document.querySelector(`[data-variant="${variantId}"]`);
-        if (card) card.remove();
+        const card = document.querySelector(`[data-variant="${variantId}"]`)
+        if (card) card.remove()
 
-        // If no items left → show empty state
+        await updateBadgesFromServer()
+
         if (document.querySelectorAll(".wishlist-card").length === 0) {
-          window.location.reload();
+          setTimeout(() => window.location.reload(), 600)
         }
       } else {
-        alert(data.message || "Failed to add to cart");
+        toastr.warning(data.message || "Unable to add to cart")
       }
     } catch (error) {
-      console.error("Add to cart error:", error);
+      console.error("Add to cart error:", error)
+      toastr.error("Something went wrong")
     }
   }
 </script>
-
 </body>
