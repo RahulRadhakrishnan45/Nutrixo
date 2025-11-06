@@ -135,6 +135,13 @@ const messages = Object.freeze({
         WISHLIST_REMOVED:"Removed from wishlist",
         WISHLIST_DUPLICATE:"Item already exists in your wishlist",
         WISHLIST_NOT_FOUND:"Item not found in wishlist",
+    },
+    COUPON:{
+        COUPON_EXISTS:"Coupon code already exists",
+        COUPON_CREATED:"Coupon created successfully",
+        COUPON_NOT_FOUND:"Coupon not found",
+        COUPON_UPDATED:"Coupon updated successfully",
+        COUPON_DELETED:"Coupon deleted successfully",
     }
 });
 

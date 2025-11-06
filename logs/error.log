@@ -764,3 +764,17 @@ totalPages is not defined
     at ServerResponse.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\response.js:909:7)
     at res.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express-ejs-layouts\lib\express-layouts.js:77:18)
     at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\wishlistUserController.js:86:9
+2025-11-06 23:29:37 [error] : Unhandled error: Cannot destructure property 'code' of 'req.body' as it is undefined. | Stack: TypeError: Cannot destructure property 'code' of 'req.body' as it is undefined.
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\admin\couponAdminController.js:17:12
+    at asyncUtilWrap (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express-async-handler\index.js:3:20)
+    at Layer.handleRequest (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\route.js:157:13)
+    at checkAdminSession (C:\Users\ASUS\Desktop\Nutrixo Project\middlewares\checkSession.js:30:9)
+    at Layer.handleRequest (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\route.js:117:3)
+    at handle (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\layer.js:152:17)
+2025-11-07 01:45:14 [error] : Unhandled error: (intermediate value).skip is not a function | Stack: TypeError: (intermediate value).skip is not a function
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\admin\couponAdminController.js:12:70
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)

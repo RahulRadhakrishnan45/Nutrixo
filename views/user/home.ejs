@@ -496,15 +496,16 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
       <% if (newArrivals && newArrivals.length > 0) { %>
         <% newArrivals.forEach(item => { %>
-          <div class="group border border-gray-100 py-3 px-3 bg-white rounded-lg overflow-hidden hover:shadow-lg transition">
-
+          <a 
+            href="/products/<%= item.productId %>?variant=<%= item.variantId %>" 
+            class="group block border border-gray-100 py-3 px-3 bg-white rounded-lg overflow-hidden hover:shadow-lg transition"
+          >
             <!-- Variant Image -->
-             <a href="/products/<%= item.productId %>?variant=<%= item.variantId %>"">
             <div class="aspect-w-1 aspect-h-1 bg-white rounded-lg overflow-hidden">
               <img 
                 src="<%= item.images[0] %>" 
                 alt="<%= item.title %>" 
-                class="w-full h-64 object-contain" 
+                class="w-full h-64 object-contain group-hover:scale-105 transition-transform duration-300"
               />
             </div>
 
@@ -534,16 +535,11 @@
               </div>
             </div>
           </a>
-        </div>
-      <% }) %>
+        <% }) %>
       <% } else { %>
         <p class="text-gray-500">No new arrivals available.</p>
       <% } %>
     </div>
   </div>
 </section>
-
-
-
-
 
