@@ -671,3 +671,96 @@ userWishlist is not defined
     at Array.map (<anonymous>)
     at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\productUserController.js:197:41
     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-06 13:41:15 [error] : Unhandled error: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\wishlist.ejs:83
+    81|   </div>
+    82| 
+ >> 83|   <%- include('../partials/pagination.ejs', {currentPage, totalPages}) %>
+    84| 
+    85| <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    86| <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+C:\Users\ASUS\Desktop\Nutrixo Project\views\partials\pagination.ejs:1
+ >> 1| <%
+    2| const qs = Object.entries(query || {})
+    3| .filter(([k,v]) => v && k !== 'page')
+    4| .map(([k,v]) =>`${k}=${encodeURIComponent(v)}`)
+
+query is not defined | Stack: ReferenceError: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\wishlist.ejs:83
+    81|   </div>
+    82| 
+ >> 83|   <%- include('../partials/pagination.ejs', {currentPage, totalPages}) %>
+    84| 
+    85| <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    86| <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+C:\Users\ASUS\Desktop\Nutrixo Project\views\partials\pagination.ejs:1
+ >> 1| <%
+    2| const qs = Object.entries(query || {})
+    3| .filter(([k,v]) => v && k !== 'page')
+    4| .map(([k,v]) =>`${k}=${encodeURIComponent(v)}`)
+
+query is not defined
+    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:11:27)
+    at pagination (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:703:17)
+    at include (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:701:39)
+    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:58:17)
+    at wishlist (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:703:17)
+    at tryHandleCache (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:274:36)
+    at exports.renderFile [as engine] (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:491:10)
+    at View.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\view.js:139:8)
+    at tryRender (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:627:10)
+    at Function.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:574:3)
+2025-11-06 13:42:34 [error] : Unhandled error: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\wishlist.ejs:83
+    81|   </div>
+    82| 
+ >> 83|   <%- include('../partials/pagination.ejs', {currentPage, totalPages, query}) %>
+    84| 
+    85| <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    86| <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+query is not defined | Stack: ReferenceError: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\wishlist.ejs:83
+    81|   </div>
+    82| 
+ >> 83|   <%- include('../partials/pagination.ejs', {currentPage, totalPages, query}) %>
+    84| 
+    85| <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    86| <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+query is not defined
+    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:58:81)
+    at wishlist (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:703:17)
+    at tryHandleCache (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:274:36)
+    at exports.renderFile [as engine] (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:491:10)
+    at View.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\view.js:139:8)
+    at tryRender (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:627:10)
+    at Function.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:574:3)
+    at ServerResponse.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\response.js:909:7)
+    at res.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express-ejs-layouts\lib\express-layouts.js:77:18)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\wishlistUserController.js:78:20
+2025-11-06 13:44:06 [error] : Unhandled error: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\wishlist.ejs:83
+    81|   </div>
+    82| 
+ >> 83|   <%- include('../partials/pagination.ejs', {currentPage, totalPages, query}) %>
+    84| 
+    85| <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    86| <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+totalPages is not defined | Stack: ReferenceError: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\wishlist.ejs:83
+    81|   </div>
+    82| 
+ >> 83|   <%- include('../partials/pagination.ejs', {currentPage, totalPages, query}) %>
+    84| 
+    85| <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    86| <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+totalPages is not defined
+    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:58:69)
+    at wishlist (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:703:17)
+    at tryHandleCache (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:274:36)
+    at exports.renderFile [as engine] (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:491:10)
+    at View.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\view.js:139:8)
+    at tryRender (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:627:10)
+    at Function.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:574:3)
+    at ServerResponse.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\response.js:909:7)
+    at res.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express-ejs-layouts\lib\express-layouts.js:77:18)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\wishlistUserController.js:86:9

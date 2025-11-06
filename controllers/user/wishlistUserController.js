@@ -5,6 +5,8 @@ const messages = require('../../constants/messages')
 const Product = require('../../models/productSchema')
 const Cart = require('../../models/cartSchema')
 const { trusted } = require('mongoose')
+const { query } = require('winston')
+
 
 
 const addToWishlist = asyncHandler( async( req,res) => {
@@ -66,10 +68,27 @@ const removeFromWishlist = asyncHandler( async( req,res) => {
 const loadWishlist = asyncHandler( async( req,res) => {
     const userId = req.session.user._id
     if(!userId) return res.redirect('/auth/login')
+    
+    const page = parseInt(req.query.page) || 1
+    const limit = 4
+    const skip = (page - 1) * limit
 
     const wishlist = await Wishlist.findOne({user_id:userId}).populate({path:'items.product_id',populate:[{path:'brand_id',select:'name'},{path:'category_id',select:'name'},],}).lean()
-    const wishListLength = wishlist ? wishlist.items.length : 0
-    res.render('user/wishlist',{layout:'layouts/user_main',wishlist,wishListLength})
+    
+    if(!wishlist || wishlist.items.length === 0) {
+        return res.render('user/wishlist',{layout:'layouts/user_main',wishlist:[],wishlistLength:0,currentPage:1,totalPages:1,query:req.query})
+    }
+
+    const totalItems = wishlist.items.length
+    const totalPages = Math.ceil(totalItems / limit)
+
+    if(page > totalPages) {
+        return res.redirect(`/wishlist?page=${totalPages}`)
+    }
+    
+    const paginatedItems = wishlist.items.slice(skip, skip + limit)
+
+    res.render('user/wishlist',{layout:'layouts/user_main',wishlist:{...wishlist,items:paginatedItems},wishListLength:totalItems,currentPage:page,totalPages,query:req.query || {} })
 })
 
 const getWishlistCount = asyncHandler( async( req,res) => {
