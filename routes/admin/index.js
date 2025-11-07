@@ -8,5 +8,6 @@ router.use('/products', require('./productRoutes'))
 router.use('/customers', require('./userRoutes'))
 router.use('/orders', require('./orderRoutes'))
 router.use('/coupons', require('./couponRoutes'))
+router.use('/offers', require('./offerRoutes'))
 
 module.exports = router

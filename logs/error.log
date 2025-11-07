@@ -778,3 +778,7 @@ totalPages is not defined
 2025-11-07 01:45:14 [error] : Unhandled error: (intermediate value).skip is not a function | Stack: TypeError: (intermediate value).skip is not a function
     at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\admin\couponAdminController.js:12:70
     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-07 15:19:47 [error] : Unhandled error: The comparison function must be either a function or undefined: #<Object> | Stack: TypeError: The comparison function must be either a function or undefined: #<Object>
+    at Array.sort (<anonymous>)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\admin\offerAdminController.js:13:41
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
