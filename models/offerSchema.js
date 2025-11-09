@@ -1,22 +1,58 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 
 const offerSchema = new mongoose.Schema({
-  offer_name: { type: String, required: true, trim: true, unique: true },
-  offer_type: { 
-    type: String, 
-    required: true, 
-    enum: ['category', 'product', 'brand'],
+  offerName: {
+    type: String,
+    required: true,
+    trim: true,
+    unique: true,
   },
-  discount_percent: { type: Number, required: true, min: 1, max: 90 },
-  start_date: { type: Date, required: true },
-  end_date: { type: Date, required: true },
-  applies_to_type: { 
-    type: String, 
-    enum: ['category', 'product', 'brand'], 
-    required: true 
+  discountPercentage: {
+    type: Number,
+    required: true,
+    min: 1,
+    max: 90, 
   },
-  applies_to: [{ type: mongoose.Schema.Types.ObjectId, refPath: 'applies_to_type' }],
-  isActive: { type: Boolean, default: true },
-}, { timestamps: true });
+  product: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'product',
+    },
+  ],
+  category: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'category',
+    },
+  ],
+  brand: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'brand', 
+    },
+  ],
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
+  validFrom: {
+    type: Date,
+    required: true,
+  },
+  validTo: {
+    type: Date,
+    required: true,
+  },
+});
 
-module.exports = mongoose.model('Offer', offerSchema);
+offerSchema.methods.isValid = function () {
+  const now = new Date();
+  return (
+    this.isActive &&
+    now >= this.validFrom &&
+    now <= this.validTo
+  );
+};
+
+
+module.exports = mongoose.model('offer',offerSchema)

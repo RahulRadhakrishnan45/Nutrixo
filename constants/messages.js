@@ -142,6 +142,16 @@ const messages = Object.freeze({
         COUPON_NOT_FOUND:"Coupon not found",
         COUPON_UPDATED:"Coupon updated successfully",
         COUPON_DELETED:"Coupon deleted successfully",
+    },
+    DISCOUNT:{
+        DISCOUNT_RANGE_LIMIT_EXCEED:"Discount must be between 1 and 90",
+    },
+    DATE:{
+        DATE_INVALID:"Valid To date must be after valid From date",
+    },
+    OFFER:{
+        OFFER_EXISTS:"Offer already exists",
+        OFFER_CREATED:"Offer created successfully",
     }
 });
 

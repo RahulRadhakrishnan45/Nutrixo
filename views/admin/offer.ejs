@@ -1,10 +1,10 @@
+<link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
+
 <div class="p-6">
   <!-- 🧭 Breadcrumb -->
   <nav class="text-sm mb-6 text-gray-500">
     <ol class="flex items-center space-x-2">
-      <li>
-        <a href="/admin/dashboard" class="hover:underline text-gray-600">Admin</a>
-      </li>
+      <li><a href="/admin/dashboard" class="hover:underline text-gray-600">Admin</a></li>
       <li>/</li>
       <li class="text-gray-800 font-medium">Offers</li>
     </ol>
@@ -13,8 +13,7 @@
   <!-- 🏷️ Heading -->
   <div class="flex justify-between items-center mb-8 mt-10">
     <h1 class="text-xl font-semibold">Offer Management</h1>
-    <a href="/admin/offers/new"
-      class="bg-blue-600 text-white mt-12 px-4 py-2 rounded-md hover:bg-blue-700 transition">
+    <a href="/admin/offers/new" class="bg-blue-600 text-white mt-12 px-4 py-2 rounded-md hover:bg-blue-700 transition">
       + Add Offer
     </a>
   </div>
@@ -42,10 +41,10 @@
           <% offers.forEach((offer, index) => { %>
             <tr class="border-b hover:bg-gray-50 <%= !offer.isActive ? 'opacity-50' : '' %>">
               <td class="py-3 px-4 font-medium text-gray-900"><%= index + 1 %></td>
-              <td class="py-3 px-4 font-semibold"><%= offer.offer_name %></td>
-              <td class="py-3 px-4"><%= offer.discount_percent %> %</td>
-              <td class="py-3 px-4"><%= offer.start_date_formatted %></td>
-              <td class="py-3 px-4"><%= offer.end_date_formatted %></td>
+              <td class="py-3 px-4 font-semibold"><%= offer.offerName %></td>
+              <td class="py-3 px-4"><%= offer.discountPercentage %> %</td>
+              <td class="py-3 px-4"><%= new Date(offer.validFrom).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) %></td>
+              <td class="py-3 px-4"><%= new Date(offer.validTo).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) %></td>
 
               <!-- ✅ Status Toggle -->
               <td class="py-3 px-4 text-center">
@@ -81,37 +80,80 @@
 
 <!-- ✏️ Edit Offer Modal -->
 <div id="editOfferModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-  <div class="bg-white w-full max-w-2xl rounded-lg shadow-lg p-8 relative">
+  <div class="bg-white w-full max-w-4xl rounded-lg shadow-lg p-8 relative">
     <button onclick="closeEditOffer()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
     <h2 class="text-xl font-semibold mb-6 text-gray-800">Edit Offer</h2>
 
     <form id="editOfferForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
       <!-- Offer Name -->
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">Offer Name *</label>
-        <input type="text" name="offer_name"
+        <input type="text" name="offerName"
           class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-black focus:outline-none" />
       </div>
 
-      <!-- Discount Percent -->
+      <!-- Discount Percentage -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Discount (%) *</label>
-        <input type="number" name="discount_percent" min="1" max="90"
+        <label class="block text-sm font-medium text-gray-700 mb-2">Discount Percentage (%) *</label>
+        <input type="number" name="discountPercentage" min="1" max="90"
           class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-black focus:outline-none" />
       </div>
 
-      <!-- Start Date -->
+      <!-- Valid From -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Start Date *</label>
-        <input type="date" name="start_date"
+        <label class="block text-sm font-medium text-gray-700 mb-2">Valid From *</label>
+        <input type="date" name="validFrom"
           class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-black focus:outline-none" />
       </div>
 
-      <!-- End Date -->
+      <!-- Valid To -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">End Date *</label>
-        <input type="date" name="end_date"
+        <label class="block text-sm font-medium text-gray-700 mb-2">Valid To *</label>
+        <input type="date" name="validTo"
           class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-black focus:outline-none" />
+      </div>
+
+      <!-- Apply to Categories -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Apply to Categories</label>
+        <select id="editCategorySelect" name="category" multiple>
+          <% if (categories && categories.length > 0) { %>
+            <% categories.forEach(cat => { %>
+              <option value="<%= cat._id %>"><%= cat.name %></option>
+            <% }) %>
+          <% } else { %>
+            <option disabled>No categories available</option>
+          <% } %>
+        </select>
+      </div>
+
+      <!-- Apply to Products -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Apply to Products</label>
+        <select id="editProductSelect" name="product" multiple>
+          <% if (products && products.length > 0) { %>
+            <% products.forEach(prod => { %>
+              <option value="<%= prod.productId %>"><%= prod.title %></option>
+            <% }) %>
+          <% } else { %>
+            <option disabled>No products available</option>
+          <% } %>
+        </select>
+      </div>
+
+      <!-- Apply to Brands -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Apply to Brands</label>
+        <select id="editBrandSelect" name="brand" multiple>
+          <% if (brands && brands.length > 0) { %>
+            <% brands.forEach(brand => { %>
+              <option value="<%= brand._id %>"><%= brand.name %></option>
+            <% }) %>
+          <% } else { %>
+            <option disabled>No brands available</option>
+          <% } %>
+        </select>
       </div>
 
       <!-- Active Toggle -->
@@ -131,3 +173,55 @@
 </div>
 
 <%- include('../partials/pagination.ejs',{currentPage,totalPages,query}) %>
+
+<!-- ✅ Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+
+<script>
+  function openEditOffer(offer) {
+    const form = document.getElementById("editOfferForm");
+    form.offerName.value = offer.offerName;
+    form.discountPercentage.value = offer.discountPercentage;
+    form.validFrom.value = new Date(offer.validFrom).toISOString().split("T")[0];
+    form.validTo.value = new Date(offer.validTo).toISOString().split("T")[0];
+    document.getElementById("editIsActive").checked = offer.isActive;
+
+    // Initialize Tom Selects
+    const catSelect = new TomSelect("#editCategorySelect", { plugins: ['remove_button'], create: false });
+    const prodSelect = new TomSelect("#editProductSelect", { plugins: ['remove_button'], create: false });
+    const brandSelect = new TomSelect("#editBrandSelect", { plugins: ['remove_button'], create: false });
+
+    // Pre-fill selections
+    setTimeout(() => {
+      if (offer.category) offer.category.forEach(id => catSelect.addItem(id));
+      if (offer.product) offer.product.forEach(id => prodSelect.addItem(id));
+      if (offer.brand) offer.brand.forEach(id => brandSelect.addItem(id));
+    }, 150);
+
+    form.dataset.offerId = offer._id;
+    document.getElementById("editOfferModal").classList.remove("hidden");
+  }
+
+  function closeEditOffer() {
+    document.getElementById("editOfferModal").classList.add("hidden");
+  }
+
+  async function deleteOffer(id) {
+    if (confirm("Are you sure you want to delete this offer?")) {
+      const res = await fetch(`/admin/offers/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (data.success) location.reload();
+      else alert("Error deleting offer");
+    }
+  }
+
+  async function toggleOfferStatus(id, status) {
+    const res = await fetch(`/admin/offers/${id}/status`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ isActive: status }),
+    });
+    const data = await res.json();
+    if (!data.success) alert("Failed to update status");
+  }
+</script>
