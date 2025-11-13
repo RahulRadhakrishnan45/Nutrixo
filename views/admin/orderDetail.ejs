@@ -30,10 +30,21 @@
         <div class="space-y-2 text-base"></div>
             <p><span class="font-semibold">Payment Status:</span> <%= order.paymentStatus %></p>
             <p><span class="font-semibold">Payment Method:</span> <%= order.paymentMethod || "—" %></p>
-            <p><span class="font-semibold">Coupon Applied:</span>
-                <%= order.couponCode ? order.couponCode : "None" %>
-                <span class="text-green-600">₹<%= order.couponDiscount || 0 %></span>
-                </p>
+            <p>
+              <span class="font-semibold">Coupon Applied:</span>
+              <% if (order.coupon && order.couponDiscount > 0) { %>
+                <span class="text-green-600">
+                  ₹<%= order.couponDiscount.toFixed(2) %>
+                </span>
+                <% if (order.coupon.code) { %>
+                  <span class="text-red-700 ml-1">(<%= order.coupon.code %>)</span>
+                <% } %>
+              <% } else { %>
+                <span class="text-gray-500">None</span>
+              <% } %>
+            </p>
+
+
                 <p class="font-semibold text-lg mt-3 border-t pt-2">
                     Total Amount: ₹<%= order.totalAmount %>
                 </p>
@@ -151,7 +162,7 @@
         sel.addEventListener("change", async function (e) {
           const itemId = e.target.dataset.itemId;
           const orderId = "<%= order._id %>";
-          const status = e.target.value;
+          const status = e.target.value; 
 
           try {
             const res = await fetch(`/admin/orders/${orderId}/items/${itemId}/status`, {

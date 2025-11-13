@@ -1,9 +1,11 @@
 const asyncHandler = require('express-async-handler')
 const Product = require('../../models/productSchema')
 const Cart = require('../../models/cartSchema')
+const Offer = require('../../models/offerSchema')
 const httpStatus = require('../../constants/httpStatus')
 const messages = require('../../constants/messages')
 const { error } = require('winston')
+const applyOffersToProduct = require('../../utils/applyOffer')
 
 
 
@@ -35,6 +37,13 @@ const addToCart = asyncHandler( async( req,res) => {
         return res.status(httpStatus.bad_request).json({success:false,message:messages.STOCK.OUT_OF_STOCK})
     }
 
+    const now = new Date()
+    const activeOffers = await Offer.find({isActive:true,validFrom:{$lte:now},validTo:{$gte:now},}).lean()
+
+    const offeredProduct = await applyOffersToProduct(product,activeOffers)
+    const offeredVariant = offeredProduct?.variants?.find(v => v?._id?.toString() === variantId?.toString()) || null
+    const finalPrice = offeredVariant ? Number(offeredVariant.calculated_price || offeredVariant.price) : Number(variant.price)
+
     let cart = await Cart.findOne({user_id:userId})
     if(!cart) {
         cart = new Cart({user_id:userId,items:[]})
@@ -65,7 +74,7 @@ const addToCart = asyncHandler( async( req,res) => {
             flavour: variant.flavour,
             size: variant.size,
             quantity: qty,
-            price: variant.discounted_price || variant.price
+            price: finalPrice,
         })
     }
 
@@ -83,6 +92,9 @@ const loadCart = asyncHandler( async( req,res) => {
         return res.render('user/cart',{layout:'layouts/user_main',cartItems:[],subtotal:0,tax:0,total:0,cartLength:0,displayCartLength:'0',error:req.query.error || null})
     }
 
+    const now = new Date()
+    const activeOffers = await Offer.find({isActive:true,validFrom:{$lte:now},validTo:{$gte:now},}).lean()
+
     const cartItems = []
     let subtotal = 0, modified = false, stockAdjusted = false
 
@@ -94,7 +106,8 @@ const loadCart = asyncHandler( async( req,res) => {
             continue
         }
 
-        const variant = product.variants.find(v => v._id.toString() === item.variant_id.toString())
+        const offeredProduct = await applyOffersToProduct(product,activeOffers)
+        const variant = offeredProduct.variants.find(v => v._id.toString() === item.variant_id.toString())
         if(!variant || !variant.is_active) {
             cart.items.pull(item._id)
             modified = true
@@ -113,8 +126,8 @@ const loadCart = asyncHandler( async( req,res) => {
             stockAdjusted = true
         }
 
-        const price = variant.discounted_price || variant.price
-        const itemSubtotal = price * item.quantity
+        const finalPrice = Number(variant.calculated_price || variant.price)
+        const itemSubtotal = finalPrice * item.quantity
         subtotal += itemSubtotal
 
         cartItems.push({ _id:item._id,product,variant,quantity:item.quantity,subtotal:itemSubtotal,})
@@ -122,7 +135,6 @@ const loadCart = asyncHandler( async( req,res) => {
 
     if(modified) await cart.save()
    
-
     const tax = Math.round(subtotal * 0.02)
     const total = subtotal + tax
     const cartCount = cart.items.reduce((sum,i) => sum+ i.quantity, 0)
@@ -234,16 +246,20 @@ const removeItem = asyncHandler( async( req,res) => {
 
 async function calculateSummary(cart) {
   let subtotal = 0
+  const now = new Date()
+
+  const activeOffers = await Offer.find({isActive:true,validFrom:{$lte:now},validTo:{$gte:now},}).lean()
   
   for(const item of cart.items) {
     const product = await Product.findById(item.product_id).lean()
     if(!product) continue
 
-    const variant = product.variants.find(v => v._id.toString() === item.variant_id.toString())
+    const offeredProduct = await applyOffersToProduct(product,activeOffers)
+    const variant = offeredProduct.variants.find(v => v._id.toString() === item.variant_id.toString())
     if(!variant) continue
 
-    const price = variant.discounted_price || variant.price
-    subtotal += price * item.quantity
+    const finalPrice = Number(variant.calculated_price || variant.price)
+    subtotal += finalPrice * item.quantity
   }
 
   const tax = Number((subtotal * 0.02).toFixed(2))

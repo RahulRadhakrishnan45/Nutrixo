@@ -109,4 +109,44 @@ const createOffer = asyncHandler( async( req,res) => {
     return res.status(httpStatus.created).json({success:true, message:messages.OFFER.OFFER_CREATED,redirect:'/admin/offers'})
 })
 
-module.exports = {loadOffers,loadAddOffer,createOffer}
+const updateOffer = asyncHandler( async( req,res) => {
+    const offerId = req.params.id
+    const {offerName,discountPercentage,validFrom,validTo,category,product,brand,isActive} = req.body
+
+    const updateOffer = await Offer.findByIdAndUpdate(offerId,{offerName,discountPercentage,validFrom,validTo,
+        category:category ? [].concat(category) : [],
+        product:product ? [].concat(product) : [],
+        brand:brand ? [].concat(brand) : [],
+        isActive:isActive === 'true' || isActive === true
+    },{new:true})
+
+    if(!updateOffer) {
+        return res.status(httpStatus.not_found).json({success:false,message:messages.OFFER.OFFER_NOT_FOUND})
+    }
+
+    res.status(httpStatus.ok).json({success:true,message:messages.OFFER.OFFER_UPDATED})
+})
+
+const deleteOffer = asyncHandler( async( req,res) => {
+    const offerId = req.params.id
+    const deleteOffer = await Offer.findByIdAndDelete(offerId)
+    if(!deleteOffer) {
+        return res.status(httpStatus.not_found).json({success:false,message:messages.OFFER.OFFER_NOT_FOUND})
+    }
+
+    res.status(httpStatus.ok).json({success:true,message:messages.OFFER.OFFER_DELETED})
+})
+
+const updateOfferStatus = asyncHandler( async( req,res) => {
+    const offerId = req.params.id
+    const {isActive} = req.body
+
+    const updated = await Offer.findByIdAndUpdate(offerId,{isActive},{new:true})
+    if(!updated) {
+        return res.status(httpStatus.not_found).json({success:false,message:messages.OFFER.OFFER_NOT_FOUND})
+    }
+
+    res.status(httpStatus.ok).json({success:true,message:messages.OFFER.OFFER_STATUS_UPDATED})
+})
+
+module.exports = {loadOffers,loadAddOffer,createOffer,updateOffer,deleteOffer,updateOfferStatus}

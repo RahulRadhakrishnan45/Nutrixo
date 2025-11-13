@@ -14,5 +14,13 @@ const couponSchema = new mongoose.Schema({
   usedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'user' }],
 }, { timestamps: true })
 
+couponSchema.pre('save', function(next) {
+  if (this.endDate < new Date()) {
+    this.isActive = false;
+  }
+  next();
+});
+
+
 
 module.exports = mongoose.model('Coupon', couponSchema)

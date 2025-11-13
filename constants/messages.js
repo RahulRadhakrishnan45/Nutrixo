@@ -152,6 +152,10 @@ const messages = Object.freeze({
     OFFER:{
         OFFER_EXISTS:"Offer already exists",
         OFFER_CREATED:"Offer created successfully",
+        OFFER_NOT_FOUND:"Offer not found",
+        OFFER_UPDATED:"Offer updated successfully",
+        OFFER_DELETED:"Offer deleted successfully",
+        OFFER_STATUS_UPDATED:"Offer status updated successfully",
     }
 });
 

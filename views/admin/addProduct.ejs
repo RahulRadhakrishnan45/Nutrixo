@@ -23,6 +23,7 @@
           <input type="text" name="title" placeholder="Product Title"
                  class="w-full border p-2 rounded-md" required>
           <div class="text-red-500 text-sm mt-1 titleError"></div>
+
           <textarea name="description" placeholder="Description"
                     class="w-full border p-2 rounded-md" required></textarea>
 
@@ -41,55 +42,48 @@
               <option value="<%= b._id %>"><%= b.name %></option>
             <% }) %>
           </select>
-
-        
-
-          
         </div>
 
         <!-- Right Section (variants) -->
         <div class="space-y-4">
           <div id="variantContainer" class="space-y-4">
-            <!-- First Variant -->
+            
             <!-- Variant Box -->
-<div class="variantBox border p-4 rounded-md relative">
-  <button type="button" class="absolute top-2 right-2 text-red-500 removeVariant hidden">✕</button>
+            <div class="variantBox border p-4 rounded-md relative">
+              <button type="button" class="absolute top-2 right-2 text-red-500 removeVariant hidden">✕</button>
 
-  <!-- Flavour -->
-  <select name="flavour[]" class="w-full border p-2 rounded-md mt-2" required>
-    <option value="">Select Flavour</option>
-    <% flavours.forEach(f => { %>
-      <option value="<%= f %>"><%= f %></option>
-    <% }) %>
-  </select>
+              <!-- Flavour -->
+              <select name="flavour[]" class="w-full border p-2 rounded-md mt-2" required>
+                <option value="">Select Flavour</option>
+                <% flavours.forEach(f => { %>
+                  <option value="<%= f %>"><%= f %></option>
+                <% }) %>
+              </select>
 
-  <!-- Size -->
-  <select name="size[]" class="w-full border p-2 rounded-md mt-2" required>
-    <option value="">Select Size</option>
-    <% sizes.forEach(s => { %>
-      <option value="<%= s %>"><%= s %></option>
-    <% }) %>
-  </select>
+              <!-- Size -->
+              <select name="size[]" class="w-full border p-2 rounded-md mt-2" required>
+                <option value="">Select Size</option>
+                <% sizes.forEach(s => { %>
+                  <option value="<%= s %>"><%= s %></option>
+                <% }) %>
+              </select>
 
-  <!-- Price -->
-  <input type="number" name="price[]" placeholder="Price" class="w-full border p-2 rounded-md mt-2 priceInput"  required>
-  <div class="text-red-500 text-sm mt-1 priceError"></div>
+              <!-- Price -->
+              <input type="number" name="price[]" placeholder="Price" 
+                     class="w-full border p-2 rounded-md mt-2 priceInput" required>
+              <div class="text-red-500 text-sm mt-1 priceError"></div>
 
-  <!-- Discount Price -->
-  <input type="number" name="discounted_price[]" placeholder="Discounted Price" class="w-full border p-2 rounded-md mt-2 discountInput" >
-  <div class="text-red-500 text-sm mt-1 discountError"></div>
+              <!-- Stock -->
+              <input type="number" name="stock[]" placeholder="Stock Quantity" 
+                     class="w-full border p-2 rounded-md mt-2 stockInput" required>
+              <div class="text-red-500 text-sm mt-1 stockError"></div>
 
-  <!-- Stock -->
-  <input type="number" name="stock[]" placeholder="Stock Quantity" class="w-full border p-2 rounded-md mt-2 stockInput"  required>
-  <div class="text-red-500 text-sm mt-1 stockError"></div>
-
-  <!-- Images -->
-  <input type="file" name="variant_images_0[]" multiple accept="image/*"
-         class="w-full border p-2 rounded-md mt-2 imageInput">
-  <div class="text-red-500 text-sm mt-1 imageError"></div>       
-  <div class="previewContainer flex gap-4 mt-2"></div>
-</div>
-
+              <!-- Images -->
+              <input type="file" name="variant_images_0[]" multiple accept="image/*"
+                     class="w-full border p-2 rounded-md mt-2 imageInput">
+              <div class="text-red-500 text-sm mt-1 imageError"></div>       
+              <div class="previewContainer flex gap-4 mt-2"></div>
+            </div>
           </div>
 
           <!-- Add Variant Button -->
@@ -113,7 +107,6 @@
 </div>
 
 <%- include('../partials/cropperScript.ejs') %>
-
 
 <!-- JS for Variants & Image Preview -->
 <script>
@@ -293,37 +286,36 @@ document.addEventListener("DOMContentLoaded", () => {
   function validateVariant(variantBox) {
     let isValid = true;
     const priceInput = variantBox.querySelector('.priceInput');
-    const discountInput = variantBox.querySelector('.discountInput');
     const stockInput = variantBox.querySelector('.stockInput');
     const imageInput = variantBox.querySelector('.imageInput');
 
     const priceError = variantBox.querySelector('.priceError');
-    const discountError = variantBox.querySelector('.discountError');
     const stockError = variantBox.querySelector('.stockError');
     const imageError = variantBox.querySelector('.imageError');
 
     priceError.textContent = '';
-    discountError.textContent = '';
     stockError.textContent = '';
     imageError.textContent = '';
 
     const price = parseFloat(priceInput.value) || 0;
-    const discount = parseFloat(discountInput.value) || 0;
     const stock = parseInt(stockInput.value) || 0;
     const files = imageInput.files || [];
 
-    if (discount > 0 && price <= discount) {
-      discountError.textContent = 'Discount price must be less than price';
+    if (price <= 0) {
+      priceError.textContent = 'Price must be greater than 0';
       isValid = false;
     }
+
     if (stock <= 0) {
       stockError.textContent = 'Stock quantity must be greater than 0';
       isValid = false;
     }
+
     if (!files.length) {
       imageError.textContent = 'Please upload at least one image';
       isValid = false;
     }
+
     return isValid;
   }
 
@@ -380,4 +372,3 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 </script>
-

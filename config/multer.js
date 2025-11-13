@@ -1,54 +1,51 @@
-const multer = require('multer')
-const path = require('path')
+const multer = require('multer');
+const path = require('path');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('./cloudinary'); // path to config/cloudinary.js
 
-// ---- Brand Storage ----
-const brandStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../public/uploads/brands'))
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-    cb(null, uniqueSuffix + path.extname(file.originalname))
-  }
-})
-
-// ---- Product Storage ----
-const productStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../public/uploads/products'))
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-    cb(null, uniqueSuffix + path.extname(file.originalname))
-  }
-})
-
-// ---- Profile Storage ----
-const profileStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../public/uploads/profiles'))
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-    cb(null, uniqueSuffix + path.extname(file.originalname))
-  }
-})
-
-// ---- File Filter ----
+// shared file filter
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png|gif|webp/
-  const ext = path.extname(file.originalname).toLowerCase()
-
+  const allowedTypes = /jpeg|jpg|png|gif|webp/;
+  const ext = path.extname(file.originalname).toLowerCase().replace('.', '');
   if (allowedTypes.test(ext)) {
-    cb(null, true)
+    cb(null, true);
   } else {
-    cb(new Error('Only images are allowed'), false)
+    cb(new Error('Only images are allowed'), false);
   }
-}
+};
 
-// ---- Uploaders ----
-const uploadBrand = multer({ storage: brandStorage, fileFilter })
-const uploadProduct = multer({ storage: productStorage, fileFilter })
-const uploadProfile = multer({ storage: profileStorage, fileFilter })
+// storage for brand images
+const brandStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'nutrixo/brands',
+    format: async (req, file) => file.mimetype.split('/')[1], // jpg/png/webp...
+    public_id: (req, file) => `brand_${Date.now()}_${Math.round(Math.random()*1e6)}`,
+  },
+});
 
-module.exports = { uploadBrand, uploadProduct, uploadProfile }
+// storage for product images
+const productStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'nutrixo/products',
+    format: async (req, file) => file.mimetype.split('/')[1],
+    public_id: (req, file) => `product_${Date.now()}_${Math.round(Math.random()*1e6)}`,
+  },
+});
+
+// storage for profile images
+const profileStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'nutrixo/profiles',
+    format: async (req, file) => file.mimetype.split('/')[1],
+    public_id: (req, file) => `profile_${req.session?.user?._id || 'anon'}_${Date.now()}`,
+  },
+});
+
+const uploadBrand = multer({ storage: brandStorage, fileFilter });
+const uploadProduct = multer({ storage: productStorage, fileFilter });
+const uploadProfile = multer({ storage: profileStorage, fileFilter });
+
+module.exports = { uploadBrand, uploadProduct, uploadProfile };

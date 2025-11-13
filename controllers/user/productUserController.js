@@ -7,31 +7,37 @@ const Category = require('../../models/categorySchema')
 const Brand = require('../../models/brandSchema')
 const Address = require('../../models/addressSchema')
 const Wishlist = require('../../models/wishlistSchema')
-
+const Offer = require('../../models/offerSchema')
+const applyOffersToProduct = require('../../utils/applyOffer')
 
 
 const loadHome = asyncHandler(async (req,res) =>{
-    const products = await Product.find().sort({createdAt:-1}).lean()
+    const now = new Date()
+    const activeOffers = await Offer.find({
+        isActive:true,validFrom:{$lte:now},validTo:{$gte:now},
+    }).lean()
+    
+    const products = await Product.find().sort({createdAt:-1}).populate('brand_id category_id').lean()
+    const offeredProducts = await Promise.all(products.map(p => applyOffersToProduct(p, activeOffers)))
 
-    let variants = []
-    products.forEach(product => {
-        product.variants.forEach(variant => {
-            variants.push({
-                productId:product._id.toString(),
-                variantId:variant._id.toString(),
-                title:product.title,
-                description:product.description,
-                category:product.category_id,
-                brand:product.brand_id,
-                flavour:variant.flavour,
-                size:variant.size,
-                price:variant.price,
-                discounted_price:variant.discounted_price,
-                images:variant.images,
-                stock:variant.stock
-            })
-        })
-    })
+    let variants = offeredProducts.flatMap(product =>
+        product.variants.filter(v => v.is_active && v.stock > 0)
+        .map(v => ({
+            productId:product._id,
+            variantId:v._id,
+            title:product.title,
+            description: product.description,
+            category: product.category_id,
+            brand: product.brand_id,
+            flavour: v.flavour,
+            size: v.size,
+            price: v.price,
+            calculated_price: v.calculated_price,
+            offerPercent: v.offerPercent || 0,
+            images: v.images,
+            stock: v.stock,
+        }))
+    )
 
     variants = variants.slice(0,4)
 
@@ -80,45 +86,45 @@ const loadProducts = asyncHandler( async( req,res) => {
         }
     }
 
-    const dbProducts = await Product.find(query).populate('brand_id','name is_active is_delete').populate('category_id','name is_active is_deleted')
-    
+    const dbProducts = await Product.find(query).populate('brand_id','name is_active').populate('category_id','name is_active').lean()
+
     const products = []
-    dbProducts.forEach(p => {
+    const min = Number(minPrice) || 0
+    const max = Number(maxPrice) || Infinity
+    for(const p of dbProducts) {
+        if (!p.brand_id?.is_active || !p.category_id?.is_active) continue
 
-        if(!p.brand_id?.is_active || !p.category_id?.is_active) return
+        const offeredProduct = await applyOffersToProduct(p)
 
-        p.variants.filter(v => v.is_active).forEach(v => {
-
-            if (brand && brand !== "All" && p.brand_id?.name !== brand) return
-            if (flavour && flavour !== "All" && v.flavour !== flavour) return
-            if (size && size !== "All" && v.size !== size) return
-
-            const priceToCheck = v.discounted_price || v.price
-            if (minPrice && priceToCheck < Number(minPrice)) return
-            if (maxPrice && priceToCheck > Number(maxPrice)) return
+        const activeVariants = offeredProduct.variants?.filter((v) => v.is_active !== false && v.stock > 0) || []
+        if(activeVariants.length === 0) continue
+        
+        for(const v of activeVariants) {
+            const basePrice = Number(v.calculated_price || v.price || 0)
+            if(basePrice < min || basePrice > max) continue
 
             if (
                 q &&
                 !p.title.toLowerCase().includes(q.toLowerCase()) &&
                 !(v.flavour && v.flavour.toLowerCase().includes(q.toLowerCase())) &&
                 !(v.size && v.size.toLowerCase().includes(q.toLowerCase()))
-            ) {
-                return
-            }
+            ) 
+                continue
 
             products.push({
-               productId: p._id,
-              _id: v._id,
-              name: `${p.title} ${v.flavour || ""} ${v.size || ""}`,
-              brand: p.brand_id?.name || "Unknown",
-              category: p.category_id?.name || "Uncategorized",
-              image: v.images?.length > 0 ? v.images[0] : "/images/no-image.png",
-              original_price: v.price,
-              discounted_price: v.discounted_price || v.price,
-              stock: v.stock  
+                productId: p._id,
+                _id: v._id,
+                name: `${p.title} ${v.flavour || ''} ${v.size || ''}`,
+                brand: p.brand_id?.name || 'Unknown',
+                category: p.category_id?.name || 'Uncategorized',
+                image: v.images?.[0] || '/images/no-image.png',
+                price: Number(v.price),
+                calculated_price: Number(basePrice.toFixed(2)),
+                stock: v.stock,
+                offerPercent: v.offerPercent || null,
             })
-        })
-    })
+        }
+    }
 
     if(sort) {
         if(sort === 'priceLowHigh') {
@@ -164,20 +170,16 @@ const loadSingleProduct = asyncHandler( async( req,res) => {
         return res.status(httpStatus.not_found).render('user/404-page',{layout:false})
     }
 
-    const activeVariants = product.variants.filter(v => v.is_active)
+    const offeredProduct = await applyOffersToProduct(product)
+    const activeVariants = offeredProduct.variants.filter((v) => v.is_active)
 
     if(activeVariants.length === 0) {
         return res.status(httpStatus.not_found).render('user/404-page', {layout:false})
     }
 
     let selectedVariant 
-
     if(variantId) {
-        const found = activeVariants.find(v => v._id.toString() === variantId)
-        
-        if(found && found.is_active) {
-            selectedVariant = found
-        }
+        selectedVariant = activeVariants.find((v) => v._id.toString() === variantId)
     }
 
     if(!selectedVariant) {
@@ -189,7 +191,11 @@ const loadSingleProduct = asyncHandler( async( req,res) => {
         _id:{$ne:product._id},
         'variants.size':selectedVariant.size,
         'variants.is_active':true
-    }).limit(4).lean()
+    }).limit(4).populate('brand_id').populate('category_id').lean()
+
+    for(let i=0;i<relatedProducts.length;i++) {
+        relatedProducts[i] = await applyOffersToProduct(relatedProducts[i])
+    }
 
     let userWishlist = []
     if(req.session.user?._id) {
@@ -197,7 +203,7 @@ const loadSingleProduct = asyncHandler( async( req,res) => {
         userWishlist = wishlist?.items?.map((i) => i.variant_id.toString() || [])
     }
 
-    res.render('user/productDetail',{layout:'layouts/user_main',product:{...product,variants:activeVariants}, relatedProducts,selectedVariant,userWishlist})
+    res.render('user/productDetail',{layout:'layouts/user_main',product:{...offeredProduct,variants:activeVariants}, relatedProducts,selectedVariant,userWishlist})
 })
 
 const searchProducts = asyncHandler( async( req,res) => {

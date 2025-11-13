@@ -38,7 +38,7 @@ const loadOrders = asyncHandler( async( req,res) => {
 
 const loadOrderDetails = asyncHandler( async( req,res) => {
     const orderId = req.params.orderId
-    const order = await Order.findById(orderId).populate('user','name email').populate('items.product','name image').lean()
+    const order = await Order.findById(orderId).populate('user','name email').populate('items.product','name image').populate('coupon','code name').lean()
 
     if(!order) return res.status(httpStatus.not_found).json({success:false,message:messages.ORDER.ORDER_NOT_FOUND})
 

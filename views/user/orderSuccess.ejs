@@ -1,7 +1,7 @@
 <div class="bg-green-50 min-h-screen flex flex-col items-center pb-5">
-  <!-- Success Animation + Heading -->
-  <div class="text-center mt-2"> <!-- lowered margin -->
-    <!-- Animation -->
+
+  <!-- ✅ Success Animation + Message -->
+  <div class="text-center mt-4">
     <dotlottie-wc 
       src="https://lottie.host/dce51402-3d96-4073-b0c7-0e559a46e9aa/UG8tKSj4Ic.lottie"
       style="width: 300px; height: 300px; display:block; margin:0 auto 1.5rem;"
@@ -9,38 +9,115 @@
       loop="false">
     </dotlottie-wc>
 
-    <h1 class="text-3xl font-bold text-gray-800">Thank you for shopping</h1>
-    <p class="text-gray-600 mt-2">
-      Your order has been successfully placed and is now being processed
+    <h1 class="text-3xl font-bold text-gray-800">Thank You for Your Purchase!</h1>
+    <p class="text-gray-600 mt-2 text-lg">
+      Your order has been successfully placed and is now being processed.
     </p>
 
-    <!-- Buttons -->
+    <!-- 🛒 Navigation Buttons -->
     <div class="mt-6 flex justify-center space-x-4">
-      <a href="/products" class="px-6 py-2 border rounded-lg text-gray-700 bg-white hover:bg-gray-100">
+      <a href="/products" 
+         class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-100 transition">
         Continue Shopping
       </a>
       <a href="/orders" 
-         class="px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800">
+         class="px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition">
         View Order Details
       </a>
     </div>
   </div>
 
-  <!-- Order Information Card -->
+  <!-- ✅ Order Info Card -->
   <div class="bg-white shadow-md rounded-lg p-8 mt-12 w-full max-w-3xl mx-auto text-left animate-fade-in">
-    <h2 class="text-xl font-semibold mb-6">Order Information</h2>
-    <div class="grid grid-cols-2 gap-y-6 text-gray-700 text-lg">
+
+    <h2 class="text-2xl font-semibold mb-6 text-gray-800">Order Summary</h2>
+
+    <!-- 🧾 General Order Details -->
+    <div class="grid grid-cols-2 gap-y-6 text-gray-700 text-lg mb-6">
       <p><span class="font-medium">Order Number:</span> <%= order.orderNumber %></p>
       <p><span class="font-medium">Date:</span> 
         <%= new Date(order.createdAt).toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }) %>
       </p>
       <p><span class="font-medium">Email:</span> <%= order.user.email %></p>
-      <p><span class="font-medium">Total:</span> ₹<%= order.totalAmount %></p>
+      <p><span class="font-medium">Payment Method:</span> <%= order.paymentMethod %></p>
     </div>
+
+    <!-- 💰 Price Breakdown -->
+    <div class="border-t pt-6 space-y-3 text-gray-700 text-lg">
+      <div class="flex justify-between">
+        <span>Price (Actual):</span>
+        <span>₹<%= order.actualTotal ? order.actualTotal.toFixed(2) : '0.00' %></span>
+      </div>
+
+      <div class="flex justify-between text-green-600">
+        <span>Offer Discount:</span>
+        <span>-₹<%= order.offerDiscount ? order.offerDiscount.toFixed(2) : '0.00' %></span>
+      </div>
+
+      <div class="flex justify-between font-medium">
+        <span>Subtotal (After Offer):</span>
+        <span>₹<%= order.subtotal ? order.subtotal.toFixed(2) : '0.00' %></span>
+      </div>
+
+      <% if (order.couponDiscount && order.couponDiscount > 0) { %>
+        <div class="flex justify-between text-green-600">
+          <span>Coupon Discount:</span>
+          <span>-₹<%= order.couponDiscount.toFixed(2) %></span>
+        </div>
+      <% } %>
+
+      <div class="flex justify-between">
+        <span>Tax:</span>
+        <span>₹<%= order.tax ? order.tax.toFixed(2) : '0.00' %></span>
+      </div>
+
+      <div class="border-t pt-3 flex justify-between font-semibold text-xl">
+        <span>Total Paid:</span>
+        <span class="text-green-700">₹<%= order.totalAmount ? order.totalAmount.toFixed(2) : '0.00' %></span>
+      </div>
+    </div>
+
+    <!-- 📦 Ordered Items -->
+    <% if (order.items && order.items.length > 0) { %>
+      <div class="border-t mt-8 pt-6">
+        <h3 class="text-xl font-semibold mb-4">Ordered Items</h3>
+        <div class="space-y-4">
+          <% order.items.forEach(item => { %>
+            <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg shadow-sm">
+              <div class="flex items-center space-x-4">
+                <img src="<%= item.image || '/images/no-image.png' %>" 
+                     alt="<%= item.title %>" 
+                     class="w-16 h-16 object-cover rounded border" />
+                <div>
+                  <p class="font-semibold"><%= item.title %></p>
+                  <p class="text-sm text-gray-500">Flavour: <%= item.flavour %> | Size: <%= item.size %></p>
+                  <p class="text-sm text-gray-600">Qty: <%= item.quantity %></p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="font-semibold text-gray-800">₹<%= (item.price * item.quantity).toFixed(2) %></p>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+
+    <!-- 📍 Shipping Address -->
+    <div class="border-t mt-8 pt-6">
+      <h3 class="text-xl font-semibold mb-4">Shipping Address</h3>
+      <p class="text-gray-700 leading-relaxed">
+        <%= order.orderAddress.fullname %><br>
+        <%= order.orderAddress.address %>, <%= order.orderAddress.district %><br>
+        <%= order.orderAddress.state %>, <%= order.orderAddress.country %> - <%= order.orderAddress.pincode %><br>
+        <span class="text-gray-500">📞 <%= order.orderAddress.mobile %></span>
+      </p>
+    </div>
+
   </div>
 </div>
 
-
+<!-- ✅ Animations -->
 <style>
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(20px); }

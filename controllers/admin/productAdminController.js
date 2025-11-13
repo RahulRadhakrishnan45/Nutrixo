@@ -48,7 +48,7 @@ const loadAddProduct = asyncHandler( async( req,res) => {
 
 const addProduct = asyncHandler( async( req,res) => {
     
-    const {title,description,category_id,brand_id,flavour,price,discounted_price,stock,size} = req.body
+    const {title,description,category_id,brand_id,flavour,price,stock,size} = req.body
     
     const existingProduct = await Product.findOne({
         title:title.trim(),
@@ -76,7 +76,7 @@ const addProduct = asyncHandler( async( req,res) => {
             if (match) {
                 const index = match[1]
                 if (!imagesByVariant[index]) imagesByVariant[index] = []
-                imagesByVariant[index].push(`/uploads/products/${file.filename}`)
+                imagesByVariant[index].push(file.path)
             }
         })
     }
@@ -86,7 +86,6 @@ const addProduct = asyncHandler( async( req,res) => {
         variants.push({
             flavour:flavour[i],
             price:price[i],
-            discounted_price:discounted_price[i],
             stock:stock[i],
             size:size[i],
             images:imagesByVariant[i] || []
@@ -109,7 +108,7 @@ const addProduct = asyncHandler( async( req,res) => {
 
 const editProduct = asyncHandler(async (req, res) => {
   const productId = req.params.id;
-  const { title, description, category_id, brand_id, flavour, size, price, discounted_price, stock, variantIds } = req.body;
+  const { title, description, category_id, brand_id, flavour, size, price, stock, variantIds } = req.body;
 
   const imagesByVariant = {};
   if (req.files && req.files.length > 0) {
@@ -118,7 +117,7 @@ const editProduct = asyncHandler(async (req, res) => {
       if (match) {
         const index = match[1];
         if (!imagesByVariant[index]) imagesByVariant[index] = [];
-        imagesByVariant[index].push(`/uploads/products/${file.filename}`);
+        imagesByVariant[index].push(file.path);
       }
     });
   }
@@ -174,7 +173,6 @@ const editProduct = asyncHandler(async (req, res) => {
     if(existingVariant) {
       existingVariant.flavour = flavour[i];
       existingVariant.price = price[i];
-      existingVariant.discounted_price = discounted_price[i];
       existingVariant.stock = stock[i];
       existingVariant.size = size[i];
       existingVariant.images = [...keptImages, ...uploadedImages];
@@ -183,7 +181,6 @@ const editProduct = asyncHandler(async (req, res) => {
       product.variants.push({
         flavour: flavour[i],
         price: price[i],
-        discounted_price: discounted_price[i],
         stock: stock[i],
         size: size[i],
         images: [...keptImages, ...uploadedImages],
@@ -287,14 +284,6 @@ const searchProducts = asyncHandler( async( req,res) => {
     res.json({success:true,products:rows.slice(0,8)})
     
 })
-
-
-
-
-
-
-
-
 
 
 module.exports = {loadProducts,loadAddProduct,addProduct,editProduct,deleteProduct,restoreVariant,searchProducts}

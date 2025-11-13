@@ -6,69 +6,86 @@ const Cart = require('../../models/cartSchema')
 const Order = require('../../models/orderSchema')
 const User = require('../../models/userSchema')
 const Product = require('../../models/productSchema')
+const Coupon = require('../../models/couponSchema')
+const Offer = require('../../models/offerSchema')
+const applyOffersToProduct = require('../../utils/applyOffer')
 
 
 const loadCheckout = asyncHandler( async( req,res) => {
     const userId = req.session.user._id
-    if(!userId) {
-        return res.redirect('/auth/login')
-    }
+    if(!userId) return res.redirect('/auth/login')
 
     const addresses = await Address.find({user_id:userId}).lean()
-
     const cart = await Cart.findOne({user_id:userId}).populate('items.product_id').lean()
-
     if(!cart || cart.items.length === 0) {
+        req.session.coupon = null
         return res.redirect('/cart')
     }
     let removedItems = false
+    const validItems = []
 
-    cart.items = cart.items.filter(item => {
-        if(!item.product_id) return false
+    for(const item of cart.items) {
+        const product = item.product_id
+        if(!product) continue
 
-        const variant = item.product_id.variants.find(v => v._id.toString() === item.variant_id.toString())
-        if (!variant || !variant.is_active) return false
-
-        if(variant.stock < item.quantity) {
+        const variant = product.variants.find(v => v._id.toString() === item.variant_id.toString())
+        if(!variant || !variant.is_active || variant.stock < item.quantity) {
             removedItems = true
-            return false
+            continue
         }
-        return true
-    })
+        validItems.push(item)
+    }
 
     if(removedItems) {
-        await Cart.updateOne({_id:cart._id},{$set:{items:cart.items}})
+        await Cart.updateOne({_id:cart._id},{$set:{items:validItems}})
         return res.redirect('/cart?error=stock')
     }
 
-    let subtotal = 0, discount = 0, tax = 0, total = 0
+    let actualPrice = 0, subtotalAfterOffer = 0, offerDiscount = 0, couponDiscount = 0, tax = 0, total = 0
 
-    if(cart && cart.items.length > 0) {
-        subtotal = cart.items.reduce((acc,item) => {
-            const variant = item.product_id.variants.find((v) => v._id.toString() === item.variant_id.toString())
-            
-            if(!variant) return acc
+    for(const item of validItems) {
+        const product = await Product.findById(item.product_id._id).populate('brand_id').populate('category_id').lean()
+        if(!product) continue
 
-            const price = variant.discounted_price || variant.price
-            return acc + price * item.quantity
-        },0)
+        const offeredProduct = await applyOffersToProduct(product)
+        const variant = offeredProduct.variants.find(v => v._id.toString() === item.variant_id.toString())
+        if(!variant) continue
 
-        discount = cart.items.reduce((acc,item) => {
-            const variant = item.product_id.variants.find((v) => v._id.toString() === item.variant_id.toString())
+        const basePrice = variant.price
+        const offerPrice = variant.calculated_price
 
-            if(!variant) return acc
-
-            if(variant.discounted_price && variant.discounted_price < variant.price) {
-                acc += (variant.price - variant.discounted_price) * item.quantity
-            }
-            return acc
-        },0)
-
-        tax = Number((subtotal * 0.02).toFixed(2))
-        total = subtotal + tax
+        actualPrice += basePrice * item.quantity
+        offerDiscount += (basePrice - offerPrice) * item.quantity
     }
 
-    res.render('user/checkout',{layout:'layouts/user_main',addresses,cart,subtotal,discount,tax,total,cartLength:cart?.items?.length || 0,selectedId:req.query.selected || null,error:req.query.error || null})
+    subtotalAfterOffer = actualPrice - offerDiscount
+
+    let appliedCoupon = null
+    if(req.session.coupon) {
+        const coupon = await Coupon.findOne({code:req.session.coupon.code,isActive:true})
+        if(coupon && subtotalAfterOffer >= coupon.minimumPurchase && new Date() >= coupon.startDate && new Date() <= coupon.endDate) {
+            if(subtotalAfterOffer >= coupon.minimumPurchase) {
+                if(coupon.discountType === 'percentage') {
+                    couponDiscount = Math.min((subtotalAfterOffer * coupon.discountAmount) / 100, subtotalAfterOffer)
+                }else{
+                    couponDiscount = Math.min(coupon.discountAmount, subtotalAfterOffer)
+                }
+                appliedCoupon = coupon
+            }else{
+                req.session.coupon = null
+                couponDiscount = 0
+            }
+        }
+    }
+
+    const totalDiscount = offerDiscount + couponDiscount
+    tax = Number(((subtotalAfterOffer - couponDiscount) * 0.02).toFixed(2))
+    total = subtotalAfterOffer - couponDiscount + tax
+
+    const today = new Date()
+    const coupons = await Coupon.find({isActive:true,startDate:{$lte:today},endDate:{$gte:today},}).lean()
+
+    res.render('user/checkout',{layout:'layouts/user_main',addresses,coupons,cart:{...cart,items:validItems},actualPrice:actualPrice.toFixed(2),offerDiscount:offerDiscount.toFixed(2),subtotal:subtotalAfterOffer.toFixed(2),couponDiscount:couponDiscount.toFixed(2),totalDiscount:totalDiscount.toFixed(2),tax:tax.toFixed(2),total:total.toFixed(2),appliedCoupon,cartLength:validItems.length || 0,selectedId:req.query.selected || null,error:req.query.error || null})
 })
 
 const placeOrder = asyncHandler( async( req,res) => {
@@ -91,7 +108,7 @@ const placeOrder = asyncHandler( async( req,res) => {
     for(const item of cart.items) {
         const product = item.product_id
         if(!product) continue
-        const variant = item.product_id?.variants.find((v) => v._id.toString() === item.variant_id.toString())
+        const variant = product.variants.find((v) => v._id.toString() === item.variant_id.toString())
         if(!variant || !variant.is_active) {
             stockIssue = true
             continue
@@ -117,60 +134,103 @@ const placeOrder = asyncHandler( async( req,res) => {
 
     await Cart.updateOne({_id:cart._id},{$set:{items:updatedItems}})
 
-    if(updatedItems.length === 0) {
-        return res.redirect('/cart?error=stock')
-    }
-
+    if(updatedItems.length === 0) return res.redirect('/cart?error=stock')
+    
     if(stockIssue) {
         const productList = stockAdjustedProducts.map((p) => `${p.name} (only ${p.available} left)`).join(', ')
         return res.redirect(`/cart?error=stockUpdate&products=${encodeURIComponent(productList)}`)
     }
     
-    let subtotal = 0, discount = 0
-    updatedItems.forEach(item => {
-        const variant = item.product_id.variants.find(v => v._id.toString() === item.variant_id.toString())
-        if(!variant) return 
-        const price = variant.discounted_price || variant.price
-        subtotal += price * item.quantity
+    let actualTotal = 0, offerDiscount = 0, couponDiscount = 0, subtotal = 0, tax = 0, total = 0
 
-        if(variant.discounted_price && variant.discounted_price < variant.price) {
-            discount += (variant.price - variant.discounted_price) * item.quantity
+    const now = new Date()
+    const activeOffers = await Offer.find({isActive:true,validFrom:{$lte:now},validTo:{$gte:now},}).lean()
+
+    for(const item of updatedItems) {
+        const product = await Product.findById(item.product_id._id).populate('brand_id').populate('category_id').lean()
+
+        const offeredProduct = await applyOffersToProduct(product,activeOffers)
+        const variant = offeredProduct.variants.find(v => v._id.toString() === item.variant_id.toString())
+        if(!variant) continue
+
+        const base = Number(variant.price)
+        const offerPrice = Number(variant.calculated_price)
+
+        actualTotal += base * item.quantity
+        offerDiscount += (base - offerPrice) * item.quantity
+    }
+
+    subtotal = actualTotal - offerDiscount
+
+    let appliedCoupon = null
+    if(req.session.coupon) {
+        const coupon = await Coupon.findOne({code:req.session.coupon.code,isActive:true})
+        if(coupon && subtotal >= coupon.minimumPurchase) {
+            if(coupon.discountType === 'percentage') {
+                couponDiscount = Math.min((subtotal * coupon.discountAmount) / 100, subtotal)
+            }else{
+                couponDiscount = Math.min(coupon.discountAmount, subtotal)
+            }
+            appliedCoupon = coupon
+        }else{
+            req.session.coupon = null
         }
-    })
+    }
 
-    const tax = Number((subtotal * 0.02).toFixed(2))
-    const total = subtotal + tax
+    const totalDiscount = offerDiscount + couponDiscount
+    tax = Number(((subtotal - couponDiscount) * 0.02).toFixed(2))
+    total = subtotal - couponDiscount + tax
 
-    const orderItem = updatedItems.map((item) => {
-        const variant = item.product_id.variants.find(v => v._id.toString() === item.variant_id.toString())
-        return {
-            product: item.product_id._id,
+    const orderItem = []
+    for(const item of updatedItems) {
+        const product = item.product_id
+        const variant = product.variants.find((v) => v._id.toString() === item.variant_id.toString())
+        if(!variant) continue
+
+        const offeredProduct = await applyOffersToProduct(product,activeOffers)
+        const offeredVariant = offeredProduct.variants.find((v) => v._id.toString() === variant._id.toString())
+
+        const finalPrice = offeredVariant?.calculated_price || variant.price
+        const basePrice = variant.price
+        const offerApplied = offeredVariant?.offerPercent || 0
+
+        orderItem.push({
+            product: product._id,
             variantId: variant._id,
-            title: item.product_id.title,
+            title: product.title,
             flavour: variant.flavour,
             size: variant.size,
             image: variant.images?.[0] || null,
-            price: variant.discounted_price || variant.price,
+            price: finalPrice,
             quantity: item.quantity,
-            totalPrice: (variant.discounted_price || variant.price) * item.quantity,
-            tax: Number(((variant.discounted_price || variant.price) * item.quantity * 0.02).toFixed(2)),
-            discount: variant.discounted_price ? (variant.price - variant.discounted_price) * item.quantity : 0,
-            offerApplied: 0
-        }
-    })
+            totalPrice: finalPrice * item.quantity,
+            tax: Number((finalPrice * item.quantity * 0.02).toFixed(2)),
+            discount: (basePrice - finalPrice) * item.quantity,
+            offerApplied,
+        })
+    }
 
     const embeddedAddress = {fullname: selectedAddress.fullname,mobile: selectedAddress.mobile,address: selectedAddress.address,district: selectedAddress.district,state: selectedAddress.state,country: selectedAddress.country,pincode: selectedAddress.pincode}
 
-    const order = await Order.create({
+    const orderData = await Order.create({
         user:userId,
         orderAddress:embeddedAddress,
         paymentMethod,
+        actualTotal,
+        offerDiscount,
         subtotal,
         tax,
-        couponDiscount:0,
+        couponDiscount,
         totalAmount:total,
+        totalDiscount,
         items:orderItem
     })
+
+    if(appliedCoupon) {
+        orderData.coupon = appliedCoupon._id
+    }
+
+    const order = await Order.create(orderData)
 
     for(const item of orderItem) {
         await Product.updateOne(

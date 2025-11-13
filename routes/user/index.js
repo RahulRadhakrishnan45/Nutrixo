@@ -9,5 +9,6 @@ router.use('/checkout', require('./checkoutRoutes'))
 router.use('/orders', require('./orderRoutes'))
 router.use('/password', require('./passwordRoutes'))
 router.use('/wishlist',require('./wishlistRoutes'))
+router.use('/coupons', require('./couponRoutes'))
 
 module.exports = router
