@@ -21,7 +21,7 @@ const messages = Object.freeze({
         ALL_FIELDS_REQUIRED:"All fields are required",
         ENTER_VALID_NO:"Enter a valid 10 digit number",
         ENTER_VALID_PINCODE:"Enter a valid 6 digit pincode",
-        CANCEL_REASON_REQUIRED:"Cancellation reason is required"
+        INVALID_SIGN:"Invalid signature",
     },
     OTP: {
         SENT: "OTP sent successfully",
@@ -156,6 +156,9 @@ const messages = Object.freeze({
         OFFER_UPDATED:"Offer updated successfully",
         OFFER_DELETED:"Offer deleted successfully",
         OFFER_STATUS_UPDATED:"Offer status updated successfully",
+    },
+    WALLET:{
+        MINIMUM_REQUIRED:"Minimum ₹10 required",
     }
 });
 

@@ -102,21 +102,29 @@
           <div class="space-y-2">
             <label class="flex items-center space-x-2">
               <input type="radio" name="payment" value="CARD" checked>
-              <span>Debit Card / Credit Card</span>
+              <span>Debit / Credit / Netbanking</span>
             </label>
+
             <label class="flex items-center space-x-2">
-              <input type="radio" name="payment" value="NETBANKING">
-              <span>Net Banking</span>
+              <input type="radio" 
+                    name="payment" 
+                    value="WALLET"
+                    <%= walletBalance < total ? "disabled" : "" %>>
+              <span>
+                Wallet 
+                <span class="text-green-500">(Available: ₹<%= walletBalance.toFixed(2) %>)</span>
+                <% if (walletBalance < total) { %>
+                  <span class="text-red-500 text-xs">(Insufficient)</span>
+                <% } %>
+              </span>
             </label>
-            <label class="flex items-center space-x-2">
-              <input type="radio" name="payment" value="WALLET">
-              <span>Wallet</span>
-            </label>
+
             <label class="flex items-center space-x-2">
               <input type="radio" name="payment" value="COD">
               <span>Cash on Delivery</span>
             </label>
           </div>
+
         </div>
       </div>
 

@@ -186,9 +186,9 @@ const downloadInvoice = asyncHandler(async (req, res) => {
   doc.font('Helvetica').fontSize(10)
 
   let subtotal = 0
-  let taxTotal = 0
-  let totalPaid = 0
   const TAX_RATE = 0.02
+  let taxTotal = 0
+  let couponDiscount = order.couponDiscount || 0
 
   order.items.forEach((item) => {
     const lineY = doc.y
@@ -206,12 +206,19 @@ const downloadInvoice = asyncHandler(async (req, res) => {
       }
     }
 
+    const basePrice = item.originalPrice || item.price
+    const sellingPrice = item.offerPrice || item.price
+    
     const includeInTotal = !['CANCELLED', 'RETURNED'].includes(item.status)
-    const itemTotal = item.price * item.quantity
+    const itemTotal = sellingPrice * item.quantity
 
     doc.text(item.title, startX, lineY, { width: 180 })
     doc.text(`${item.quantity}`, 250, lineY)
-    doc.text(`Rs. ${item.price.toFixed(2)}`, 300, lineY)
+    if(item.offerPrice) {
+        doc.text(`Rs. ${sellingPrice.toFixed(2)} (Offer)`, 300, lineY)
+    }else{
+        doc.text(`Rs. ${basePrice.toFixed(2)}`, 300, lineY)
+    }
     doc.text(item.status, 380, lineY)
     doc.text(itemPaymentStatus, 470, lineY)
     doc.text(`Rs. ${itemTotal.toFixed(2)}`, 540, lineY, { align: 'right' })
@@ -220,10 +227,11 @@ const downloadInvoice = asyncHandler(async (req, res) => {
 
     if (includeInTotal) {
       subtotal += itemTotal
-      taxTotal += itemTotal * TAX_RATE
-      totalPaid += itemTotal + itemTotal * TAX_RATE
     }
   })
+
+  taxTotal = subtotal * TAX_RATE
+  const grandTotal = subtotal + taxTotal - couponDiscount
 
   doc.moveTo(startX, doc.y).lineTo(560, doc.y).stroke()
   doc.moveDown(1.5)
@@ -236,10 +244,15 @@ const downloadInvoice = asyncHandler(async (req, res) => {
   doc.text('Tax (2%):', summaryX, doc.y, { continued: true })
   doc.text(`Rs. ${taxTotal.toFixed(2)}`, { align: 'right' })
 
+  if(couponDiscount > 0) {
+    doc.text(`Coupon Offer:`, summaryX, doc.y, { continued: true })
+    doc.text(`- Rs. ${couponDiscount.toFixed(2)}`, { align: 'right' })
+  }
+
   doc.moveDown(0.8);
   doc.font('Helvetica-Bold')
   doc.text('Total Amount:', summaryX, doc.y, { continued: true })
-  doc.text(`Rs. ${totalPaid.toFixed(2)}`, { align: 'right' })
+  doc.text(`Rs. ${grandTotal.toFixed(2)}`, { align: 'right' })
 
   doc.moveDown(1)
   doc.fontSize(10).font('Helvetica-Oblique').text(

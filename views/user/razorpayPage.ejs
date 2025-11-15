@@ -1,0 +1,56 @@
+<div class="min-h-screen flex items-start justify-center bg-gray-50 pt-32 p-10">
+  <div class="bg-white shadow-md rounded-lg p-10 text-center max-w-md w-full">
+    
+    <h2 class="text-2xl font-bold mb-4">Processing Payment...</h2>
+    <p class="text-gray-600 mb-6">Please wait while we redirect you to the secure payment gateway.</p>
+
+    <div class="flex justify-center">
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+const options = {
+  key: "<%= key_id %>",
+  amount: "<%= razorOrder.amount %>",
+  currency: "INR",
+  name: "Nutrixo Store",
+  description: "Order Payment",
+  order_id: "<%= razorOrder.id %>",
+
+  handler: function (response) {
+    // Send for verification
+    fetch("/checkout/razorpay/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        razorpay_order_id: response.razorpay_order_id,
+        razorpay_payment_id: response.razorpay_payment_id,
+        razorpay_signature: response.razorpay_signature,
+        total: "<%= total %>",
+        addressIndex: "<%= addressIndex %>"
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        // REDIRECT TO ORDER SUCCESS PAGE 🎉
+        window.location.href = `/checkout/${data.orderId}/success`;
+      } else {
+        window.location.href = "/checkout/orderFail";
+      }
+    });
+  },
+
+  theme: {
+    color: "#000"
+  }
+};
+
+const rzp = new Razorpay(options);
+rzp.open();
+</script>

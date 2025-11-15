@@ -1,0 +1,174 @@
+<div class="flex min-h-screen bg-gray-50">
+  <!-- Sidebar -->
+  <%- include('../partials/userSidebar') %>
+
+  <!-- Page Content -->
+  <div class="flex-1 flex justify-center items-start p-10">
+
+    <div class="w-full max-w-6xl bg-white shadow-md rounded-lg p-10">
+
+      <!-- Header -->
+      <div class="mb-10">
+        <h2 class="text-xl font-bold text-gray-800">My Wallet</h2>
+      </div>
+
+      <!-- Balance Section -->
+      <div class="border rounded-lg p-6 mb-10 bg-white mx-auto w-full shadow-lg">
+        <h3 class="text-sm text-gray-500 text-center">Available Balance</h3>
+        <p class="text-4xl font-bold mt-2 text-center text-gray-800">
+          ₹<%= walletBalance.toFixed(2) %>
+        </p>
+      </div>
+
+
+      <!-- Add Money Section -->
+      <div class="mb-10">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Add Money to Wallet</h3>
+
+        <form id="walletAddForm" class="flex items-center gap-4">
+          <input 
+            type="number" 
+            id="amountInput"
+            placeholder="Enter amount"
+            min="10"
+            required
+            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-black"
+          >
+
+          <button 
+            type="submit" 
+            class="bg-black text-white px-5 py-2 rounded-md hover:bg-gray-800 transition"
+          >
+            Add Money
+          </button>
+        </form>
+
+        <p class="text-xs text-gray-500 mt-2">Minimum amount is ₹10.</p>
+      </div>
+
+
+      <!-- Transaction History -->
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">Transaction History</h3>
+
+      <% if (transactions.length > 0) { %>
+
+        <div class="space-y-5">
+
+          <% transactions.forEach(t => { %>
+            <div class="border rounded-lg p-6 shadow-sm bg-white flex justify-between items-center">
+
+              <!-- Left -->
+              <div>
+                <p class="font-semibold text-gray-800">
+                  <%= t.description %>
+                </p>
+                <p class="text-sm text-gray-500"><%= t.dateFormatted %></p>
+              </div>
+
+              <!-- Amount -->
+              <div class="font-bold text-lg">
+                <% if (t.type === 'DEBIT') { %>
+                  <span class="text-red-500">- ₹<%= t.amount.toFixed(2) %></span>
+                <% } else { %>
+                  <span class="text-green-600">+ ₹<%= t.amount.toFixed(2) %></span>
+                <% } %>
+              </div>
+
+            </div>
+          <% }) %>
+
+        </div>
+
+        <!-- Pagination -->
+        <div class="mt-10">
+          <%- include('../partials/pagination', { currentPage, totalPages, query }) %>
+        </div>
+
+      <% } else { %>
+
+        <div class="text-center py-10 text-gray-600">
+          No transactions found.
+        </div>
+
+      <% } %>
+
+    </div>
+
+  </div>
+</div>
+
+
+<script src="../../js/logout.js""></script>
+<!-- Razorpay Script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  toastr.options = {
+    "closeButton": true,
+    "progressBar": true,
+    "positionClass": "toast-bottom-right",
+    "timeOut": "3000"
+  }
+</script>
+
+<script>
+document.getElementById("walletAddForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const amount = document.getElementById("amountInput").value;
+
+  // Create Razorpay Order
+  const res = await fetch("/wallet/add", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ amount })
+  });
+
+  const data = await res.json();
+
+  if (!data.success) {
+    toastr.error(data.message || "Failed to create payment order.");
+    return;
+  }
+
+  // Razorpay Payment Options
+  const options = {
+    key: data.key_id,
+    amount: data.order.amount,
+    currency: "INR",
+    name: "Nutrixo Wallet",
+    description: "Add Money to Wallet",
+    order_id: data.order.id,
+
+    handler: async function (response) {
+      // VERIFY Payment
+      const verify = await fetch("/wallet/verify", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          razorpay_order_id: response.razorpay_order_id,
+          razorpay_payment_id: response.razorpay_payment_id,
+          razorpay_signature: response.razorpay_signature,
+          amount: Number(amount)
+        })
+      });
+
+      const v = await verify.json();
+
+      if (v.success) {
+        toastr.success("Money added successfully!");
+        window.location.reload();
+      } else {
+        toastr.error("Payment verification failed.");
+      }
+    }
+  };
+
+  const rzp = new Razorpay(options);
+  rzp.open();
+});
+</script>
