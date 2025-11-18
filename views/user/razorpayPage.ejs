@@ -15,42 +15,56 @@
 
 <script>
 const options = {
-  key: "<%= key_id %>",
-  amount: "<%= razorOrder.amount %>",
-  currency: "INR",
-  name: "Nutrixo Store",
-  description: "Order Payment",
-  order_id: "<%= razorOrder.id %>",
+    key: "<%- key_id %>",
+    amount: "<%- razorOrder.amount %>",
+    currency: "INR",
+    order_id: "<%- razorOrder.id %>",
+    name: "My Store",
 
-  handler: function (response) {
-    // Send for verification
-    fetch("/checkout/razorpay/verify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        razorpay_order_id: response.razorpay_order_id,
-        razorpay_payment_id: response.razorpay_payment_id,
-        razorpay_signature: response.razorpay_signature,
-        total: "<%= total %>",
-        addressIndex: "<%= addressIndex %>"
-      })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        // REDIRECT TO ORDER SUCCESS PAGE 🎉
-        window.location.href = `/checkout/${data.orderId}/success`;
-      } else {
-        window.location.href = "/checkout/orderFail";
-      }
-    });
-  },
+    handler: async function (response) {
+        try {
+            const res = await fetch("/checkout/verify", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_signature: response.razorpay_signature,
+                    total: "<%- String(total) %>",
+                    addressIndex: "<%- String(addressIndex) %>"
+                })
+            });
 
-  theme: {
-    color: "#000"
-  }
+            const data = await res.json();
+
+            if (data.success) {
+                window.location.href = "/checkout/" + data.orderId + "/success";
+            } else {
+                window.location.href = "/checkout/<%- razorOrder.id %>/fail";
+            }
+
+        } catch (err) {
+            console.error("Verification error:", err);
+            window.location.href = "/checkout/<%- razorOrder.id %>/fail";
+        }
+    },
+
+    modal: {
+        ondismiss: function () {
+            window.location.href = "/checkout/<%- razorOrder.id %>/fail";
+        }
+    }
 };
 
-const rzp = new Razorpay(options);
-rzp.open();
+const rzp1 = new Razorpay(options);
+
+rzp1.on("payment.failed", function () {
+    window.location.href = "/checkout/<%- razorOrder.id %>/fail";
+});
+
+window.onload = function () {
+    rzp1.open();
+};
 </script>

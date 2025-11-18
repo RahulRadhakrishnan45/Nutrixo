@@ -12,11 +12,15 @@ module.exports.createOrderAndFinalize = async function ({
   updatedItems,
   appliedCoupon,
   activeOffers,
+  actualTotal,
+  offerDiscount,
   subtotal,
   couponDiscount,
   tax,
-  total,
+  totalAmount,      
+  totalDiscount,    
 }) {
+
   // CREATE ORDER ITEMS
   const orderItem = [];
 
@@ -67,10 +71,14 @@ module.exports.createOrderAndFinalize = async function ({
     orderAddress: addr,
     paymentMethod,
     paymentStatus,
+    actualTotal,
+    offerDiscount,
     subtotal,
     couponDiscount,
     tax,
-    totalAmount: total,
+    totalAmount,
+    totalDiscount,
+
     items: orderItem,
     coupon: appliedCoupon?._id || null,
   });

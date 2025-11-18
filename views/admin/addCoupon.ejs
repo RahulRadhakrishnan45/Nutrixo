@@ -158,6 +158,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (minPurchaseValue > 0 && discountType.value === "fixed" && discountValue >= minPurchaseValue) {
       minPurchaseError.textContent = "Discount cannot exceed or equal minimum purchase amount"; isValid = false;
     }
+    if (discountType.value === "fixed" && discountValue > 10000) {
+      discountError.textContent = "Fixed discount cannot exceed ₹10,000";
+      isValid = false;
+    }
     if (!startDate.value) { dateError.textContent = "Start date is required"; isValid = false; }
     if (!endDate.value) { dateError.textContent = "End date is required"; isValid = false; }
     if (startDate.value && endDate.value && start > end) {

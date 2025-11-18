@@ -113,12 +113,42 @@ const updateOffer = asyncHandler( async( req,res) => {
     const offerId = req.params.id
     const {offerName,discountPercentage,validFrom,validTo,category,product,brand,isActive} = req.body
 
-    const updateOffer = await Offer.findByIdAndUpdate(offerId,{offerName,discountPercentage,validFrom,validTo,
-        category:category ? [].concat(category) : [],
-        product:product ? [].concat(product) : [],
-        brand:brand ? [].concat(brand) : [],
-        isActive:isActive === 'true' || isActive === true
-    },{new:true})
+    if(!offerName || !discountPercentage || !validFrom || !validTo) {
+        return res.status(httpStatus.bad_request).json({success:false,message:messages.AUTH.ALL_FIELDS_REQUIRED})
+    }
+
+    const discount = parseFloat(discountPercentage)
+    if(isNaN(discount) || discount < 1 || discount > 90) {
+        return res.status(httpStatus.bad_request).json({success:false,message:messages.DISCOUNT.DISCOUNT_RANGE_LIMIT_EXCEED})
+    }
+
+    const start = new Date(validFrom)
+    const end = new Date(validTo)
+    if(start > end) {
+        return res.status(httpStatus.bad_request).json({success:false,message:messages.DATE.DATE_INVALID})
+    }
+
+    const existing = await Offer.findOne({offerName:{$regex:new RegExp(`^${offerName}$`, "i")},_id:{$ne:offerId}})
+    if(existing) {
+        return res.status(httpStatus.conflict).json({success:false,message:messages.OFFER.OFFER_EXISTS})
+    }
+
+    const normalize = (value) => value ? [].concat(value).map(item => item.trim()) : []
+
+    const updateOffer = await Offer.findByIdAndUpdate(
+        offerId,
+        {
+            offerName: offerName.trim(),
+            discountPercentage: discount,
+            validFrom: start,
+            validTo: end,
+            category: normalize(category),
+            product: normalize(product),
+            brand: normalize(brand),
+            isActive: isActive === "true" || isActive === true
+        },
+        {new:true}
+    )
 
     if(!updateOffer) {
         return res.status(httpStatus.not_found).json({success:false,message:messages.OFFER.OFFER_NOT_FOUND})

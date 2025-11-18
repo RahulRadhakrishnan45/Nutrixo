@@ -52,7 +52,11 @@
     }
   }
 %>
-
+ 
+        <p class="text-sm text-gray-700 mt-1">
+          Payment Method:
+          <span class="font-semibold"><%= order.paymentMethod %></span>
+        </p>
 
         <p class="mt-1">
           Payment Status:
@@ -62,6 +66,7 @@
             <%= paymentLabel %>
           </span>
         </p>
+
       </div>
     </div>
     <% } else { %>
@@ -195,6 +200,21 @@
   <h3 class="font-bold text-lg mb-3">Order Summary</h3>
 
   <% if (order) { %>
+      <%
+      const actual = order.actualTotal || 0
+      const offer = order.offerDiscount ||0
+      const coupon = order.couponDiscount || 0
+
+      let taxableAmount = actual
+      if(offer > 0) {
+        taxableAmount -= offer
+      }
+      if(coupon > 0) {
+        taxableAmount -= coupon
+      }
+      const calculatedTax = taxableAmount * 0.02
+    %>
+
     <div class="space-y-2 text-gray-700 text-base">
 
       <p><span class="font-medium">Price (Actual):</span> ₹<%= order.actualTotal?.toFixed(2) || 0 %></p>
@@ -207,7 +227,7 @@
         <p class="text-green-600"><span class="font-medium">Coupon Discount:</span> -₹<%= order.couponDiscount.toFixed(2) %></p>
       <% } %>
 
-      <p><span class="font-medium">Tax:</span> ₹<%= order.tax?.toFixed(2) || 0 %></p>
+      <p><span class="font-medium">Tax:</span> ₹<%= calculatedTax.toFixed(2) %></p>
 
       <hr class="my-2" />
 

@@ -145,6 +145,8 @@ const messages = Object.freeze({
     },
     DISCOUNT:{
         DISCOUNT_RANGE_LIMIT_EXCEED:"Discount must be between 1 and 90",
+        DISCOUNT_FIXED_LIMIT_EXCEED:"Fixed discount cannont exceed  ₹10,000",
+        DICOUNT_CANNOT_EQUALS_MINIMUM_PURCHASE:"Discount cannot exceed or equal minimum purchase amount"
     },
     DATE:{
         DATE_INVALID:"Valid To date must be after valid From date",

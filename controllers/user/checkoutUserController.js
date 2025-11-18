@@ -208,17 +208,20 @@ const placeOrder = asyncHandler( async( req,res) => {
             updatedItems,
             appliedCoupon,
             activeOffers,
+            actualTotal,
+            offerDiscount,
             subtotal,
             couponDiscount,
             tax,
-            total,
+            totalAmount:total,
+            totalDiscount:offerDiscount + couponDiscount,
         })
 
         return res.redirect(`/checkout/${order._id}/success`)
     }
 
     if(paymentMethod === 'COD') {
-        const order = await createorderAndFinalize({
+        const order = await createorderAndFinalize.createOrderAndFinalize({
             userId,
             selectedAddress,
             paymentMethod: "COD",
@@ -226,10 +229,13 @@ const placeOrder = asyncHandler( async( req,res) => {
             updatedItems,
             appliedCoupon,
             activeOffers,
+            actualTotal,
+            offerDiscount,
             subtotal,
             couponDiscount,
             tax,
-            total,
+            totalAmount:total,
+            totalDiscount:offerDiscount + couponDiscount
         })
 
         return res.redirect(`/checkout/${order._id}/success`)
@@ -240,7 +246,7 @@ const placeOrder = asyncHandler( async( req,res) => {
             amount:total * 100, currency:'INR',receipt:'order_' + Date.now()
         })
 
-        return res.render('user/razorpayPage',{layout:'layouts/user_main',razorOrder,total,addressIndex,key_id:process.env.RAZORPAY_KEY_ID,})
+        return res.render('user/razorpayPage',{layout:'layouts/userLogin',razorOrder,total,addressIndex,key_id:process.env.RAZORPAY_KEY_ID,})
     }
 })
 
@@ -252,17 +258,51 @@ const verifyRazorpay = asyncHandler( async( req,res) => {
 
     const expectSign = crypto.createHmac('sha256',process.env.RAZORPAY_KEY_SECRET).update(body).digest('hex')
     if(expectSign !== razorpay_signature) {
-        return res.render('user/orderFail')
+        return res.json({success:false})
     }
 
     const addresses = await Address.find({ user_id: userId }).lean()
     const selectedAddress = addresses[addressIndex]
 
     const cart = await Cart.findOne({user_id:userId}).populate('items.product_id').lean()
-    const now = new Date()
-    const activeOffers = await Offer.find({isActive:true,validFrom:{$lte:now},validTo:{$gte:now},}).lean()
 
     const updatedItems = cart.items
+    let appliedCoupon = null
+    let actualTotal = 0, offerDiscount = 0, couponDiscount = 0, subtotal = 0, tax = 0
+    
+    const now = new Date()
+    const activeOffers = await Offer.find({isActive:true,validFrom:{$lte:now},validTo:{$gte:now},}).lean()
+    
+    for(const item of updatedItems) {
+        const product = item.product_id
+        const offeredProduct = await applyOffersToProduct(product,activeOffers)
+        const variant = offeredProduct.variants.find((v) => v._id.toString() === item.variant_id.toString())
+        
+        const base = Number(variant.price)
+        const offerPrice = Number(variant.calculated_price)
+        actualTotal += base * item.quantity
+        offerDiscount += (base - offerPrice) * item.quantity
+    }
+
+    subtotal = actualTotal - offerDiscount
+
+    if(req.session.coupon) {
+        const coupon = await Coupon.findOne({code:req.session.coupon.code,isActive:true})
+        if(coupon && subtotal >= coupon.minimumPurchase) {
+            appliedCoupon = coupon
+
+            if(coupon.discountType === 'percentage') {
+                couponDiscount = Math.min((subtotal * coupon.discountAmount) / 100, subtotal)
+            }else{
+                couponDiscount = Math.min(coupon.discountAmount, subtotal)
+            }
+        }
+    }
+
+    const taxableValue = subtotal - couponDiscount
+    tax = Number(((taxableValue) * 0.02).toFixed(2))
+    const totalAmount = taxableValue + tax
+    const totalDiscount = offerDiscount + couponDiscount
 
     const order = await createorderAndFinalize.createOrderAndFinalize({
         userId,
@@ -270,12 +310,15 @@ const verifyRazorpay = asyncHandler( async( req,res) => {
         paymentMethod: "CARD",
         paymentStatus: "COMPLETED",
         updatedItems,
-        appliedCoupon: null,
+        appliedCoupon,
         activeOffers,
-        subtotal: 0,
-        couponDiscount: 0,
-        tax: 0,
-        total,
+        actualTotal,
+        offerDiscount,
+        subtotal,
+        couponDiscount,
+        tax,
+        totalAmount,
+        totalDiscount
     })
 
     return res.json({success:true,orderId:order._id})
@@ -291,4 +334,9 @@ const viewOrderSuccess = asyncHandler( async( req,res) => {
     res.render('user/orderSuccess',{layout:'layouts/user_main',order})
 })
 
-module.exports = {loadCheckout,placeOrder,viewOrderSuccess,verifyRazorpay}
+const viewOrderFail = asyncHandler( async( req,res) => {
+    const orderId = req.params.id
+    res.render('user/orderFail',{layout:'layouts/user_main',orderId})
+})
+
+module.exports = {loadCheckout,placeOrder,viewOrderSuccess,verifyRazorpay,viewOrderFail}

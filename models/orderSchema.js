@@ -124,28 +124,47 @@ orderSchema.pre("save", async function (next) {
   next();
 });
 
-orderSchema.pre("save",function (next) {
+orderSchema.pre("save", function (next) {
   const allStatus = this.items.map((item) => item.status)
 
-  if(this.paymentStatus === 'FAILED') return next()
+  if (this.paymentStatus === "FAILED") return next()
 
-  if(allStatus.every((s) => s === 'RETURNED')) {
-    this.paymentStatus = 'REFUNDED'
+  const isAllReturned = allStatus.every(s => s === "RETURNED")
+  const isAllCancelled = allStatus.every(s => s === "CANCELLED")
+  const isAllDelivered = allStatus.every(s => s === "DELIVERED")
+
+  if (isAllReturned) {
+    this.paymentStatus = "REFUNDED"
+    return next()
   }
-  else if(this.paymentStatus === 'COD' && allStatus.every((s) => s === 'DELIVERED')) {
-    this.paymentStatus = 'COMPLETED'
+
+  if (isAllCancelled) {
+    this.paymentStatus = "FAILED"
+    return next()
   }
-  else if(this.paymentStatus !== 'COD' && allStatus.every((s) => s === 'DELIVERED')) {
-    this.paymentStatus = 'COMPLETED'
+
+  if (["CARD", "WALLET"].includes(this.paymentMethod)) {
+    this.paymentStatus = "COMPLETED"
+    return next()
   }
-  else if(allStatus.some((s) => ["PROCESSING", "PACKED", "SHIPPED", "RETURN REQUESTED", "CANCELLATION REQUESTED"].includes(s))) {
-    this.paymentStatus = 'PENDING'
+
+  if (this.paymentMethod === "COD" && isAllDelivered) {
+    this.paymentStatus = "COMPLETED"
+    return next()
   }
-  else if(allStatus.every((s) => s === 'CANCELLED')) {
-    this.paymentStatus = 'FAILED'
+
+  if (
+    this.paymentMethod === "COD" &&
+    allStatus.some(s =>
+      ["PROCESSING", "PACKED", "SHIPPED", "RETURN REQUESTED", "CANCELLATION REQUESTED"].includes(s)
+    )
+  ) {
+    this.paymentStatus = "PENDING"
+    return next()
   }
 
   next()
-})
+});
+
 
 module.exports = mongoose.model("Order", orderSchema);

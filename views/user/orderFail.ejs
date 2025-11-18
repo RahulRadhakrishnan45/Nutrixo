@@ -1,0 +1,41 @@
+<div class="min-h-[calc(100vh-140px)] flex items-center justify-center bg-gray-100 p-6">
+
+  <div class="bg-white shadow-xl rounded-2xl w-full max-w-4xl p-14"
+       style="min-height: 300px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+
+    <div class="mb-6">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+        stroke-width="1.5" stroke="red" class="w-20 h-20 mx-auto">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M12 9v3m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    </div>
+
+    <h2 class="text-3xl font-bold text-gray-800 mb-3">Payment Unsuccessful</h2>
+
+    <p class="text-gray-600 text-lg mb-3">
+      <span class="font-semibold">Order ID:</span> <%= orderId %>
+    </p>
+
+    <p class="text-gray-600 text-center text-lg max-w-2xl leading-relaxed mb-10">
+      Unfortunately, we were unable to process your payment. Don't worry, your order has
+      been saved with a <span class="font-semibold">'Failed'</span> status.  
+      You can try paying again from your order details page.
+    </p>
+
+    <div class="flex flex-col md:flex-row gap-4 w-full justify-center">
+      
+      <a href="/checkout"
+        class="bg-blue-600 hover:bg-blue-700 text-white py-3 px-10 rounded-lg text-lg font-semibold transition text-center">
+        Try Another Payment
+      </a>
+
+      <a href="/orders"
+        class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 px-10 rounded-lg text-lg font-semibold transition text-center">
+        View Order Details
+      </a>
+
+    </div>
+
+  </div>
+</div>

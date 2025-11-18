@@ -317,12 +317,31 @@ document.getElementById('editCouponForm').addEventListener('submit', async (e) =
   if (!description) { form.querySelector('.descriptionError').textContent = "Description is required"; isValid = false; }
   if (!discountType) { form.querySelector('.discountTypeError').textContent = "Select a discount type"; isValid = false; }
   if (discountAmount <= 0) { form.querySelector('.discountError').textContent = "Enter a valid discount"; isValid = false; }
-  if (discountType === "percentage" && discountAmount > 100) {
-    form.querySelector('.discountError').textContent = "Percentage cannot exceed 100"; isValid = false;
+  // Discount amount must be > 0
+  if (discountAmount <= 0) {
+    form.querySelector('.discountError').textContent = "Enter a valid discount amount";
+    isValid = false;
   }
-  if (minimumPurchase > 0 && discountType === "fixed" && discountAmount >= minimumPurchase) {
-    form.querySelector('.minPurchaseError').textContent = "Discount cannot exceed min purchase"; isValid = false;
+
+  // Percentage discount validation
+  if (discountType === "percentage" && (discountAmount < 1 || discountAmount > 90)) {
+    form.querySelector('.discountError').textContent = "Percentage discount must be between 1% and 90%";
+    isValid = false;
   }
+
+  // Fixed amount max limit
+  if (discountType === "fixed" && discountAmount > 10000) {
+    form.querySelector('.discountError').textContent = "Fixed discount cannot exceed ₹10,000";
+    isValid = false;
+  }
+
+  // Fixed discount cannot exceed or equal minimum purchase
+  if (discountType === "fixed" && minimumPurchase > 0 && discountAmount >= minimumPurchase) {
+    form.querySelector('.minPurchaseError').textContent =
+      "Fixed discount cannot exceed or equal the minimum purchase amount";
+    isValid = false;
+  }
+
   if (!form.startDate.value || !form.endDate.value) {
     form.querySelector('.dateError').textContent = "Start and End dates are required"; isValid = false;
   } else if (startDate > endDate) {

@@ -6,6 +6,7 @@ const checkoutController = require('../../controllers/user/checkoutUserControlle
 router.get('/', checkSession, checkoutController.loadCheckout)
 router.post('/orders', checkSession, checkoutController.placeOrder)
 router.get('/:id/success', checkSession, checkoutController.viewOrderSuccess)
-router.post('/razorpay/verify',checkSession,checkoutController.verifyRazorpay)
+router.post('/verify',checkSession,checkoutController.verifyRazorpay)
+router.get('/:orderId/fail',checkSession,checkoutController.viewOrderFail)
 
 module.exports = router

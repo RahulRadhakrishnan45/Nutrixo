@@ -1,11 +1,41 @@
-2025-11-13 23:02:41 [error] : Unhandled error: Offer is not defined | Stack: ReferenceError: Offer is not defined
-    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\checkoutUserController.js:143:26
+2025-11-18 15:57:32 [error] : Unhandled error: appliedCoupon is not defined | Stack: ReferenceError: appliedCoupon is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\checkoutUserController.js:297:9
     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-2025-11-14 02:15:43 [error] : Unhandled error: Unexpected token ')' in C:\Users\ASUS\Desktop\Nutrixo Project\views\admin\orderDetail.ejs while compiling ejs
+2025-11-18 17:09:18 [error] : Unhandled error: totalAmount is not defined | Stack: ReferenceError: totalAmount is not defined
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\checkoutUserController.js:216:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-11-18 18:39:19 [error] : Unhandled error: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\trackingPage.ejs:73
+    71|     <p class="mt-1">
+    72|         Payment Status:
+ >> 73|         <span class="px-2 py-1 rounded text-white text-sm <%= paymentColor %>">
+    74|       <%= paymentLabel %>
+    75|         </span>
+    76|     </p>
+
+paymentColor is not defined | Stack: ReferenceError: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\trackingPage.ejs:73
+    71|     <p class="mt-1">
+    72|         Payment Status:
+ >> 73|         <span class="px-2 py-1 rounded text-white text-sm <%= paymentColor %>">
+    74|       <%= paymentLabel %>
+    75|         </span>
+    76|     </p>
+
+paymentColor is not defined
+    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:73:26)
+    at trackingPage (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:703:17)
+    at tryHandleCache (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:274:36)
+    at exports.renderFile [as engine] (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:491:10)
+    at View.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\view.js:139:8)
+    at tryRender (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:627:10)
+    at Function.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:574:3)
+    at ServerResponse.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\response.js:909:7)
+    at res.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express-ejs-layouts\lib\express-layouts.js:77:18)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\orderUserController.js:45:9
+2025-11-19 00:35:22 [error] : Unhandled error: Identifier 'coupon' has already been declared in C:\Users\ASUS\Desktop\Nutrixo Project\views\user\trackingPage.ejs while compiling ejs
 
 If the above error is not helpful, you may want to try EJS-Lint:
 https://github.com/RyanZim/EJS-Lint
-Or, if you meant to create an async function, pass `async: true` as an option. | Stack: SyntaxError: Unexpected token ')' in C:\Users\ASUS\Desktop\Nutrixo Project\views\admin\orderDetail.ejs while compiling ejs
+Or, if you meant to create an async function, pass `async: true` as an option. | Stack: SyntaxError: Identifier 'coupon' has already been declared in C:\Users\ASUS\Desktop\Nutrixo Project\views\user\trackingPage.ejs while compiling ejs
 
 If the above error is not helpful, you may want to try EJS-Lint:
 https://github.com/RyanZim/EJS-Lint
@@ -20,79 +50,3 @@ Or, if you meant to create an async function, pass `async: true` as an option.
     at tryRender (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:627:10)
     at Function.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:574:3)
     at ServerResponse.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\response.js:909:7)
-2025-11-15 01:37:20 [error] : Unhandled error: totalPages is not defined | Stack: ReferenceError: totalPages is not defined
-    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\walletUserController.js:32:139
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-2025-11-16 00:55:26 [error] : Unhandled error: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\checkout.ejs:112
-    110|                     name="payment" 
-    111|                     value="WALLET"
- >> 112|                     <%= walletBalance < total ? "disabled" : "" %>>
-    113|               <span>
-    114|                 Wallet 
-    115|                 <span class="text-gray-500">(Available: ₹<%= walletBalance.toFixed(2) %>)</span>
-
-walletBalance is not defined | Stack: ReferenceError: C:\Users\ASUS\Desktop\Nutrixo Project\views\user\checkout.ejs:112
-    110|                     name="payment" 
-    111|                     value="WALLET"
- >> 112|                     <%= walletBalance < total ? "disabled" : "" %>>
-    113|               <span>
-    114|                 Wallet 
-    115|                 <span class="text-gray-500">(Available: ₹<%= walletBalance.toFixed(2) %>)</span>
-
-walletBalance is not defined
-    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:75:26)
-    at checkout (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:703:17)
-    at tryHandleCache (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:274:36)
-    at exports.renderFile [as engine] (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:491:10)
-    at View.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\view.js:139:8)
-    at tryRender (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:627:10)
-    at Function.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:574:3)
-    at ServerResponse.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\response.js:909:7)
-    at res.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express-ejs-layouts\lib\express-layouts.js:77:18)
-    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\checkoutUserController.js:88:9
-2025-11-16 01:57:54 [error] : Unhandled error: crypto.createHmac is not a function | Stack: TypeError: crypto.createHmac is not a function
-    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\checkoutUserController.js:252:31
-    at asyncUtilWrap (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express-async-handler\index.js:3:20)
-    at Layer.handleRequest (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\layer.js:152:17)
-    at next (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\route.js:157:13)
-    at checkSession (C:\Users\ASUS\Desktop\Nutrixo Project\middlewares\checkSession.js:10:13)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-2025-11-16 02:03:28 [error] : Unhandled error: Failed to lookup view "user/orderFail" in views directory "C:\Users\ASUS\Desktop\Nutrixo Project\views" | Stack: Error: Failed to lookup view "user/orderFail" in views directory "C:\Users\ASUS\Desktop\Nutrixo Project\views"
-    at Function.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:562:17)
-    at ServerResponse.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\response.js:909:7)
-    at res.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express-ejs-layouts\lib\express-layouts.js:77:18)
-    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\checkoutUserController.js:255:20
-    at asyncUtilWrap (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express-async-handler\index.js:3:20)
-    at Layer.handleRequest (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\layer.js:152:17)
-    at next (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\route.js:157:13)
-    at checkSession (C:\Users\ASUS\Desktop\Nutrixo Project\middlewares\checkSession.js:10:13)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-2025-11-16 02:08:17 [error] : Unhandled error: Failed to lookup view "user/orderFail" in views directory "C:\Users\ASUS\Desktop\Nutrixo Project\views" | Stack: Error: Failed to lookup view "user/orderFail" in views directory "C:\Users\ASUS\Desktop\Nutrixo Project\views"
-    at Function.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:562:17)
-    at ServerResponse.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\response.js:909:7)
-    at res.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express-ejs-layouts\lib\express-layouts.js:77:18)
-    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\checkoutUserController.js:255:20
-    at asyncUtilWrap (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express-async-handler\index.js:3:20)
-    at Layer.handleRequest (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\layer.js:152:17)
-    at next (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\route.js:157:13)
-    at checkSession (C:\Users\ASUS\Desktop\Nutrixo Project\middlewares\checkSession.js:10:13)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-2025-11-16 02:16:49 [error] : Unhandled error: razor_order_id is not defined | Stack: ReferenceError: razor_order_id is not defined
-    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\checkoutUserController.js:251:18
-    at asyncUtilWrap (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express-async-handler\index.js:3:20)
-    at Layer.handleRequest (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\layer.js:152:17)
-    at next (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\router\lib\route.js:157:13)
-    at checkSession (C:\Users\ASUS\Desktop\Nutrixo Project\middlewares\checkSession.js:10:13)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-2025-11-16 02:18:03 [error] : Unhandled error: Order validation failed: paymentStatus: `PAID` is not a valid enum value for path `paymentStatus`. | Stack: ValidationError: Order validation failed: paymentStatus: `PAID` is not a valid enum value for path `paymentStatus`.
-    at Document.invalidate (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\document.js:3354:32)
-    at C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\document.js:3115:17
-    at C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\schemaType.js:1410:9
-    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
-2025-11-16 02:22:47 [error] : Unhandled error: documents is not iterable | Stack: TypeError: documents is not iterable
-    at Function.bulkSave (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\model.js:3593:28)
-    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\checkoutUserController.js:201:22
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-2025-11-16 02:25:03 [error] : Unhandled error: Wallet.save is not a function | Stack: TypeError: Wallet.save is not a function
-    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\user\checkoutUserController.js:201:22
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)

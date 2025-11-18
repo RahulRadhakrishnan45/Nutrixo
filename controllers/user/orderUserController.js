@@ -136,9 +136,7 @@ const downloadInvoice = asyncHandler(async (req, res) => {
 
   const order = await Order.findOne({ _id: orderId, user: userId }).lean()
   if (!order) {
-    return res
-      .status(httpStatus.not_found)
-      .json({ success: false, message: messages.ORDER.ORDER_NOT_FOUND })
+    return res.status(httpStatus.not_found).json({ success: false, message: messages.ORDER.ORDER_NOT_FOUND })
   }
 
   const doc = new pdfDocument({ margin: 50 })
@@ -185,15 +183,10 @@ const downloadInvoice = asyncHandler(async (req, res) => {
 
   doc.font('Helvetica').fontSize(10)
 
-  let subtotal = 0
-  const TAX_RATE = 0.02
-  let taxTotal = 0
-  let couponDiscount = order.couponDiscount || 0
-
   order.items.forEach((item) => {
     const lineY = doc.y
 
-    let itemPaymentStatus = 'PENDING';
+    let itemPaymentStatus = 'PENDING'
     if (order.paymentStatus === 'COMPLETED') {
       itemPaymentStatus = 'PAID'
     } else {
@@ -208,48 +201,63 @@ const downloadInvoice = asyncHandler(async (req, res) => {
 
     const basePrice = item.originalPrice || item.price
     const sellingPrice = item.offerPrice || item.price
-    
-    const includeInTotal = !['CANCELLED', 'RETURNED'].includes(item.status)
     const itemTotal = sellingPrice * item.quantity
 
     doc.text(item.title, startX, lineY, { width: 180 })
     doc.text(`${item.quantity}`, 250, lineY)
-    if(item.offerPrice) {
-        doc.text(`Rs. ${sellingPrice.toFixed(2)} (Offer)`, 300, lineY)
-    }else{
-        doc.text(`Rs. ${basePrice.toFixed(2)}`, 300, lineY)
+
+    if (item.offerPrice) {
+      doc.text(`Rs. ${sellingPrice.toFixed(2)} (Offer)`, 300, lineY)
+    } else {
+      doc.text(`Rs. ${basePrice.toFixed(2)}`, 300, lineY)
     }
+
     doc.text(item.status, 380, lineY)
     doc.text(itemPaymentStatus, 470, lineY)
     doc.text(`Rs. ${itemTotal.toFixed(2)}`, 540, lineY, { align: 'right' })
 
     doc.moveDown(0.6)
-
-    if (includeInTotal) {
-      subtotal += itemTotal
-    }
   })
 
-  taxTotal = subtotal * TAX_RATE
-  const grandTotal = subtotal + taxTotal - couponDiscount
+  const actual = order.actualTotal || 0
+  const offer = order.offerDiscount || 0
+  const coupon = order.couponDiscount || 0
+
+  let taxableAmount = actual
+
+  if (offer > 0) taxableAmount -= offer
+  if (coupon > 0) taxableAmount -= coupon
+
+  const taxTotal = taxableAmount * 0.02    
+  const subtotal = taxableAmount              
+  const grandTotal = subtotal + taxTotal      
 
   doc.moveTo(startX, doc.y).lineTo(560, doc.y).stroke()
   doc.moveDown(1.5)
 
   const summaryX = 350
   doc.fontSize(11).font('Helvetica')
+
+  doc.text('Price (Actual):', summaryX, doc.y, { continued: true })
+  doc.text(`Rs. ${actual.toFixed(2)}`, { align: 'right' })
+
+  if (offer > 0) {
+    doc.text('Offer Discount:', summaryX, doc.y, { continued: true })
+    doc.text(`- Rs. ${offer.toFixed(2)}`, { align: 'right' })
+  }
+
+  if (coupon > 0) {
+    doc.text('Coupon Discount:', summaryX, doc.y, { continued: true })
+    doc.text(`- Rs. ${coupon.toFixed(2)}`, { align: 'right' })
+  }
+
   doc.text('Subtotal:', summaryX, doc.y, { continued: true })
   doc.text(`Rs. ${subtotal.toFixed(2)}`, { align: 'right' })
 
   doc.text('Tax (2%):', summaryX, doc.y, { continued: true })
   doc.text(`Rs. ${taxTotal.toFixed(2)}`, { align: 'right' })
 
-  if(couponDiscount > 0) {
-    doc.text(`Coupon Offer:`, summaryX, doc.y, { continued: true })
-    doc.text(`- Rs. ${couponDiscount.toFixed(2)}`, { align: 'right' })
-  }
-
-  doc.moveDown(0.8);
+  doc.moveDown(0.8)
   doc.font('Helvetica-Bold')
   doc.text('Total Amount:', summaryX, doc.y, { continued: true })
   doc.text(`Rs. ${grandTotal.toFixed(2)}`, { align: 'right' })
@@ -262,7 +270,6 @@ const downloadInvoice = asyncHandler(async (req, res) => {
 
   doc.end()
 })
-
 
 const returnSingleOrder = asyncHandler( async( req,res) => {
     const {orderId,itemId} = req.params
