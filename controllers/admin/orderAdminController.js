@@ -5,6 +5,7 @@ const Product = require('../../models/productSchema')
 const messages = require('../../constants/messages')
 const httpStatus = require('../../constants/httpStatus')
 const {STATUS_ENUM} = require('../../constants/orderStatus')
+const { creditToWallet } = require('../../utils/walletRefund')
 
 
 const loadOrders = asyncHandler( async( req,res) => {
@@ -71,19 +72,44 @@ const approveCancellation = asyncHandler( async( req,res) => {
     const item = order.items.id(itemId)
     if(!item) return res.status(httpStatus.not_found).json({success:false,message:messages.PRODUCT.PRODUCT_NOT_FOUND})
 
+    if(!item.cancellationRequest || item.cancellationRequest.status !== 'REQUESTED') {
+        return res.status(httpStatus.bad_request).json({success:false,message:messages.CANCELLATION.CANCELLATION_NOT_REQUESTED})
+    }
+
+    item.previousStatus = item.status
     item.status = 'CANCELLED'
+
+    const refundAmount = (Number(item.offerPrice) || 0) * (Number(item.quantity) || 0) - (Number(item.couponDiscount) || 0) + (Number(item.tax) || 0)
+
+    if(['CARD','WALLET','BANK'].includes(order.paymentMethod)) {
+        await creditToWallet(
+            order.user,refundAmount,`Refund for cancelled item: ${item.title}`,orderId
+        )
+    }
+
     item.cancellationRequest.status = 'APPROVED'
-    order.markModified('items')
-    await order.save()
+    item.cancellationRequest.resolvedAt = new Date()
+    item.cancellationRequest.refundAmount = refundAmount
+
+    item.statusHistory = item.statusHistory || []
+    item.statusHistory.push({
+        status:'CANCELLED',
+        timestamp: new Date(),
+        note:'Admin approved cancellation & processed refund'
+    })
 
     const product = await Product.findById(item.product)
     if(product && product.variants && product.variants.length > 0) {
         const variant = product.variants.id(item.variantId)
         if(variant) {
             variant.stock += item.quantity
-            await product.save()
         }
+        await product.save()
     }
+    
+    order.markModified('items')
+
+    await order.save()
 
     res.json({success:true,message:messages.CANCELLATION.CANCELLATION_APPROVED})
 })
@@ -119,19 +145,40 @@ const approveReturn = asyncHandler( async( req,res) => {
     const item = order.items.id(itemId)
     if(!item) return res.status(httpStatus.not_found).json({success:false,message:messages.PRODUCT.PRODUCT_NOT_FOUND})
 
+    if(!item.returnRequest || item.returnRequest.status !== 'REQUESTED') {
+        return res.status(httpStatus.bad_request).json({success:false,message:messages.RETURN.RETURN_NOT_REQUESTED})
+    }
+
+    const refundAmount = item.offerPrice * item.quantity - item.couponDiscount + item.tax
+
+    await creditToWallet(
+        order.user,refundAmount,`Refund for returned item : ${item.title}`,orderId
+    )
+
+    item.returnRequest.status = 'COMPLETED'
+    item.returnRequest.resolvedAt = new Date()
+    item.returnRequest.refundAmount = refundAmount
+
+    item.previousStatus = item.status
     item.status = 'RETURNED'
-    item.returnRequest.status = 'APPROVED'
-    order.markModified('items')
-    await order.save()
+
+    item.statusHistory.push({
+        status:'RETURNED', timestamp: new Date(), note: 'Admin approved return & refund completed'
+    })
 
     const product = await Product.findById(item.product)
-    if(product && product.variants && product.variants.length > 0) {
-        const variant = product.variants.id(item.variantId)
-        if(variant) {
-            variant.stock += item.quantity
-            await product.save()
+    if(product) {
+        if(product.variants && product.variants.length > 0) {
+            const variant = product.variants.id(item.variantId)
+            if(variant) variant.stock += item.quantity
         }
+
+        await product.save()
     }
+
+    order.markModified('items')
+    
+    await order.save()
 
     res.json({success:true,message:messages.RETURN.RETURN_APPROVED})
 })

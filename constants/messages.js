@@ -117,6 +117,7 @@ const messages = Object.freeze({
     CANCELLATION:{
         CANCELLATION_APPROVED:"Cancellation approved successfully",
         CANCELLATION_REJECTED:"Cancellation request rejected",
+        CANCELLATION_NOT_REQUESTED:"Cancellation is not requested",
     },
     ITEM:{
         ITEM_UPDATED:"Item status updatedd successfully",
@@ -129,6 +130,7 @@ const messages = Object.freeze({
         RETURN_SUBMITTED:"Return request submitted successfully",
         RETURN_REASON_REQUIRED:"Return reason required",
         RETURN_NOT_AVAILABLE:"Return available only if all products are delivered",
+        RETURN_NOT_REQUESTED:"Return not requested",
     },
     WISHLIST:{
         WISHLIST_ADDED:"Added to wishlist",

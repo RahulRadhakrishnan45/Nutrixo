@@ -43,9 +43,12 @@
     if (['DELIVERED', 'RETURNED'].includes(primaryItem.status)) {
       paymentLabel = 'PAID';
       paymentColor = 'bg-green-500';
-    } else if (['CANCELLATION REQUESTED', 'CANCELLED'].includes(primaryItem.status)) {
+    } else if (primaryItem.status === 'CANCELLATION REQUESTED') {
       paymentLabel = 'REFUND IN PROCESS';
       paymentColor = 'bg-orange-500';
+    }else if(primaryItem.status === 'CANCELLED') {
+      paymentLabel = 'REFUNDED';
+      paymentColor = 'bg-green-600';
     } else {
       paymentLabel = 'PENDING';
       paymentColor = 'bg-yellow-500';

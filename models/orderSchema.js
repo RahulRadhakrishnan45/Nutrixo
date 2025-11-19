@@ -49,7 +49,11 @@ const orderSchema = new mongoose.Schema(
         flavour: String,
         size: String,
         image: String,
-        price: { type: Number, required: true }, // final applied price
+        actualPrice: { type: Number },
+        offerPrice: { type: Number },
+        couponDiscount: { type: Number },
+        taxBase: { type: Number },
+        price: { type: Number, required: true }, 
         quantity: { type: Number, required: true },
         totalPrice: { type: Number, required: true },
 
@@ -165,6 +169,5 @@ orderSchema.pre("save", function (next) {
 
   next()
 });
-
 
 module.exports = mongoose.model("Order", orderSchema);

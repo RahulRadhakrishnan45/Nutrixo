@@ -50,3 +50,17 @@ Or, if you meant to create an async function, pass `async: true` as an option.
     at tryRender (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:627:10)
     at Function.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:574:3)
     at ServerResponse.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\response.js:909:7)
+2025-11-20 02:58:22 [error] : Unhandled error: Wallet validation failed: balance: Cast to Number failed for value "NaN" (type number) at path "balance", transactions.15.amount: Cast to Number failed for value "NaN" (type number) at path "amount" | Stack: ValidationError: Wallet validation failed: balance: Cast to Number failed for value "NaN" (type number) at path "balance", transactions.15.amount: Cast to Number failed for value "NaN" (type number) at path "amount"
+    at Document.invalidate (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\document.js:3354:32)
+    at model.$set (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\document.js:1480:12)
+    at model.set [as balance] (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\helpers\document\compile.js:205:19)
+    at creditToWallet (C:\Users\ASUS\Desktop\Nutrixo Project\utils\walletRefund.js:13:20)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\ASUS\Desktop\Nutrixo Project\controllers\admin\orderAdminController.js:85:9
+2025-11-20 03:01:03 [error] : Unhandled error: Wallet validation failed: balance: Cast to Number failed for value "NaN" (type number) at path "balance", transactions.15.amount: Cast to Number failed for value "NaN" (type number) at path "amount" | Stack: ValidationError: Wallet validation failed: balance: Cast to Number failed for value "NaN" (type number) at path "balance", transactions.15.amount: Cast to Number failed for value "NaN" (type number) at path "amount"
+    at Document.invalidate (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\document.js:3354:32)
+    at model.$set (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\document.js:1480:12)
+    at model.set [as balance] (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\mongoose\lib\helpers\document\compile.js:205:19)
+    at creditToWallet (C:\Users\ASUS\Desktop\Nutrixo Project\utils\walletRefund.js:13:20)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\ASUS\Desktop\Nutrixo Project\controllers\admin\orderAdminController.js:85:9

@@ -7,6 +7,7 @@ const Order = require('../../models/orderSchema')
 const User = require('../../models/userSchema')
 const Product = require('../../models/productSchema')
 const pdfDocument = require('pdfkit')
+const {creditToWallet} = require('../../utils/walletRefund')
 
 
 const loadOrders = asyncHandler( async( req,res) => {
@@ -349,18 +350,6 @@ const returnEntireOrder = asyncHandler( async( req,res) => {
             note:`Full order return requested by user : ${reason}`,
             timestamp: new Date()
         })
-
-        const product = await Product.findById(item.product)
-        if(product && product.variants && product.variants.length > 0) {
-            const variant = product.variants.id(item.variantId)
-            if(variant) {
-                variant.stock += item.quantity
-            }
-            await product.save()
-        }else if(product) {
-            product.stock += item.quantity
-            await product.save()
-        }
     }
 
     await order.save()
