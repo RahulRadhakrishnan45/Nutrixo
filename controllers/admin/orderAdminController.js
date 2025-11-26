@@ -8,6 +8,32 @@ const {STATUS_ENUM} = require('../../constants/orderStatus')
 const { creditToWallet } = require('../../utils/walletRefund')
 
 
+function computeItemRefund(item) {
+    const actualPrice = Number(item.actualPrice) || 0
+    const quantity = Number(item.quantity) || 1
+    const offerPrice = Number(item.offerPrice) || actualPrice
+    const couponDiscount = Number(item.couponDiscount) || 0
+    
+    const offerDiscount = actualPrice - offerPrice
+
+    let finalUnitPrice = actualPrice - offerDiscount - couponDiscount
+    if(finalUnitPrice < 0) finalUnitPrice = 0
+
+    const discountedTotal = finalUnitPrice * quantity
+    let taxBase = 0
+
+    if(offerDiscount > 0 && couponDiscount === 0) {
+        taxBase = offerPrice * quantity
+    }else{
+        taxBase = discountedTotal
+    }
+
+    const tax = taxBase * 0.02
+    const refundAmount = discountedTotal + tax
+
+    return Math.round(refundAmount * 100 / 100)
+}
+
 const loadOrders = asyncHandler( async( req,res) => {
     const {search = '', paymentStatus = '', sort = 'newest', page = 1 } = req.query
     const filter = {}
@@ -79,12 +105,14 @@ const approveCancellation = asyncHandler( async( req,res) => {
     item.previousStatus = item.status
     item.status = 'CANCELLED'
 
-    const refundAmount = (Number(item.offerPrice) || 0) * (Number(item.quantity) || 0) - (Number(item.couponDiscount) || 0) + (Number(item.tax) || 0)
+    const refundAmount = computeItemRefund(item)
 
-    if(['CARD','WALLET','BANK'].includes(order.paymentMethod)) {
-        await creditToWallet(
-            order.user,refundAmount,`Refund for cancelled item: ${item.title}`,orderId
-        )
+    if(['CARD','WALLET','BANK'].includes(order.paymentMethod) && refundAmount > 0) {
+        try {
+            await creditToWallet(order.user,refundAmount,`Refund for cancelled item: ${item.title}`,orderId)
+        } catch (error) {
+            console.error('credit to wallet for cancellation failed', error)
+        }
     }
 
     item.cancellationRequest.status = 'APPROVED'
@@ -149,11 +177,15 @@ const approveReturn = asyncHandler( async( req,res) => {
         return res.status(httpStatus.bad_request).json({success:false,message:messages.RETURN.RETURN_NOT_REQUESTED})
     }
 
-    const refundAmount = item.offerPrice * item.quantity - item.couponDiscount + item.tax
+    const refundAmount = computeItemRefund(item)
 
-    await creditToWallet(
-        order.user,refundAmount,`Refund for returned item : ${item.title}`,orderId
-    )
+    if(refundAmount > 0) {
+        try {
+            await creditToWallet(order.user,refundAmount,`Refund for returned item : ${item.title}`,orderId)
+        } catch (err) {
+           console.error('creditedToWallet failed for return', err) 
+        }
+    }
 
     item.returnRequest.status = 'COMPLETED'
     item.returnRequest.resolvedAt = new Date()

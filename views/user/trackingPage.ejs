@@ -32,29 +32,42 @@
         </p>
         
         <%
-  // Derive per-item payment status
-  let paymentLabel = 'PENDING';
-  let paymentColor = 'bg-yellow-500';
+let paymentLabel = 'PENDING';
+let paymentColor = 'bg-yellow-500';
 
-  if (order.paymentStatus === 'COMPLETED') {
-    paymentLabel = 'PAID';
-    paymentColor = 'bg-green-500';
-  } else {
-    if (['DELIVERED', 'RETURNED'].includes(primaryItem.status)) {
-      paymentLabel = 'PAID';
-      paymentColor = 'bg-green-500';
-    } else if (primaryItem.status === 'CANCELLATION REQUESTED') {
-      paymentLabel = 'REFUND IN PROCESS';
-      paymentColor = 'bg-orange-500';
-    }else if(primaryItem.status === 'CANCELLED') {
-      paymentLabel = 'REFUNDED';
-      paymentColor = 'bg-green-600';
-    } else {
-      paymentLabel = 'PENDING';
-      paymentColor = 'bg-yellow-500';
-    }
-  }
+const s = primaryItem.status;
+
+// 1️⃣ If order is prepaid and completed
+if (order.paymentStatus === 'COMPLETED') {
+  paymentLabel = 'PAID';
+  paymentColor = 'bg-green-500';
+}
+
+// 2️⃣ COD paid after delivery
+else if (order.paymentMethod === "COD" && s === 'DELIVERED') {
+  paymentLabel = 'PAID';
+  paymentColor = 'bg-green-600';
+}
+
+// 3️⃣ Refund flow
+else if (s === 'RETURN REQUESTED' || s === 'CANCELLATION REQUESTED') {
+  paymentLabel = 'REFUND IN PROCESS';
+  paymentColor = 'bg-orange-500';
+}
+
+// 4️⃣ Refund completed
+else if (s === 'RETURNED' || s === 'CANCELLED') {
+  paymentLabel = 'REFUNDED';
+  paymentColor = 'bg-green-600';
+}
+
+// 5️⃣ Pending for all others (Processing / Packed / Shipped)
+else {
+  paymentLabel = 'PENDING';
+  paymentColor = 'bg-yellow-500';
+}
 %>
+
  
         <p class="text-sm text-gray-700 mt-1">
           Payment Method:

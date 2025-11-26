@@ -18,10 +18,28 @@ const loadOrders = asyncHandler( async( req,res) => {
     const limit = 4
     const skip = (page - 1) * limit
 
-    const totalOrder = await Order.countDocuments({user:userId})
+    const totalOrder = await Order.countDocuments({user:userId,showInOrders:true})
     const totalPages = Math.ceil(totalOrder / limit)
 
-    const orders = await Order.find({user:userId}).populate('orderAddress').populate('items.product').sort({createdAt:-1}).skip(skip).limit(limit).lean()
+    const orders = await Order.find({user:userId,showInOrders:true}).populate('orderAddress').populate('items.product').sort({createdAt:-1}).skip(skip).limit(limit).lean()
+
+    orders.forEach(order => {
+        order.showRetry = false
+        if(order.paymentStatus === 'FAILED') {
+            order.showRetry = true
+        }
+
+        const anyCancelled = order.items.some(i => i.status === 'CANCELLED' || i.status === 'RETURNED')
+        if(anyCancelled) {
+            order.showRetry = false
+        }
+
+        const activeStatuses = ["PROCESSING", "PACKED", "SHIPPED", "DELIVERED"]
+        const anyActive = order.items.some(i => activeStatuses.includes(i.status))
+        if(anyActive && order.paymentStatus !== 'FAILED') {
+            order.showRetry = false
+        }
+    })
 
     res.render('user/order',{layout:'layouts/user_main',orders,currentPage:page,totalPages,query:req.query})
 })

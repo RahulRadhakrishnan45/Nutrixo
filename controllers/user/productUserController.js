@@ -100,9 +100,11 @@ const loadProducts = asyncHandler( async( req,res) => {
         if(activeVariants.length === 0) continue
         
         for(const v of activeVariants) {
-            const basePrice = Number(v.calculated_price || v.price || 0)
+            const basePrice = Number(v.calculated_price || v.price)
             if(basePrice < min || basePrice > max) continue
-
+            if (flavour && flavour !== "All" && v.flavour !== flavour) continue
+            if (brand && brand !== "All" && p.brand_id?.name !== brand) continue
+            if (size && size !== "All" && v.size !== size) continue
             if (
                 q &&
                 !p.title.toLowerCase().includes(q.toLowerCase()) &&
@@ -127,14 +129,14 @@ const loadProducts = asyncHandler( async( req,res) => {
     }
 
     if(sort) {
-        if(sort === 'priceLowHigh') {
-            products.sort((a,b) => a.discounted_price - b.discounted_price)
-        }else if(sort === 'priceHighLow') {
-            products.sort((a,b) => b.discounted_price - a.discounted_price)
-        }else if(sort === 'nameAZ') {
-            products.sort((a,b) => a.name.localeCompare(b.name))
-        }else if(sort === 'nameZA') {
-            products.sort((a,b) => b.name.localeCompare(a.name))
+        if (sort === "priceLowHigh") {
+            products.sort((a, b) => a.calculated_price - b.calculated_price);
+        } else if (sort === "priceHighLow") {
+            products.sort((a, b) => b.calculated_price - a.calculated_price);
+        } else if (sort === "nameAZ") {
+            products.sort((a, b) => a.name.localeCompare(b.name));
+        } else if (sort === "nameZA") {
+            products.sort((a, b) => b.name.localeCompare(a.name));
         }
     }
 

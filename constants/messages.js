@@ -66,7 +66,8 @@ const messages = Object.freeze({
         PRODUCT_ADD:"Product added successfully",
         PRODUCT_NOT_FOUND:"Product not found",
         PRODUCT_UPDATE:"Product updated successfully",
-        PRODUCT_EXISTS:"Product already exists"
+        PRODUCT_EXISTS:"Product already exists",
+        PRODUCT_UNAVAILABLE:"Product is not available",
     },
     VARIANT:{
         VARIANT_NOT_FOUND:"Variant not found",
@@ -163,6 +164,9 @@ const messages = Object.freeze({
     },
     WALLET:{
         MINIMUM_REQUIRED:"Minimum ₹10 required",
+    },
+    CARD:{
+        CARD_ONLY_RETRY:"Retry only available for card payment",
     }
 });
 

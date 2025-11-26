@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const orderSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: "user", required: true },
+    showInOrders: {type:Boolean,default:false},
     orderAddress: {
       fullname: { type: String, required: true },
       mobile: { type: String, required: true },
@@ -129,29 +130,27 @@ orderSchema.pre("save", async function (next) {
 });
 
 orderSchema.pre("save", function (next) {
+  if(this.items.length === 0) return next()
+    
   const allStatus = this.items.map((item) => item.status)
 
   if (this.paymentStatus === "FAILED") return next()
 
   const isAllReturned = allStatus.every(s => s === "RETURNED")
-  const isAllCancelled = allStatus.every(s => s === "CANCELLED")
-  const isAllDelivered = allStatus.every(s => s === "DELIVERED")
-
   if (isAllReturned) {
     this.paymentStatus = "REFUNDED"
     return next()
   }
 
-  if (isAllCancelled) {
-    this.paymentStatus = "FAILED"
-    return next()
+  if (!["CARD", "WALLET"].includes(this.paymentMethod)) {
+    const isAllCancelled = allStatus.every(s => s === "CANCELLED")
+    if (isAllCancelled) {
+      this.paymentStatus = "FAILED"
+      return next()
+    }
   }
-
-  if (["CARD", "WALLET"].includes(this.paymentMethod)) {
-    this.paymentStatus = "COMPLETED"
-    return next()
-  }
-
+  
+  const isAllDelivered = allStatus.every(s => s === "DELIVERED")
   if (this.paymentMethod === "COD" && isAllDelivered) {
     this.paymentStatus = "COMPLETED"
     return next()

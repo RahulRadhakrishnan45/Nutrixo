@@ -1,5 +1,5 @@
 <div class="min-h-screen flex items-start justify-center bg-gray-50 pt-32 p-10">
-  <div class="bg-white shadow-md rounded-lg p-10 text-center max-w-md w-full">
+  <div class="bg-white shadow-md rounded-lg p-10 mt-10 text-center max-w-md w-full">
     
     <h2 class="text-2xl font-bold mb-4">Processing Payment...</h2>
     <p class="text-gray-600 mb-6">Please wait while we redirect you to the secure payment gateway.</p>
@@ -13,6 +13,9 @@
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
+<!-- Hidden orderId -->
+<input type="hidden" id="orderId" value="<%- orderId %>">
+
 <script>
 const options = {
     key: "<%- key_id %>",
@@ -23,48 +26,50 @@ const options = {
 
     handler: async function (response) {
         try {
+            const orderId = document.getElementById("orderId").value;
+
             const res = await fetch("/checkout/verify", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
+                    orderId: orderId,   // 🔥 REQUIRED
                     razorpay_payment_id: response.razorpay_payment_id,
                     razorpay_order_id: response.razorpay_order_id,
-                    razorpay_signature: response.razorpay_signature,
-                    total: "<%- String(total) %>",
-                    addressIndex: "<%- String(addressIndex) %>"
+                    razorpay_signature: response.razorpay_signature
                 })
             });
 
             const data = await res.json();
 
             if (data.success) {
-                window.location.href = "/checkout/" + data.orderId + "/success";
+                window.location.href = `/checkout/${data.orderId}/success`;
             } else {
-                window.location.href = "/checkout/<%- razorOrder.id %>/fail";
+                window.location.href = `/checkout/${orderId}/fail`;
             }
 
         } catch (err) {
+            const orderId = document.getElementById("orderId").value;
             console.error("Verification error:", err);
-            window.location.href = "/checkout/<%- razorOrder.id %>/fail";
+            window.location.href = `/checkout/${orderId}/fail`;
         }
     },
 
     modal: {
         ondismiss: function () {
-            window.location.href = "/checkout/<%- razorOrder.id %>/fail";
+            const orderId = document.getElementById("orderId").value;
+            window.location.href = `/checkout/${orderId}/fail`;
         }
     }
 };
 
-const rzp1 = new Razorpay(options);
+const rzp = new Razorpay(options);
 
-rzp1.on("payment.failed", function () {
-    window.location.href = "/checkout/<%- razorOrder.id %>/fail";
+rzp.on("payment.failed", function () {
+    const orderId = document.getElementById("orderId").value;
+    window.location.href = `/checkout/${orderId}/fail`;
 });
 
 window.onload = function () {
-    rzp1.open();
+    rzp.open();
 };
 </script>
