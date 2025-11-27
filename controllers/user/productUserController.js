@@ -9,6 +9,7 @@ const Address = require('../../models/addressSchema')
 const Wishlist = require('../../models/wishlistSchema')
 const Offer = require('../../models/offerSchema')
 const applyOffersToProduct = require('../../utils/applyOffer')
+const Order = require('../../models/orderSchema')
 
 
 const loadHome = asyncHandler(async (req,res) =>{
@@ -44,7 +45,52 @@ const loadHome = asyncHandler(async (req,res) =>{
     const categories = await Category.find({is_active:true,is_deleted:false}).select('name -_id')
     const brands = await Brand.find({is_active:true,is_delete:false}).select('name -_id')
 
-    res.render('user/home',{layout:'layouts/user_main',newArrivals:variants,categories:categories.map(c=>c.name),brands:brands.map(b=>b.name)})
+    const bestSellingRaw = await Order.aggregate([
+    { $unwind: "$items" },
+    {$group: {
+        _id: "$items.variantId",
+        totalSold: { $sum: "$items.quantity" },
+        productId: { $first: "$items.product" }
+        }
+    },
+    { $sort: { totalSold: -1 } },
+    { $limit: 4 }
+    ])
+
+    const variantSalesMap = {}
+    bestSellingRaw.forEach(v => {
+        variantSalesMap[v._id.toString()] = v.totalSold
+    })
+
+    const bestSellingProductsData = await Product.find({_id:{$in:bestSellingRaw.map(p => p.productId)}}).populate('brand_id category_id').lean()
+
+    const appliedBestSelling = await Promise.all(
+        bestSellingProductsData.map(p => applyOffersToProduct(p,activeOffers))
+    )
+    let bestSelling = []
+
+    appliedBestSelling.forEach(product => {
+        product.variants.forEach(v => {
+            if (variantSalesMap[v._id.toString()]) {
+            bestSelling.push({
+                productId: product._id,
+                variantId: v._id,
+                title: product.title,
+                flavour: v.flavour,
+                size: v.size,
+                price: v.price,
+                calculated_price: v.calculated_price,
+                discounted_price: v.discounted_price,
+                images: v.images,
+                totalSold: variantSalesMap[v._id.toString()]  // for debugging
+            })
+            }
+        })
+    })
+
+    bestSelling = bestSelling.slice(0,4)
+
+    res.render('user/home',{layout:'layouts/user_main',newArrivals:variants,bestSelling,categories:categories.map(c=>c.name),brands:brands.map(b=>b.name)})
 })
 
 const loadProfile = asyncHandler( async (req,res) => {

@@ -321,119 +321,42 @@
     </div>
     <!-- Product cards to be added here later -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-      <!-- Example card (replace with dynamic content later) -->
-      <div
-        class="group border border-gray-100 py-3 px-3 bg-white rounded-lg overflow-hidden"
-      >
-        <div class="aspect-w-1 aspect-h-1 bg-white rounded-lg overflow-hidden">
-          <img
-            src="/images/sample product1.jpeg"
-            alt="Sample Product"
-            class="w-full h-64 object-contain"
-          />
-        </div>
-        <div class="mt-4">
-          <h3 class="text-base text-gray-700 font-semibold">ATOM Whey Protein with Enzymes</h3>
-          <div class="flex items-center mt-2">
-            <span class="text-sm font-bold text-gray-900">&#8377;7973</span>
-          </div>
-          <div class="mt-2 flex items-center">
-            <div class="flex">
-              <i class="fas fa-star text-yellow-400 text-xs"></i>
-              <i class="fas fa-star text-yellow-400 text-xs"></i>
-              <i class="fas fa-star text-yellow-400 text-xs"></i>
-              <i class="far fa-star text-gray-300 text-xs"></i>
-              <i class="far fa-star text-gray-300 text-xs"></i>
+      <% if (bestSelling && bestSelling.length > 0) { %>
+        <% bestSelling.forEach(item => { %>
+          <a 
+            href="/products/<%= item.productId %>?variant=<%= item.variantId %>"
+            class="group block border border-gray-100 py-3 px-3 bg-white rounded-lg overflow-hidden hover:shadow-lg transition"
+          >
+            <div class="aspect-w-1 aspect-h-1 bg-white rounded-lg overflow-hidden">
+              <img 
+                src="<%= item.images[0] %>" 
+                alt="<%= item.title %>"
+                class="w-full h-64 object-contain group-hover:scale-105 transition-transform duration-300"
+              />
             </div>
-            <span class="ml-2 text-xs text-gray-600">(3.0)</span>
-          </div>
-        </div>
-      </div>
 
-      <div
-        class="group border border-gray-100 py-3 px-3 bg-white rounded-lg overflow-hidden"
-      >
-        <div class="aspect-w-1 aspect-h-1 bg-white rounded-lg overflow-hidden">
-          <img
-            src="/images/sample2.webp"
-            alt="Sample Product"
-            class="w-full h-64 object-contain"
-          />
-        </div>
-        <div class="mt-4">
-          <h3 class="text-base text-gray-700 font-semibold">Wellcore - Creatine Monohydrate</h3>
-          <div class="flex items-center mt-2">
-            <span class="text-sm font-bold text-gray-900">&#8377;1199</span>
-          </div>
-          <div class="mt-2 flex items-center">
-            <div class="flex">
-              <i class="fas fa-star text-yellow-400 text-xs"></i>
-              <i class="fas fa-star text-yellow-400 text-xs"></i>
-              <i class="fas fa-star text-yellow-400 text-xs"></i>
-              <i class="far fa-star text-gray-300 text-xs"></i>
-              <i class="far fa-star text-gray-300 text-xs"></i>
-            </div>
-            <span class="ml-2 text-xs text-gray-600">(3.0)</span>
-          </div>
-        </div>
-      </div>
+            <div class="mt-4">
+              <h3 class="text-base text-gray-700 font-semibold">
+                <%= item.title %>
+              </h3>
+              <p class="text-sm text-gray-500">
+                <%= item.flavour %> - <%= item.size %>
+              </p>
 
-      <div
-        class="group border border-gray-100 py-3 px-3 bg-white rounded-lg overflow-hidden"
-      >
-        <div class="aspect-w-1 aspect-h-1 bg-white rounded-lg overflow-hidden">
-          <img
-            src="/images/sample3.webp"
-            alt="Sample Product"
-            class="w-full h-64 object-contain"
-          />
-        </div>
-        <div class="mt-4">
-          <h3 class="text-base text-gray-700 font-semibold">MuscleBlaze Whey Protein</h3>
-          <div class="flex items-center mt-2">
-            <span class="text-sm font-bold text-gray-900">&#8377;5649</span>
-          </div>
-          <div class="mt-2 flex items-center">
-            <div class="flex">
-              <i class="fas fa-star text-yellow-400 text-xs"></i>
-              <i class="fas fa-star text-yellow-400 text-xs"></i>
-              <i class="fas fa-star text-yellow-400 text-xs"></i>
-              <i class="far fa-star text-gray-300 text-xs"></i>
-              <i class="far fa-star text-gray-300 text-xs"></i>
+              <div class="flex items-center mt-2">
+                <% if (item.calculated_price) { %>
+                  <span class="text-sm font-bold text-gray-900">₹<%= item.calculated_price %></span>
+                  <span class="ml-2 text-xs line-through text-gray-500">₹<%= item.price %></span>
+                <% } else { %>
+                  <span class="text-sm font-bold text-gray-900">₹<%= item.price %></span>
+                <% } %>
+              </div>
             </div>
-            <span class="ml-2 text-xs text-gray-600">(3.0)</span>
-          </div>
-        </div>
-      </div>
-
-      <div
-        class="group border border-gray-100 py-3 px-3 bg-white rounded-lg overflow-hidden"
-      >
-        <div class="aspect-w-1 aspect-h-1 bg-white rounded-lg overflow-hidden">
-          <img
-            src="/images/sample 4.jpg"
-            alt="Sample Product"
-            class="w-full h-64 object-contain"
-          />
-        </div>
-        <div class="mt-4">
-          <h3 class="text-base text-gray-700 font-semibold">Optimum Nutrition Gold Standard</h3>
-          <div class="flex items-center mt-2">
-            <span class="text-sm font-bold text-gray-900">&#8377;3625</span>
-          </div>
-          <div class="mt-2 flex items-center">
-            <div class="flex">
-              <i class="fas fa-star text-yellow-400 text-xs"></i>
-              <i class="fas fa-star text-yellow-400 text-xs"></i>
-              <i class="fas fa-star text-yellow-400 text-xs"></i>
-              <i class="far fa-star text-gray-300 text-xs"></i>
-              <i class="far fa-star text-gray-300 text-xs"></i>
-            </div>
-            <span class="ml-2 text-xs text-gray-600">(3.0)</span>
-          </div>
-        </div>
-      </div>
-      <!-- Add more cards -->
+          </a>
+        <% }) %>
+      <% } else { %>
+        <p class="text-gray-500">No best-selling products available.</p>
+      <% } %>
     </div>
   </div>
 </section>

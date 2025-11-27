@@ -14,6 +14,11 @@ const applyCoupon = asyncHandler( async( req,res) => {
     const coupon = await Coupon.findOne({code:code.toUpperCase(),isActive:true})
     if(!coupon) return res.redirect('/checkout?error=invalidCoupon')
 
+    const alreadyUsed = coupon.usedBy.some(id => id.toString() === userId.toString())
+    if(alreadyUsed) {
+        return res.redirect('/checkout?error=couponUsed')
+    }
+
     const cart = await Cart.findOne({user_id:userId}).populate('items.product_id').lean()
     if(!cart) return res.redirect('/cart')
     

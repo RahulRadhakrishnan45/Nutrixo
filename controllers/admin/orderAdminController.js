@@ -6,33 +6,8 @@ const messages = require('../../constants/messages')
 const httpStatus = require('../../constants/httpStatus')
 const {STATUS_ENUM} = require('../../constants/orderStatus')
 const { creditToWallet } = require('../../utils/walletRefund')
+const {computeItemRefund} = require('../../utils/refund')
 
-
-function computeItemRefund(item) {
-    const actualPrice = Number(item.actualPrice) || 0
-    const quantity = Number(item.quantity) || 1
-    const offerPrice = Number(item.offerPrice) || actualPrice
-    const couponDiscount = Number(item.couponDiscount) || 0
-    
-    const offerDiscount = actualPrice - offerPrice
-
-    let finalUnitPrice = actualPrice - offerDiscount - couponDiscount
-    if(finalUnitPrice < 0) finalUnitPrice = 0
-
-    const discountedTotal = finalUnitPrice * quantity
-    let taxBase = 0
-
-    if(offerDiscount > 0 && couponDiscount === 0) {
-        taxBase = offerPrice * quantity
-    }else{
-        taxBase = discountedTotal
-    }
-
-    const tax = taxBase * 0.02
-    const refundAmount = discountedTotal + tax
-
-    return Math.round(refundAmount * 100 / 100)
-}
 
 const loadOrders = asyncHandler( async( req,res) => {
     const {search = '', paymentStatus = '', sort = 'newest', page = 1 } = req.query
@@ -105,7 +80,7 @@ const approveCancellation = asyncHandler( async( req,res) => {
     item.previousStatus = item.status
     item.status = 'CANCELLED'
 
-    const refundAmount = computeItemRefund(item)
+    const { refundAmount, breakdown } = computeItemRefund(item, order)
 
     if(['CARD','WALLET','BANK'].includes(order.paymentMethod) && refundAmount > 0) {
         try {
@@ -118,6 +93,11 @@ const approveCancellation = asyncHandler( async( req,res) => {
     item.cancellationRequest.status = 'APPROVED'
     item.cancellationRequest.resolvedAt = new Date()
     item.cancellationRequest.refundAmount = refundAmount
+    item.cancellationRequest.breakdown = breakdown
+
+    item.offerApplied = breakdown.itemOfferTotal ?? item.offerApplied
+    item.couponDiscount = breakdown.itemCouponTotal ?? item.couponDiscount
+    item.tax = breakdown.tax ?? item.tax
 
     item.statusHistory = item.statusHistory || []
     item.statusHistory.push({
@@ -177,7 +157,7 @@ const approveReturn = asyncHandler( async( req,res) => {
         return res.status(httpStatus.bad_request).json({success:false,message:messages.RETURN.RETURN_NOT_REQUESTED})
     }
 
-    const refundAmount = computeItemRefund(item)
+    const { refundAmount, breakdown } = computeItemRefund(item, order)
 
     if(refundAmount > 0) {
         try {
@@ -190,10 +170,16 @@ const approveReturn = asyncHandler( async( req,res) => {
     item.returnRequest.status = 'COMPLETED'
     item.returnRequest.resolvedAt = new Date()
     item.returnRequest.refundAmount = refundAmount
+    item.returnRequest.breakdown = breakdown
+
+    item.offerApplied = breakdown.itemOfferTotal ?? item.offerApplied
+    item.couponDiscount = breakdown.itemCouponTotal ?? item.couponDiscount
+    item.tax = breakdown.tax ?? item.tax
 
     item.previousStatus = item.status
     item.status = 'RETURNED'
 
+    item.statusHistory = item.statusHistory || []
     item.statusHistory.push({
         status:'RETURNED', timestamp: new Date(), note: 'Admin approved return & refund completed'
     })
@@ -231,8 +217,6 @@ const rejectReturn = asyncHandler( async( req,res) => {
 
     res.json({success:true,message:messages.RETURN.RETURN_REJECT})
 })
-
-
 
 
 module.exports = {loadOrders,loadOrderDetails,updateItemStatus,approveCancellation,rejectCancellation,approveReturn,rejectReturn}

@@ -383,5 +383,9 @@
     <% } else if(error === 'minimumNotMet') { %>
       toastr.warning('Minimum purchase requirement not met for this coupon.');
     <% } %>
+    <% if(error === 'couponUsed') { %>
+      toastr.error('You have already used this coupon.');
+    <% } %>
+
   </script>
 </body>

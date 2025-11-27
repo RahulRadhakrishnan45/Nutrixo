@@ -215,54 +215,62 @@ else {
 <div>
   <h3 class="font-bold text-lg mb-3">Order Summary</h3>
 
-  <% if (order) { %>
-      <%
-      const actual = order.actualTotal || 0
-      const offer = order.offerDiscount ||0
-      const coupon = order.couponDiscount || 0
+  <% if (primaryItem) { %>
 
-      let taxableAmount = actual
-      if(offer > 0) {
-        taxableAmount -= offer
-      }
-      if(coupon > 0) {
-        taxableAmount -= coupon
-      }
-      const calculatedTax = taxableAmount * 0.02
-    %>
+    <%
+  // Item actual price
+  const itemActual = (primaryItem.actualPrice || 0) * primaryItem.quantity;
+
+  // OFFER DISCOUNT (actual - offerPrice)
+  const itemOffer = ((primaryItem.actualPrice || 0) - (primaryItem.offerPrice || primaryItem.actualPrice)) 
+                    * primaryItem.quantity;
+
+  // COUPON DISCOUNT (proportional distribution)
+  const totalActual = order.actualTotal || 1;
+  const itemPortion = itemActual / totalActual;
+  const itemCoupon = (order.couponDiscount || 0) * itemPortion;
+
+  // TAXABLE AMOUNT
+  let itemTaxable = itemActual - itemOffer - itemCoupon;
+  const itemTax = itemTaxable * 0.02;
+
+  // FINAL TOTAL
+  const itemTotal = itemTaxable + itemTax;
+%>
+
 
     <div class="space-y-2 text-gray-700 text-base">
 
-      <p><span class="font-medium">Price (Actual):</span> ₹<%= order.actualTotal?.toFixed(2) || 0 %></p>
+      <p><span class="font-medium">Price (Actual):</span> ₹<%= itemActual.toFixed(2) %></p>
 
-      <p class="text-green-600"><span class="font-medium">Offer Discount:</span> -₹<%= order.offerDiscount?.toFixed(2) || 0 %></p>
+      <p class="text-green-600"><span class="font-medium">Offer Discount:</span> -₹<%= itemOffer.toFixed(2) %></p>
 
-      <p><span class="font-medium">Subtotal (After Offer):</span> ₹<%= order.subtotal?.toFixed(2) || 0 %></p>
-
-      <% if(order.couponDiscount && order.couponDiscount > 0){ %>
-        <p class="text-green-600"><span class="font-medium">Coupon Discount:</span> -₹<%= order.couponDiscount.toFixed(2) %></p>
+      <% if(itemCoupon > 0){ %>
+      <p class="text-green-600">
+        <span class="font-medium">Coupon Discount:</span> -₹<%= itemCoupon.toFixed(2) %>
+      </p>
       <% } %>
 
-      <p><span class="font-medium">Tax:</span> ₹<%= calculatedTax.toFixed(2) %></p>
+      <p><span class="font-medium">Tax:</span> ₹<%= itemTax.toFixed(2) %></p>
 
       <hr class="my-2" />
 
       <div class="flex justify-between font-bold text-lg">
         <p>Total</p>
-        <p>₹<%= order.totalAmount?.toFixed(2) || 0 %></p>
+        <p>₹<%= itemTotal.toFixed(2) %></p>
       </div>
 
-      <% if(order.totalDiscount && order.totalDiscount > 0){ %>
-        <p class="text-green-700 text-sm font-medium mt-1">
-          You saved ₹<%= order.totalDiscount.toFixed(2) %> 🎉
-        </p>
-      <% } %>
+      <p class="text-green-700 text-sm font-medium mt-1">
+        You saved ₹<%= (itemOffer + itemCoupon).toFixed(2) %> 🎉
+      </p>
 
     </div>
+
   <% } else { %>
     <p class="text-gray-500">Order summary unavailable.</p>
   <% } %>
 </div>
+
 
     </div>
     <% } %>

@@ -10,10 +10,6 @@ const userSchema = new mongoose.Schema({
     is_active:{type:Boolean, default:true},
 },{timestamps:true})
 
-
 const user = mongoose.model('user',userSchema)
-
-
-
 
 module.exports = user  
