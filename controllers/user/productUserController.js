@@ -90,7 +90,9 @@ const loadHome = asyncHandler(async (req,res) =>{
 
     bestSelling = bestSelling.slice(0,4)
 
-    res.render('user/home',{layout:'layouts/user_main',newArrivals:variants,bestSelling,categories:categories.map(c=>c.name),brands:brands.map(b=>b.name)})
+    const referalClaimed = req.session.user?.referredBy ? true : false
+
+    res.render('user/home',{layout:'layouts/user_main',newArrivals:variants,bestSelling,categories:categories.map(c=>c.name),brands:brands.map(b=>b.name),referalClaimed})
 })
 
 const loadProfile = asyncHandler( async (req,res) => {

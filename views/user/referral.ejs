@@ -1,0 +1,111 @@
+<div class="flex min-h-screen bg-gray-50">
+  <!-- Sidebar -->
+  <%- include('../partials/userSidebar') %>
+
+  <!-- Page Content -->
+  <div class="flex-1 flex justify-center items-start p-10">
+
+    <div class="w-full max-w-6xl bg-white shadow-md rounded-lg p-10">
+
+      <!-- Header -->
+      <div class="mb-10">
+        <h2 class="text-xl font-bold text-gray-800">Refer & Earn</h2>
+      </div>
+
+      <!-- User Referral Code Section -->
+      <div class="border rounded-lg p-6 mb-10 bg-white mx-auto w-full shadow-lg text-center">
+        <h3 class="text-sm text-gray-500">Your Referral Code</h3>
+
+        <p class="text-3xl font-bold mt-2 tracking-wider">
+          <%= referralCode %>
+        </p>
+
+        <button 
+          id="copyBtn"
+          onclick="copyReferralCode('<%= referralCode %>')"
+          class="mt-4 bg-black text-white px-5 py-2 rounded-md hover:bg-gray-800 transition"
+        >
+          Copy Code
+        </button>
+
+        <!-- User used someone else's referral? -->
+        <% if (usedReferralCode) { %>
+          <p class="mt-4 text-green-600 text-sm">
+            You applied referral code: <strong><%= usedReferralCode %></strong>
+          </p>
+        <% } else { %>
+          <p class="mt-4 text-gray-500 text-sm">
+            You haven’t used any referral code yet.
+          </p>
+        <% } %>
+      </div>
+
+
+      <!-- How It Works -->
+      <div class="mb-10">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">How it works:</h3>
+
+        <ul class="space-y-2 text-gray-700">
+          <li class="flex items-start">
+            <span class="w-2 h-2 bg-gray-700 rounded-full mt-2 mr-3"></span>
+            Share your referral code with friends
+          </li>
+
+          <li class="flex items-start">
+            <span class="w-2 h-2 bg-gray-700 rounded-full mt-2 mr-3"></span>
+            When they sign up using your code, they get ₹50 in their wallet
+          </li>
+
+          <li class="flex items-start">
+            <span class="w-2 h-2 bg-gray-700 rounded-full mt-2 mr-3"></span>
+            You earn ₹100 for each successful referral
+          </li>
+        </ul>
+      </div>
+
+      <!-- Divider -->
+      <hr class="my-8 border-gray-300">
+
+      <!-- Stats Section -->
+      <div class="flex justify-between items-center">
+
+        <!-- Total Referrals -->
+        <div>
+          <p class="text-sm text-gray-600">Total Referrals</p>
+          <p class="text-3xl font-bold text-gray-900"><%= totalReferrals %></p>
+        </div>
+
+        <!-- Earnings -->
+        <div class="text-right">
+          <p class="text-sm text-gray-600">Earnings</p>
+          <p class="text-3xl font-bold text-gray-900">₹<%= totalEarnings.toFixed(2) %></p>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script src="../../js/logout.js"></script>
+
+<script>
+  function copyReferralCode(code) {
+    const btn = document.getElementById('copyBtn')
+
+    navigator.clipboard.writeText(code)
+      .then(() => {
+        btn.textContent = "Copied!"
+        btn.classList.add("bg-green-600");
+        btn.classList.remove("bg-black")
+
+        setTimeout(() => {
+          btn.textContent = "Copy Code"
+          btn.classList.remove("bg-green-600")
+          btn.classList.add("bg-black")
+        }, 5000) 
+      })
+  }
+</script>
+

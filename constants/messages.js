@@ -22,6 +22,7 @@ const messages = Object.freeze({
         ENTER_VALID_NO:"Enter a valid 10 digit number",
         ENTER_VALID_PINCODE:"Enter a valid 6 digit pincode",
         INVALID_SIGN:"Invalid signature",
+        LOGIN_REQUIRED:"Login required",
     },
     OTP: {
         SENT: "OTP sent successfully",
@@ -167,6 +168,13 @@ const messages = Object.freeze({
     },
     CARD:{
         CARD_ONLY_RETRY:"Retry only available for card payment",
+    },
+    REFERRAL:{
+        REFERRAL_CODE_REQUIRED:"Referral code required",
+        REFERRAL_EXISTS:"Yout already used a referral code",
+        OWN_REFERRAL:"You cannot use your own referral code",
+        INVALID_REFERRAL:"Invalid referral code",
+        REFERRAL_APPLIED:"Referral applied successfully",
     }
 });
 
