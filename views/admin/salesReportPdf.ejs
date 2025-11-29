@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Sales Report</title>
+
+  <style>
+    /* Base styles */
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      color: #222;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    h2 {
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Totals section */
+    .totals {
+      margin-top: 12px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      background: #fafafa;
+      font-size: 13px;
+    }
+
+    /* Table styling */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+
+      /* Prevent row breaks inside table */
+      page-break-inside: auto;
+    }
+
+    tr {
+      page-break-inside: avoid;
+      page-break-after: auto;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 6px 8px;
+      text-align: left;
+      font-size: 12px;
+    }
+
+    th {
+      background: #f2f2f2;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <h2>Sales Report</h2>
+
+    <div>
+      <strong>Filter:</strong> <%= filterType %>
+
+      <% if (fromDate && toDate) { %>
+        | <%= fromDate %> → <%= toDate %>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Totals Section -->
+  <div class="totals">
+    <strong>Total Orders:</strong> <%= totalOrders %> &nbsp; | &nbsp;
+    <strong>Total Revenue:</strong> ₹<%= totalRevenue %> &nbsp; | &nbsp;
+    <strong>Total Discount:</strong> ₹<%= totalDiscount %>
+  </div>
+
+  <!-- Table -->
+  <table>
+    <thead>
+      <tr>
+        <th>Order No</th>
+        <th>User</th>
+        <th>Date</th>
+        <th>Subtotal (₹)</th>
+        <th>Discount (₹)</th>
+        <th>Total (₹)</th>
+        <th>Payment</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% orders.forEach(o => { %>
+        <tr>
+          <td><%= o.orderNumber %></td>
+          <td><%= o.user ? o.user.name : "Unknown" %></td>
+          <td><%= new Date(o.createdAt).toLocaleString("en-IN") %></td>
+          <td>₹<%= o.subtotal || 0 %></td>
+          <td>₹<%= o.totalDiscount || 0 %></td>
+          <td>₹<%= o.totalAmount || 0 %></td>
+          <td><%= o.paymentMethod || "" %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+
+</body>
+</html>
