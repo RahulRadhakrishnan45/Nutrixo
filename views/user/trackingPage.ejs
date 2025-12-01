@@ -30,29 +30,49 @@
           Size: <%= primaryItem.size || '-' %> | Qty: <%= primaryItem.quantity
           %>
         </p>
-        <p class="text-black font-semibold">₹<%= primaryItem.price %></p>
+        
         <%
-  // Derive per-item payment status
-  let paymentLabel = 'PENDING';
-  let paymentColor = 'bg-yellow-500';
+let paymentLabel = 'PENDING';
+let paymentColor = 'bg-yellow-500';
 
-  if (order.paymentStatus === 'COMPLETED') {
-    paymentLabel = 'PAID';
-    paymentColor = 'bg-green-500';
-  } else {
-    if (['DELIVERED', 'RETURNED'].includes(primaryItem.status)) {
-      paymentLabel = 'PAID';
-      paymentColor = 'bg-green-500';
-    } else if (['CANCELLATION REQUESTED', 'CANCELLED'].includes(primaryItem.status)) {
-      paymentLabel = 'REFUND IN PROCESS';
-      paymentColor = 'bg-orange-500';
-    } else {
-      paymentLabel = 'PENDING';
-      paymentColor = 'bg-yellow-500';
-    }
-  }
+const s = primaryItem.status;
+
+// 1️⃣ If order is prepaid and completed
+if (order.paymentStatus === 'COMPLETED') {
+  paymentLabel = 'PAID';
+  paymentColor = 'bg-green-500';
+}
+
+// 2️⃣ COD paid after delivery
+else if (order.paymentMethod === "COD" && s === 'DELIVERED') {
+  paymentLabel = 'PAID';
+  paymentColor = 'bg-green-600';
+}
+
+// 3️⃣ Refund flow
+else if (s === 'RETURN REQUESTED' || s === 'CANCELLATION REQUESTED') {
+  paymentLabel = 'REFUND IN PROCESS';
+  paymentColor = 'bg-orange-500';
+}
+
+// 4️⃣ Refund completed
+else if (s === 'RETURNED' || s === 'CANCELLED') {
+  paymentLabel = 'REFUNDED';
+  paymentColor = 'bg-green-600';
+}
+
+// 5️⃣ Pending for all others (Processing / Packed / Shipped)
+else {
+  paymentLabel = 'PENDING';
+  paymentColor = 'bg-yellow-500';
+}
 %>
 
+ 
+        <p class="text-sm text-gray-700 mt-1">
+          Payment Method:
+          <span class="font-semibold"><%= order.paymentMethod %></span>
+        </p>
 
         <p class="mt-1">
           Payment Status:
@@ -62,6 +82,7 @@
             <%= paymentLabel %>
           </span>
         </p>
+
       </div>
     </div>
     <% } else { %>
@@ -191,49 +212,66 @@
       </div>
 
       <!-- Summary -->
-      <div>
-        <h3 class="font-bold text-lg mb-3">Order Summary</h3>
-        <% if (primaryItem) { const TAX_RATE = 0.02; const qty =
-        primaryItem.quantity || 1; const pricePerUnit = Number(primaryItem.price
-        || 0); const subtotal = pricePerUnit * qty; const tax = subtotal *
-        TAX_RATE; const discount = 0; const total = subtotal + tax - discount;
-        %>
-        <div class="flex justify-between text-gray-700 mb-2">
-          <div>
-            <p class="font-medium">
-              <%= primaryItem.title %>
-              <span class="text-xs text-gray-500">x<%= qty %></span>
-            </p>
-            <p class="text-xs text-gray-500">
-              Price: ₹<%= pricePerUnit.toFixed(2) %> /unit
-            </p>
-          </div>
-          <div class="text-right">
-            <p class="font-medium">₹<%= subtotal.toFixed(2) %></p>
-          </div>
-        </div>
-        <hr class="my-2" />
-        <div class="flex justify-between text-gray-700">
-          <p>Subtotal</p>
-          <p>₹<%= subtotal.toFixed(2) %></p>
-        </div>
-        <div class="flex justify-between text-green-600">
-          <p>Discount</p>
-          <p>- ₹<%= discount.toFixed(2) %></p>
-        </div>
-        <div class="flex justify-between text-gray-700">
-          <p>Tax (2%)</p>
-          <p>₹<%= tax.toFixed(2) %></p>
-        </div>
-        <hr class="my-2" />
-        <div class="flex justify-between font-bold text-lg">
-          <p>Total</p>
-          <p>₹<%= total.toFixed(2) %></p>
-        </div>
-        <% } else { %>
-        <p class="text-gray-500">No item selected for summary.</p>
-        <% } %>
+<div>
+  <h3 class="font-bold text-lg mb-3">Order Summary</h3>
+
+  <% if (primaryItem) { %>
+
+    <%
+  // Item actual price
+  const itemActual = (primaryItem.actualPrice || 0) * primaryItem.quantity;
+
+  // OFFER DISCOUNT (actual - offerPrice)
+  const itemOffer = ((primaryItem.actualPrice || 0) - (primaryItem.offerPrice || primaryItem.actualPrice)) 
+                    * primaryItem.quantity;
+
+  // COUPON DISCOUNT (proportional distribution)
+  const totalActual = order.actualTotal || 1;
+  const itemPortion = itemActual / totalActual;
+  const itemCoupon = (order.couponDiscount || 0) * itemPortion;
+
+  // TAXABLE AMOUNT
+  let itemTaxable = itemActual - itemOffer - itemCoupon;
+  const itemTax = itemTaxable * 0.02;
+
+  // FINAL TOTAL
+  const itemTotal = itemTaxable + itemTax;
+%>
+
+
+    <div class="space-y-2 text-gray-700 text-base">
+
+      <p><span class="font-medium">Price (Actual):</span> ₹<%= itemActual.toFixed(2) %></p>
+
+      <p class="text-green-600"><span class="font-medium">Offer Discount:</span> -₹<%= itemOffer.toFixed(2) %></p>
+
+      <% if(itemCoupon > 0){ %>
+      <p class="text-green-600">
+        <span class="font-medium">Coupon Discount:</span> -₹<%= itemCoupon.toFixed(2) %>
+      </p>
+      <% } %>
+
+      <p><span class="font-medium">Tax:</span> ₹<%= itemTax.toFixed(2) %></p>
+
+      <hr class="my-2" />
+
+      <div class="flex justify-between font-bold text-lg">
+        <p>Total</p>
+        <p>₹<%= itemTotal.toFixed(2) %></p>
       </div>
+
+      <p class="text-green-700 text-sm font-medium mt-1">
+        You saved ₹<%= (itemOffer + itemCoupon).toFixed(2) %> 🎉
+      </p>
+
+    </div>
+
+  <% } else { %>
+    <p class="text-gray-500">Order summary unavailable.</p>
+  <% } %>
+</div>
+
+
     </div>
     <% } %>
   </div>

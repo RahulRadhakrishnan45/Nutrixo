@@ -1,5 +1,5 @@
 <div class="w-full bg-black text-white text-center py-2 text-sm">
-  Get 30% OFF on your first order. Order now
+  Free delivery on orders above ₹300. Order now
 </div>
 
 <!-- Header/Navigation -->
@@ -58,9 +58,10 @@
       <a href="/contact" class="w-32 text-center text-gray-700 hover:text-gray-900">Contact</a>
     </nav>
 
-    <!-- Search and Cart -->
+    <!-- Search, Wishlist, Cart, and Profile -->
     <div class="flex items-center space-x-4">
       
+      <!-- 🔍 Search -->
       <form action="/products" method="GET" class="relative">
         <input
           id="searchInput"
@@ -70,7 +71,6 @@
           class="pl-10 pr-10 py-2 rounded-md border border-gray-300 focus:outline-none 
                  focus:ring-1 focus:ring-gray-400 focus:border-gray-400 w-28 md:w-64 text-ellipsis"
         />
-        <!-- Search icon button -->
         <button type="submit" class="absolute left-3 top-2.5 text-gray-400">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -80,25 +80,31 @@
       </form>
 
       <!-- Wishlist Button -->
-      <a href="/wishlist" class="text-gray-700 hover:text-gray-900">
+      <a href="/wishlist" class="relative text-gray-700 hover:text-gray-900">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
         </svg>
+        <span id="wishlistText"
+          class="absolute <%= (typeof wishlistLength !== 'undefined' && wishlistLength) ? 'block' : 'hidden' %> 
+                 -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 
+                 flex items-center justify-center rounded-full">
+          <%= typeof wishlistLength !== 'undefined' ? wishlistLength : 0 %>
+        </span>
       </a>
 
-      <!-- Cart Button -->
+      <!-- 🛒 Cart Button -->
       <a href="/cart" class="relative text-gray-700 hover:text-gray-900">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
         </svg>
-        
         <span id="cartText"
-            class="absolute <%= (typeof cartLength !== 'undefined' && cartLength) ? 'block' : 'hidden' %> -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
+          class="absolute <%= (typeof cartLength !== 'undefined' && cartLength) ? 'block' : 'hidden' %> 
+                 -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 
+                 flex items-center justify-center rounded-full">
           <%= typeof cartLength !== 'undefined' ? cartLength : 0 %>
         </span>
-
       </a>
 
       <!-- Profile -->
@@ -112,38 +118,19 @@
   </div>
 </header>
 
-<!-- Add this CSS to your stylesheet -->
 <style>
-  /* Smooth dropdown animation for nav menus */
+
   .group:hover .group-hover\:opacity-100 {
     transition-delay: 150ms;
   }
-  /* Custom scrollbar for dropdowns */
-  .overflow-y-auto::-webkit-scrollbar {
-    width: 4px;
-  }
-  .overflow-y-auto::-webkit-scrollbar-track {
-    background: #f1f1f1;
-  }
-  .overflow-y-auto::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
-  }
-  .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-    background: #555;
-  }
+
+  
+  .overflow-y-auto::-webkit-scrollbar { width: 4px; }
+  .overflow-y-auto::-webkit-scrollbar-track { background: #f1f1f1; }
+  .overflow-y-auto::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+  .overflow-y-auto::-webkit-scrollbar-thumb:hover { background: #555; }
 </style>
 
-<script>
-  function updateCartBadge(cartLength) {
-    const badge = document.getElementById('cartText')
-    if (!badge) return
-    if (cartLength && cartLength !== 0) {
-      badge.textContent = cartLength
-      badge.classList.remove('hidden')
-    } else {
-      badge.classList.add('hidden')
-    }
-  }
-</script>
+<!-- ⚙️ JS Badge Updaters -->
+<script src="/js/badgeUpdater.js"></script>
 

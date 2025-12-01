@@ -1,7 +1,7 @@
 // constants/messages.js
 const messages = Object.freeze({
     AUTH: {
-        USER_NOT_FOUND: "User not found. Please sign up",
+        USER_NOT_FOUND: "User not found",
         USER_EXISTS: "User already exists",
         NUMBER_EXISTS: "Number already exists",
         SESSION_EXPIRED: "Session expired. Please try again",
@@ -21,7 +21,8 @@ const messages = Object.freeze({
         ALL_FIELDS_REQUIRED:"All fields are required",
         ENTER_VALID_NO:"Enter a valid 10 digit number",
         ENTER_VALID_PINCODE:"Enter a valid 6 digit pincode",
-        CANCEL_REASON_REQUIRED:"Cancellation reason is required"
+        INVALID_SIGN:"Invalid signature",
+        LOGIN_REQUIRED:"Login required",
     },
     OTP: {
         SENT: "OTP sent successfully",
@@ -66,7 +67,8 @@ const messages = Object.freeze({
         PRODUCT_ADD:"Product added successfully",
         PRODUCT_NOT_FOUND:"Product not found",
         PRODUCT_UPDATE:"Product updated successfully",
-        PRODUCT_EXISTS:"Product already exists"
+        PRODUCT_EXISTS:"Product already exists",
+        PRODUCT_UNAVAILABLE:"Product is not available",
     },
     VARIANT:{
         VARIANT_NOT_FOUND:"Variant not found",
@@ -117,6 +119,7 @@ const messages = Object.freeze({
     CANCELLATION:{
         CANCELLATION_APPROVED:"Cancellation approved successfully",
         CANCELLATION_REJECTED:"Cancellation request rejected",
+        CANCELLATION_NOT_REQUESTED:"Cancellation is not requested",
     },
     ITEM:{
         ITEM_UPDATED:"Item status updatedd successfully",
@@ -129,6 +132,49 @@ const messages = Object.freeze({
         RETURN_SUBMITTED:"Return request submitted successfully",
         RETURN_REASON_REQUIRED:"Return reason required",
         RETURN_NOT_AVAILABLE:"Return available only if all products are delivered",
+        RETURN_NOT_REQUESTED:"Return not requested",
+    },
+    WISHLIST:{
+        WISHLIST_ADDED:"Added to wishlist",
+        WISHLIST_REMOVED:"Removed from wishlist",
+        WISHLIST_DUPLICATE:"Item already exists in your wishlist",
+        WISHLIST_NOT_FOUND:"Item not found in wishlist",
+    },
+    COUPON:{
+        COUPON_EXISTS:"Coupon code already exists",
+        COUPON_CREATED:"Coupon created successfully",
+        COUPON_NOT_FOUND:"Coupon not found",
+        COUPON_UPDATED:"Coupon updated successfully",
+        COUPON_DELETED:"Coupon deleted successfully",
+    },
+    DISCOUNT:{
+        DISCOUNT_RANGE_LIMIT_EXCEED:"Discount must be between 1 and 90",
+        DISCOUNT_FIXED_LIMIT_EXCEED:"Fixed discount cannont exceed  ₹10,000",
+        DICOUNT_CANNOT_EQUALS_MINIMUM_PURCHASE:"Discount cannot exceed or equal minimum purchase amount"
+    },
+    DATE:{
+        DATE_INVALID:"Valid To date must be after valid From date",
+    },
+    OFFER:{
+        OFFER_EXISTS:"Offer already exists",
+        OFFER_CREATED:"Offer created successfully",
+        OFFER_NOT_FOUND:"Offer not found",
+        OFFER_UPDATED:"Offer updated successfully",
+        OFFER_DELETED:"Offer deleted successfully",
+        OFFER_STATUS_UPDATED:"Offer status updated successfully",
+    },
+    WALLET:{
+        MINIMUM_REQUIRED:"Minimum ₹10 required",
+    },
+    CARD:{
+        CARD_ONLY_RETRY:"Retry only available for card payment",
+    },
+    REFERRAL:{
+        REFERRAL_CODE_REQUIRED:"Referral code required",
+        REFERRAL_EXISTS:"Yout already used a referral code",
+        OWN_REFERRAL:"You cannot use your own referral code",
+        INVALID_REFERRAL:"Invalid referral code",
+        REFERRAL_APPLIED:"Referral applied successfully",
     }
 });
 

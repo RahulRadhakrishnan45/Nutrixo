@@ -1,5 +1,28 @@
 <div class="container mx-auto py-8">
   <!-- Product Section -->
+   <!-- 🧭 Breadcrumb -->
+<nav class="text-sm mb-6 text-gray-500">
+  <ol class="flex items-center space-x-2">
+
+    <li>
+      <a href="/" class="hover:underline text-gray-600">Home</a>
+    </li>
+
+    <li><span>/</span></li>
+
+    <li>
+      <a href="/products" class="hover:underline text-gray-600">Products</a>
+    </li>
+
+    <li><span>/</span></li>
+
+    <li class="text-gray-800 font-semibold">
+      <%= product.title %>
+    </li>
+
+  </ol>
+</nav>
+
   <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
     
     <!-- Product Images -->
@@ -22,7 +45,6 @@
             </div>
           <% } %>
         </div>
-        <!-- Swiper navigation -->
         <div class="swiper-button-next !text-gray-500"></div>
         <div class="swiper-button-prev !text-gray-500"></div>
         <div class="swiper-pagination !text-gray-500"></div>
@@ -31,12 +53,32 @@
 
     <!-- Product Info -->
     <div>
-      <h1 class="text-3xl font-bold mb-4"><%= product.title %></h1>
-      
-      <!-- Price -->
-      <p class="text-2xl font-bold text-gray-800 mb-2">
-        ₹ <span id="productPrice"><%= selectedVariant.discounted_price || selectedVariant.price %></span>
-      </p>
+      <h1 class="text-3xl font-bold mb-2"><%= product.title %></h1>
+
+      <!-- 🔥 Offer Badge -->
+      <% if (selectedVariant.offerPercent && selectedVariant.offerPercent > 0) { %>
+        <span class="inline-block bg-red-600 text-white text-sm font-semibold px-3 py-1 rounded-full mb-3 animate-fadeIn">
+          <%= selectedVariant.offerPercent %>% OFF
+        </span>
+      <% } %>
+
+      <!-- 🏷️ Price Section -->
+      <div class="flex items-baseline gap-2 mb-2">
+        <% 
+          let finalPrice = selectedVariant.price;
+          if (selectedVariant.offerPercent && selectedVariant.offerPercent > 0) {
+            finalPrice = (selectedVariant.price - (selectedVariant.price * selectedVariant.offerPercent / 100)).toFixed(2);
+          }
+        %>
+
+        <p class="text-2xl font-bold text-gray-800">
+          ₹ <span id="productPrice"><%= finalPrice %></span>
+        </p>
+
+        <% if (selectedVariant.offerPercent && selectedVariant.offerPercent > 0) { %>
+          <span class="line-through text-gray-400 text-lg">₹ <%= selectedVariant.price %></span>
+        <% } %>
+      </div>
       
       <!-- Stock -->
       <p class="mb-4 text-sm text-gray-600" id="productStock">
@@ -82,16 +124,19 @@
         <button id="addToCartBtn" type="button" onclick="return false;" class="bg-black text-white px-8 py-3 rounded text-base font-semibold w-auto min-w-[350px]">
           Add to cart
         </button>
-        <!-- Wishlist Icon -->
-        <button class="border border-gray-300 rounded p-2 hover:bg-gray-100">
-          <i class="fa fa-heart text-red-500 text-[1.2rem]"></i>
+        <button id="wishlistBtn"
+          class="border border-gray-300 rounded p-2 hover:bg-gray-100 transition"
+          onclick="toggleWishlistDetail()">
+            <i id="wishlistIcon"
+              class="fa fa-heart text-[1.2rem] <%= userWishlist?.includes(selectedVariant._id.toString()) ? 'text-red-500' : 'text-gray-400' %>">
+            </i>
         </button>
       </div>
     </div>
   </div>
-</div> <!-- ✅ close product section container -->
+</div>
 
-<!-- Details & Reviews (full width) -->
+<!-- Details & Reviews -->
 <div class="container mx-auto py-8">
   <div class="mt-10">
     <ul class="flex border-b">
@@ -104,30 +149,55 @@
   </div>
 </div>
 
-<!-- Related Products (full width below) -->
+<!-- Related Products -->
 <div class="container mx-auto py-8">
   <h2 class="text-xl font-bold mb-4">You might also like</h2>
   <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-    <% relatedProducts.forEach(rp => { %>
-      <div class="border p-4 rounded-lg text-center">
+    <% relatedProducts.forEach(rp => { 
+      let relatedOffer = rp.variants[0]?.offerPercent || 0;
+      let relatedPrice = rp.variants[0]?.price || 0;
+      let relatedFinal = relatedOffer > 0 ? (relatedPrice - (relatedPrice * relatedOffer / 100)).toFixed(2) : relatedPrice;
+    %>
+      <a href="/products/<%= rp._id %>?variant=<%= rp.variants[0]?._id %>" 
+        class="block border p-4 rounded-lg text-center relative hover:shadow-lg transition">
+        
+        <% if (relatedOffer > 0) { %>
+          <span class="absolute top-3 left-3 bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded">
+            <%= relatedOffer %>% OFF
+          </span>
+        <% } %>
+
         <img src="<%= rp.variants[0]?.images?.[0] || '/images/no-image.png' %>" 
-             alt="<%= rp.title %>" 
-             class="mb-2 w-full h-40 object-contain" />
+            alt="<%= rp.title %>" 
+            class="mb-2 w-full h-40 object-contain" />
+
         <h3 class="text-sm font-bold"><%= rp.title %></h3>
-        <p class="text-gray-600">₹ <%= rp.variants[0]?.discounted_price || rp.variants[0]?.price %></p>
-        <a href="/products/<%= rp._id %>?variant=<%= rp.variants[0]?._id %>" 
-           class="text-blue-500 mt-2 inline-block">View</a>
-      </div>
+
+        <p class="text-gray-800 font-semibold">₹ <%= relatedFinal %></p>
+
+        <% if (relatedOffer > 0) { %>
+          <span class="line-through text-gray-400 text-sm">₹ <%= relatedPrice %></span>
+        <% } %>
+      </a>
+
     <% }) %>
   </div>
 </div>
 
+<!-- ✨ Simple fade-in animation -->
 <style>
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fadeIn {
+    animation: fadeIn 0.4s ease-in-out;
+  }
+
   .zoom-container {
     position: relative;
     overflow: hidden;
   }
-
   .zoom-image {
     transition: transform 0.2s ease;
     transform-origin: center center;
@@ -136,21 +206,21 @@
 </style>
 
 
+<!-- External Libraries -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
+
 <style>
-  
+  /* 🖤 Toast custom styling */
   #toast-container > .toast-warning {
-    background-color: #000000 !important; 
-    color: #ffffff !important;            
-    font-weight: 600;                     
-    border: 1px solid #333333;            
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    font-weight: 600;
+    border: 1px solid #333333;
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
   }
 
@@ -161,12 +231,8 @@
   }
 </style>
 
-
-
-
-
 <script>
-  
+  /* 🌀 Swiper Initialization */
   const swiper = new Swiper(".mySwiper", {
     loop: true,
     spaceBetween: 10,
@@ -180,6 +246,7 @@
     },
   });
 
+  /* 📦 Variant Data */
   const variants = <%- JSON.stringify(product.variants) %>;
   const selectedVariantId = "<%= selectedVariant._id %>";
 
@@ -189,6 +256,7 @@
   const productStock = document.getElementById("productStock");
   const productImages = document.getElementById("productImages");
 
+  /* 🧠 Dynamically update product details when variant changes */
   function updateProductDetails() {
     const selectedFlavour = flavourSelect.value;
     const selectedSize = sizeSelect.value;
@@ -196,10 +264,16 @@
     const variant = variants.find(v => v.flavour === selectedFlavour && v.size === selectedSize);
 
     if (variant) {
-      productPrice.innerText = variant.discounted_price || variant.price;
+      // ✅ Calculate price dynamically from offer
+      let finalPrice = variant.price;
+      if (variant.offerPercent && variant.offerPercent > 0) {
+        finalPrice = (variant.price - (variant.price * variant.offerPercent / 100)).toFixed(2);
+      }
+
+      productPrice.innerText = finalPrice;
       productStock.innerText = variant.stock > 0 ? `IN STOCK (${variant.stock})` : "OUT OF STOCK";
 
-      // Update images in swiper
+      // 🖼️ Update images in swiper
       productImages.innerHTML = "";
       variant.images.forEach(img => {
         const slide = document.createElement("div");
@@ -207,30 +281,33 @@
         slide.innerHTML = `
           <div class="zoom-container w-full h-96 rounded-lg overflow-hidden cursor-zoom-in">
             <img src="${img}" alt="${variant.flavour}" class="zoom-image w-full h-full object-contain rounded-lg" />
-          </div>
-        `;
+          </div>`;
         productImages.appendChild(slide);
       });
 
-      
       swiper.update();
       swiper.slideTo(0);
       applyZoomAgain();
 
+      // Update URL
       const newUrl = `${window.location.pathname}?variant=${variant._id}`;
       window.history.replaceState({}, "", newUrl);
+
+      // ❤️ Update wishlist heart automatically
+      updateWishlistHeart(variant._id.toString());
     }
   }
 
+  /* 🔁 Maintain correct URL on first load */
   if (!window.location.search.includes("variant=") && selectedVariantId) {
     const newUrl = `${window.location.pathname}?variant=${selectedVariantId}`;
     window.location.replace(newUrl);
-  }  
+  }
 
   flavourSelect.addEventListener("change", updateProductDetails);
   sizeSelect.addEventListener("change", updateProductDetails);
 
-  // ✅ Quantity + Toastr
+  /* 🧃 Toastr Setup */
   toastr.options = {
     closeButton: true,
     progressBar: true,
@@ -238,6 +315,7 @@
     timeOut: "2000"
   };
 
+  /* 🧮 Quantity Controls */
   const qtyInput = document.getElementById("quantityInput");
   const decBtn = document.getElementById("decreaseQty");
   const incBtn = document.getElementById("increaseQty");
@@ -268,7 +346,7 @@
     }
   });
 
-  // Function to enable magnifier effect
+  /* 🔍 Zoom Effect */
   function enableZoom(container) {
     const img = container.querySelector(".zoom-image");
 
@@ -278,7 +356,7 @@
       const y = ((e.clientY - rect.top) / rect.height) * 100;
 
       img.style.transformOrigin = `${x}% ${y}%`;
-      img.style.transform = "scale(2)"; // zoom level
+      img.style.transform = "scale(2)";
     });
 
     container.addEventListener("mouseleave", () => {
@@ -287,68 +365,125 @@
     });
   }
 
-  // Run zoom effect for all visible slides
-  document.querySelectorAll(".zoom-container").forEach(enableZoom);
-
-  // Also re-run when variants update (after swiper.update())
   function applyZoomAgain() {
     document.querySelectorAll(".zoom-container").forEach(enableZoom);
   }
 
-  const addToCartBtn = document.getElementById('addToCartBtn')
+  document.querySelectorAll(".zoom-container").forEach(enableZoom);
+
+  /* 🛒 Add to Cart Button Logic */
+  const addToCartBtn = document.getElementById('addToCartBtn');
 
   addToCartBtn.addEventListener('click', async (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if(addToCartBtn.textContent.trim() === 'Add to cart') {
-      const selectedFlavour = flavourSelect.value
-      const selectedSize = sizeSelect.value
-      const quantity = parseInt(document.getElementById('quantityInput').value)
+    e.preventDefault();
+    e.stopPropagation();
 
-      const variant = variants.find(v => v.flavour === selectedFlavour && v.size === selectedSize)
+    if (addToCartBtn.textContent.trim() === 'Add to cart') {
+      const selectedFlavour = flavourSelect.value;
+      const selectedSize = sizeSelect.value;
+      const quantity = parseInt(qtyInput.value);
 
-      if(!variant) {
-        toastr.error('Please select a valid variant')
-        return
+      const variant = variants.find(v => v.flavour === selectedFlavour && v.size === selectedSize);
+      if (!variant) {
+        toastr.error('Please select a valid variant');
+        return;
       }
 
-      try{
+      try {
         const res = await fetch('/cart', {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({
-            productId:'<%= product._id %>',
-            variantId:variant._id,
-            quantity:quantity
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            productId: '<%= product._id %>',
+            variantId: variant._id,
+            quantity: quantity
           })
-        })
+        });
 
-        if(res.status === 401) {
-          toastr.error('please login to add items to cart')
-          setTimeout(() => window.location.href = '/auth/login',1500)
-          return 
+        if (res.status === 401) {
+          toastr.error('Please login to add items to cart');
+          setTimeout(() => window.location.href = '/auth/login', 1500);
+          return;
         }
 
-        const data = await res.json()
+        const data = await res.json();
 
-        if(res.ok) {
-          toastr.success('Added to cart')
-          addToCartBtn.textContent = 'Go to cart'
+        if (res.ok) {
+          toastr.success('Added to cart');
+          addToCartBtn.textContent = 'Go to cart';
 
-          if(data.cartLength !== undefined) {
-            updateCartBadge(data.cartLength)
+          if (data.cartLength !== undefined) {
+            updateCartBadge(data.cartLength);
           }
-        }else{
-          toastr.error(data.message || 'Failed to add to cart')
+        } else {
+          toastr.error(data.message || 'Failed to add to cart');
         }
-      }catch(err) {
-        toastr.error('something went wrong')
+      } catch (err) {
+        toastr.error('Something went wrong');
       }
-    }else{
-      window.location.href = '/cart'
+    } else {
+      window.location.href = '/cart';
     }
-  })
-  
+  });
 
+  /* ❤️ Wishlist Toggle */
+  async function toggleWishlistDetail() {
+    const heartIcon = document.getElementById("wishlistIcon");
+    const selectedFlavour = flavourSelect.value;
+    const selectedSize = sizeSelect.value;
+    const variant = variants.find(v => v.flavour === selectedFlavour && v.size === selectedSize);
 
+    if (!variant) {
+      toastr.error("Please select a valid variant");
+      return;
+    }
+
+    const isWishlisted = heartIcon.classList.contains("text-red-500");
+
+    try {
+      if (isWishlisted) {
+        const res = await fetch(`/wishlist/${variant._id}`, { method: "DELETE" });
+        const data = await res.json();
+        if (data.success) {
+          heartIcon.classList.remove("text-red-500");
+          heartIcon.classList.add("text-gray-400");
+          toastr.warning("Removed from wishlist");
+          await updateBadgesFromServer();
+        } else {
+          toastr.error(data.message || "Failed to remove from wishlist");
+        }
+      } else {
+        const res = await fetch(`/wishlist/${variant._id}`, { method: "POST" });
+        const data = await res.json();
+        if (data.success) {
+          heartIcon.classList.add("text-red-500");
+          heartIcon.classList.remove("text-gray-400");
+          toastr.success("Added to wishlist");
+          await updateBadgesFromServer();
+        } else if (data.message?.includes("Duplicate")) {
+          toastr.info("Already in wishlist");
+        } else {
+          toastr.error(data.message || "Failed to add to wishlist");
+        }
+      }
+    } catch (err) {
+      console.error("Wishlist toggle error:", err);
+      toastr.error("Something went wrong");
+    }
+  }
+
+  /* 💖 Update wishlist heart automatically */
+  const userWishlist = <%- JSON.stringify(userWishlist || []) %>;
+
+  function updateWishlistHeart(variantId) {
+    const heartIcon = document.getElementById("wishlistIcon");
+    if (userWishlist.includes(variantId)) {
+      heartIcon.classList.add("text-red-500");
+      heartIcon.classList.remove("text-gray-400");
+    } else {
+      heartIcon.classList.add("text-gray-400");
+      heartIcon.classList.remove("text-red-500");
+    }
+  }
 </script>
+

@@ -1,118 +1,115 @@
-
-
-<!-- Main Dashboard Content -->
 <main class="p-6 bg-gray-50 min-h-screen">
-  <!-- Page Title -->
-  <div class="mb-10">
-    <h1 class="text-2xl font-semibold text-gray-800">Dashboard</h1>
-    <nav class="text-sm text-gray-500 mt-5">
-      <a href="/admin/dashboard" class="hover:underline">Admin</a> /
-      <span class="text-gray-700 font-medium">Dashboard</span>
-    </nav>
-  </div>
-
-  <!-- Stats Section -->
+  <!-- Stats Cards -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-    <!-- Total Sales -->
-    <div class="bg-white shadow rounded-lg p-6">
-      <h2 class="text-gray-500 text-sm font-medium">Total Sales</h2>
-      <p class="text-2xl font-semibold text-gray-800 mt-2">₹ 12,05600</p>
-      <div class="mt-4">
-        <div class="h-16 bg-gray-100 rounded flex items-center justify-center text-gray-400 text-sm">
-          📊 Sales Graph
-        </div>
+    <div class="bg-white shadow rounded-lg p-6 flex items-center justify-between">
+      <div>
+        <h2 class="text-gray-500 text-sm font-medium">TOTAL REVENUE</h2>
+        <p class="text-2xl font-semibold text-gray-800 mt-2">₹<%= totalRevenue.toFixed(2) %></p>
+      </div>
+      <div class="bg-purple-100 p-3 rounded-full text-purple-600">
+        <i class="fas fa-rupee-sign text-xl"></i>
       </div>
     </div>
 
-    <!-- Customers -->
-    <div class="bg-white shadow rounded-lg p-6">
-      <h2 class="text-gray-500 text-sm font-medium">Customers</h2>
-      <p class="text-2xl font-semibold text-gray-800 mt-2">2,571</p>
-      <div class="mt-4">
-        <div class="h-16 bg-gray-100 rounded flex items-center justify-center text-gray-400 text-sm">
-          👥 Customers Graph
-        </div>
+    <div class="bg-white shadow rounded-lg p-6 flex items-center justify-between">
+      <div>
+        <h2 class="text-gray-500 text-sm font-medium">TOTAL ORDERS</h2>
+        <p class="text-2xl font-semibold text-gray-800 mt-2"><%= totalOrders %></p>
+      </div>
+      <div class="bg-blue-100 p-3 rounded-full text-blue-600">
+        <i class="fas fa-shopping-cart text-xl"></i>
       </div>
     </div>
 
-    <!-- Orders -->
-    <div class="bg-white shadow rounded-lg p-6">
-      <h2 class="text-gray-500 text-sm font-medium">Orders</h2>
-      <p class="text-2xl font-semibold text-gray-800 mt-2">734</p>
-      <div class="mt-4">
-        <div class="h-16 bg-gray-100 rounded flex items-center justify-center text-gray-400 text-sm">
-          📦 Orders Progress
-        </div>
+    <div class="bg-white shadow rounded-lg p-6 flex items-center justify-between">
+      <div>
+        <h2 class="text-gray-500 text-sm font-medium">TOTAL CUSTOMERS</h2>
+        <p class="text-2xl font-semibold text-gray-800 mt-2"><%= totalCustomers %></p>
+      </div>
+      <div class="bg-green-100 p-3 rounded-full text-green-600">
+        <i class="fas fa-users text-xl"></i>
       </div>
     </div>
   </div>
 
   <!-- Middle Section -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <!-- Best Selling -->
-    <div class="bg-white shadow rounded-lg p-6">
-      <h2 class="text-gray-500 text-sm font-medium mb-4">Best Selling</h2>
-      <p class="text-xl font-semibold text-gray-800">₹ 250000 — Total Sales</p>
-      <ul class="mt-4 space-y-2 text-gray-600 text-sm">
-        <li>• Asitis Atom — 125000 Sales</li>
-        <li>• Muscle Blaze — 67500 Sales</li>
-        <li>• Naturaltein — 57500 Sales</li>
-      </ul>
-      <div class="mt-6">
-        <div class="h-24 w-24 rounded-full border-8 border-blue-500 flex items-center justify-center text-gray-500 text-sm">
-          🔄 Chart
-        </div>
-      </div>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Sales Overview -->
+    <div class="col-span-2 bg-white shadow rounded-lg p-6">
+      <h2 class="text-gray-700 font-semibold mb-4">Sales Overview</h2>
+      <canvas id="salesChart" height="120"></canvas>
     </div>
 
-    <!-- Recent Orders -->
+    <!-- Best Selling -->
     <div class="bg-white shadow rounded-lg p-6">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-gray-500 text-sm font-medium">Recent Orders</h2>
-        <a href="/admin/orders" class="text-blue-600 text-sm hover:underline">View All</a>
+        <h2 class="text-gray-700 font-semibold">Best Selling</h2>
+        <select id="filterType" class="border rounded text-sm p-1">
+          <option value="product">Products</option>
+          <option value="brand">Brands</option>
+          <option value="category">Categories</option>
+        </select>
       </div>
-      <table class="w-full text-sm text-left text-gray-600">
-        <thead class="border-b text-gray-500">
-          <tr>
-            <th class="py-2">Item</th>
-            <th class="py-2">Date</th>
-            <th class="py-2">Total</th>
-            <th class="py-2">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="border-b">
-            <td class="py-2">MB Whey Gold</td>
-            <td>20 Dec, 2024</td>
-            <td>₹ 8299</td>
-            <td class="text-yellow-500">Processing</td>
-          </tr>
-          <tr class="border-b">
-            <td class="py-2">Avatar Isorich Protein</td>
-            <td>19 Mar, 2025</td>
-            <td>₹ 7249</td>
-            <td class="text-yellow-500">Processing</td>
-          </tr>
-          <tr class="border-b">
-            <td class="py-2">Naturaltein Whey Isolate</td>
-            <td>7 Feb, 2025</td>
-            <td>₹ 4280</td>
-            <td class="text-green-600">Completed</td>
-          </tr>
-          <tr class="border-b">
-            <td class="py-2">Whole Truth - Whey Protein</td>
-            <td>29 Jan, 2025</td>
-            <td>₹ 3799</td>
-            <td class="text-green-600">Completed</td>
-          </tr>
-          <tr>
-            <td class="py-2">Naturaltein Whey Isolate</td>
-            <td>27 Jan, 2025</td>
-            <td>₹ 4280</td>
-            <td class="text-green-600">Completed</td>
-          </tr>
-        </tbody>
-      </table>
+
+      <% bestSellingProducts.forEach(item => { %>
+        <div class="flex items-center mb-4">
+          <img src="<%= item.image %>" alt="product" class="w-10 h-10 rounded-full mr-3">
+          <div>
+            <p class="font-medium text-gray-800"><%= item.name %></p>
+            <p class="text-sm text-gray-500">Sales: <%= item.sales %></p>
+          </div>
+        </div>
+      <% }) %>
     </div>
   </div>
+
+  <!-- Recent Orders -->
+  <div class="bg-white shadow rounded-lg mt-8 p-6">
+    <h2 class="text-gray-700 font-semibold mb-4">Recent Orders</h2>
+    <table class="w-full text-sm text-left text-gray-600">
+      <thead class="border-b text-gray-500">
+        <tr>
+          <th class="py-2">ORDER ID</th>
+          <th class="py-2">USER</th>
+          <th class="py-2">TOTAL</th>
+          <th class="py-2">STATUS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% recentOrders.forEach(order => { %>
+          <tr class="border-b">
+            <td class="py-2 text-purple-600"><%= order.orderId %></td>
+            <td><%= order.user.name %></td>
+            <td>₹<%= order.totalAmount.toFixed(2) %></td>
+            <td>
+              <% if(order.status === 'Cancelled'){ %>
+                <span class="bg-red-100 text-red-600 px-2 py-1 rounded text-xs">CANCELLED</span>
+              <% } else if(order.status === 'Returned'){ %>
+                <span class="bg-blue-100 text-blue-600 px-2 py-1 rounded text-xs">RETURNED</span>
+              <% } else if(order.status === 'Confirmed'){ %>
+                <span class="bg-green-100 text-green-600 px-2 py-1 rounded text-xs">CONFIRMED</span>
+              <% } else { %>
+                <span class="bg-yellow-100 text-yellow-600 px-2 py-1 rounded text-xs"><%= order.status.toUpperCase() %></span>
+              <% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
 </main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById('salesChart');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: <%- JSON.stringify(salesOverview.map(d => d._id)) %>,
+      datasets: [{
+        label: 'Sales (₹)',
+        data: <%- JSON.stringify(salesOverview.map(d => d.total)) %>,
+      }]
+    },
+  });
+</script>

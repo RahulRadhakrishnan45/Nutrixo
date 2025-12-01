@@ -1,0 +1,94 @@
+<div class="min-h-screen bg-white flex justify-center items-start p-6 pt-16 mt-8">
+  <div class="w-full max-w-3xl flex flex-col items-center text-center">
+
+    <!-- Error Icon -->
+    <div class="mb-6">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" 
+           fill="none" stroke="#f87171" stroke-width="1.5"
+           class="w-24 h-24">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M12 9v3m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    </div>
+
+    <!-- Heading -->
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">
+      We couldn't process your order
+    </h1>
+
+    <!-- Subtext -->
+    <p class="text-gray-600 mb-8 max-w-xl leading-relaxed">
+      Unfortunately, there was an issue processing your payment.
+      Your order has not been placed.
+    </p>
+
+    <!-- Order Details Box -->
+    <div class="border rounded-xl shadow-md w-full max-w-xl p-6 mb-10">
+      <div class="grid grid-cols-2 gap-4 text-left text-gray-700">
+
+        <p class="font-medium">Order Reference</p>
+        <p><%= orderId %></p>
+
+        <p class="font-medium">Date</p>
+        <p><%= new Date().toDateString() %></p>
+
+        <p class="font-medium">Status</p>
+        <p class="text-red-500 font-semibold">Payment Declined</p>
+
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="flex flex-col md:flex-row gap-4">
+
+      <!-- Try Different Payment Method -->
+      <a href="/checkout?retry=1"
+        class="bg-gray-200 hover:bg-gray-300 text-gray-800 
+               px-8 py-3 rounded-lg text-lg font-semibold transition">
+        Try Different Payment Method
+      </a>
+
+      <!-- Try Again (Razorpay Retry) -->
+      <button onclick="retryPayment('<%= orderId %>')"
+              class="bg-red-500 hover:bg-red-600 text-white 
+                     px-8 py-3 rounded-lg text-lg font-semibold transition">
+        Try Again
+      </button>
+
+    </div>
+
+  </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script>
+
+toastr.options = {
+  "closeButton": true,
+  "progressBar": true,
+  "positionClass": "toast-bottom-right",
+  "timeOut": "3000"
+};
+
+function retryPayment(orderId) {
+
+    fetch(`/checkout/order/${orderId}/check-stock`)
+    .then(res => res.json())
+    .then(data => {
+
+        if (!data.success) {
+            toastr.error(data.message);   // 🔥 toastr error popup
+            setTimeout(() => {
+                window.location.href = '/cart';
+            }, 2000);
+            return;
+        }
+
+        // Stock OK → continue to payment
+        window.location.href = `/checkout/order/${orderId}/retry-payment`;
+    });
+}
+</script>

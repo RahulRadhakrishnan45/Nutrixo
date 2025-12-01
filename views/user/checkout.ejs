@@ -21,18 +21,28 @@
         <div class="bg-white shadow-md rounded-lg p-6">
           <h2 class="text-2xl font-semibold mb-6">Shipping Address</h2>
 
+          <% let selected = null; %>
+
+<% if (addresses && addresses.length > 0) { %>
+
           <% 
-            
             let selectedIndex = -1;
 
             if (selectedId) {
               selectedIndex = addresses.findIndex(a => a._id.toString() === selectedId);
             }
+
             if (selectedIndex === -1) {
               selectedIndex = addresses.findIndex(a => a.is_Default);
             }
-            const selected = selectedIndex !== -1 ? addresses[selectedIndex] : addresses[0];
+
+            if (selectedIndex === -1) selectedIndex = 0;
+
+            selected = addresses[selectedIndex];
           %>
+
+        <% } %>
+
 
           <div class="flex justify-between items-center mb-4">
             <select id="addressSelect" class="border px-3 py-2 rounded-md">
@@ -44,7 +54,6 @@
                 </option>
               <% }) %>
             </select>
-            <!-- Add New opens modal -->
             <button type="button" class="bg-black text-white px-4 py-2 rounded-md add-new-btn">
               + Add new
             </button>
@@ -88,7 +97,6 @@
               </div>
             </div>
 
-            <!-- Edit button -->
             <button type="button" 
                     class="mt-4 bg-black text-white px-4 py-2 rounded-md edit-btn" 
                     data-id="<%= selected._id %>">
@@ -106,21 +114,29 @@
           <div class="space-y-2">
             <label class="flex items-center space-x-2">
               <input type="radio" name="payment" value="CARD" checked>
-              <span>Debit Card / Credit Card</span>
+              <span>Debit / Credit / Netbanking</span>
             </label>
+
             <label class="flex items-center space-x-2">
-              <input type="radio" name="payment" value="NETBANKING">
-              <span>Net Banking</span>
+              <input type="radio" 
+                    name="payment" 
+                    value="WALLET"
+                    <%= walletBalance < total ? "disabled" : "" %>>
+              <span>
+                Wallet 
+                <span class="text-green-500">(Available: ₹<%= walletBalance.toFixed(2) %>)</span>
+                <% if (walletBalance < total) { %>
+                  <span class="text-red-500 text-xs">(Insufficient)</span>
+                <% } %>
+              </span>
             </label>
-            <label class="flex items-center space-x-2">
-              <input type="radio" name="payment" value="WALLET">
-              <span>Wallet</span>
-            </label>
+
             <label class="flex items-center space-x-2">
               <input type="radio" name="payment" value="COD">
               <span>Cash on Delivery</span>
             </label>
           </div>
+
         </div>
       </div>
 
@@ -148,52 +164,133 @@
           </form>
         </div>
 
-        <!-- Price Breakdown -->
+        
+        <!-- 🧾 Price Breakdown -->
         <div class="space-y-4 text-gray-700 mb-6">
-          <div class="flex justify-between">
-            <span>Subtotal:</span>
-            <span>₹<%= subtotal.toFixed(2) %></span>
-          </div>
-          <div class="flex justify-between text-green-600">
-            <span>Total discount:</span>
-            <span>-₹<%= discount.toFixed(2) %></span>
-          </div>
-          <div class="flex justify-between">
-            <span>Shipping:</span>
-            <span>Free</span>
-          </div>
-          <div class="flex justify-between">
-            <span>Tax:</span>
-            <span>₹<%= tax.toFixed(2) %></span>
-          </div>
-          <div class="border-t pt-3 flex justify-between font-semibold text-lg">
-            <span>Total</span>
-            <span>₹<%= total.toFixed(2) %></span>
-          </div>
+            <div class="flex justify-between">
+              <span>Price (Actual):</span>
+              <span>₹<%= actualPrice %></span>
+            </div>
+
+            <% if (offerDiscount > 0) { %>
+              <div class="flex justify-between text-green-600">
+              <span>Offer Discount:</span>
+              <span>-₹<%= offerDiscount %></span>
+              </div>
+            <% } else { %>
+              <div class="flex justify-between text-gray-600">
+                <span>Offer Discount:</span>
+                <span>₹0.00</span>
+              </div>
+            <% } %>
+
+        <div class="flex justify-between font-medium">
+          <span>Subtotal (After Offer):</span>
+          <span>₹<%= subtotal %></span>
         </div>
+
+        <% if (couponDiscount > 0 && appliedCoupon) { %>
+          <div class="flex justify-between items-center text-green-600">
+            <div>
+              <span>Coupon Discount:</span>
+              <span>-₹<%= couponDiscount %></span>
+            </div>
+            <!-- Remove Coupon Button -->
+            <form action="/coupons/remove" method="POST">
+              <button type="submit"
+                      class="text-red-500 hover:text-red-700 border border-red-500 px-3 py-1 rounded-md text-xs font-semibold ml-2">
+                Remove
+              </button>
+            </form>
+          </div>
+
+          <div class="flex justify-between text-blue-600 text-sm font-semibold">
+            <span>Applied Coupon:</span>
+            <span><%= appliedCoupon.code %></span>
+          </div>
+        <% } else { %>
+          <div class="flex justify-between text-gray-600">
+            <span>Coupon Discount:</span>
+            <span>₹0.00</span>
+          </div>
+        <% } %>
+
+
+        <div class="flex justify-between">
+          <span>Tax:</span>
+          <span>₹<%= tax %></span>
+        </div>
+
+        <div class="border-t pt-3 flex justify-between font-semibold text-lg">
+          <span>Total</span>
+          <span>₹<%= total %></span>
+        </div>
+    </div>
 
         <!-- Place Order -->
         <form id="placeOrderForm" action="/checkout/orders" method="POST" class="mb-6">
-          <input type="hidden" id="selectedAddressIndex" name="addressIndex" value="<%= selectedIndex %>" />
+          <input type="hidden" id="selectedAddressIndex" name="addressIndex" value="<%= selected ? addresses.indexOf(selected) : 0 %>" />
           <input type="hidden" id="selectedPayment" name="paymentMethod" value="CARD" />
           <button class="w-full bg-black text-white py-3 rounded-md hover:bg-gray-800">
             Place Order
           </button>
         </form>
 
-        <!-- Coupon -->
+        <!-- Coupon Section -->
         <div class="border-t pt-6">
           <div class="flex justify-between text-gray-500 text-sm mb-3">
             <span>(If you have any Coupon)</span>
-            <a href="/coupons" class="underline">view coupons</a>
+            <button type="button" id="viewCouponsBtn" class="underline text-blue-600 hover:text-blue-800">
+              view coupons
+            </button>
           </div>
-          <form action="/checkout/apply-coupon" method="POST" class="flex space-x-2">
+          <form action="/coupons/apply" method="POST" class="flex space-x-2">
             <input type="text" name="code" placeholder="Enter Code" 
                    class="border px-3 py-2 rounded-md w-full">
             <button class="bg-black text-white px-5 rounded-md">Apply</button>
           </form>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- 🧾 Coupon Modal -->
+  <div id="couponModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg w-full max-w-lg p-6 relative shadow-lg">
+      <h2 class="text-2xl font-semibold mb-4">Available Coupons</h2>
+
+      <% if (coupons && coupons.length > 0) { %>
+        <div class="space-y-4 max-h-80 overflow-y-auto">
+          <% coupons.forEach(coupon => { %>
+            <div class="border rounded-lg p-4 flex justify-between items-center">
+              <div>
+                <p class="font-semibold text-lg"><%= coupon.code %></p>
+                <p class="text-gray-600 text-sm mb-1"><%= coupon.description %></p>
+                <p class="text-gray-500 text-xs">
+                  Valid: <%= new Date(coupon.startDate).toLocaleDateString() %> -
+                  <%= new Date(coupon.endDate).toLocaleDateString() %>
+                </p>
+                <p class="text-gray-500 text-xs">
+                  Minimum Purchase: ₹<%= coupon.minimumPurchase %>
+                </p>
+              </div>
+              <form action="/coupons/apply" method="POST">
+                <input type="hidden" name="code" value="<%= coupon.code %>">
+                <button class="bg-black text-white px-4 py-2 rounded-md text-sm hover:bg-gray-800">
+                  Apply
+                </button>
+              </form>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <p class="text-gray-500 text-center">No active coupons available.</p>
+      <% } %>
+
+      <button id="closeCouponModal" 
+              class="absolute top-3 right-4 text-gray-500 hover:text-gray-800 text-xl font-bold">
+        &times;
+      </button>
     </div>
   </div>
 
@@ -210,19 +307,19 @@
     </div>
   <% }) %>
 
-  <!-- Address modal -->
   <%- include('../partials/addressModal.ejs') %>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="/js/addressModal.js"></script>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
-  <!-- JS for updating address dynamically -->
   <script>
     const addresses = <%- JSON.stringify(addresses) %>;
-
     const addressSelect = document.getElementById("addressSelect");
+    const selectedAddressIndex = document.getElementById("selectedAddressIndex");
+    selectedAddressIndex.value = addressSelect.value
     const street = document.getElementById("street");
     const fullname = document.getElementById("fullname");
     const district = document.getElementById("district");
@@ -230,7 +327,6 @@
     const pincode = document.getElementById("pincode");
     const country = document.getElementById("country");
     const mobile = document.getElementById("mobile");
-    const selectedAddressIndex = document.getElementById("selectedAddressIndex");
     const editBtn = document.querySelector(".edit-btn");
 
     addressSelect.addEventListener("change", (e) => {
@@ -242,32 +338,39 @@
       pincode.value = selected.pincode;
       country.value = selected.country;
       mobile.value = selected.mobile;
-
-      // update hidden input for backend
       selectedAddressIndex.value = e.target.value;
-
-      // update edit button data-id
-      if (editBtn) {
-        editBtn.dataset.id = selected._id;
-      }
+      if (editBtn) editBtn.dataset.id = selected._id;
     });
 
     const paymentRadios = document.querySelectorAll('input[name="payment"]');
     const paymentInput = document.getElementById("selectedPayment");
+    paymentRadios.forEach(radio => {
+      radio.addEventListener("change", e => paymentInput.value = e.target.value);
+    });
 
-        paymentRadios.forEach(radio => {
-            radio.addEventListener("change", (e) => {
-                paymentInput.value = e.target.value; // update hidden field
-            });
-        });
+    // Coupon modal toggle
+    const couponModal = document.getElementById("couponModal");
+    const viewCouponsBtn = document.getElementById("viewCouponsBtn");
+    const closeCouponModal = document.getElementById("closeCouponModal");
+
+    viewCouponsBtn.addEventListener("click", () => {
+      couponModal.classList.remove("hidden");
+    });
+
+    closeCouponModal.addEventListener("click", () => {
+      couponModal.classList.add("hidden");
+    });
+
+    window.addEventListener("click", (e) => {
+      if (e.target === couponModal) couponModal.classList.add("hidden");
+    });
 
     toastr.options = {
-        "closeButton": true,
-        "progressBar": true,
-        "positionClass": "toast-bottom-right",
-        "timeOut": "3000"
+      closeButton: true,
+      progressBar: true,
+      positionClass: "toast-bottom-right",
+      timeOut: "3000"
     };
-
 
     <% if(error === 'stockAdjusted') { %>
       toastr.warning('Some products had limited stock. Quantities were adjusted accordingly.');
@@ -275,8 +378,14 @@
       toastr.error('All items in your cart are currently out of stock.');
     <% } else if(error === 'noAddress') { %>
       toastr.error('Please add an address before placing your order.');
+    <% } else if(error === 'invalidCoupon') { %>
+      toastr.error('Invalid or expired coupon.');
+    <% } else if(error === 'minimumNotMet') { %>
+      toastr.warning('Minimum purchase requirement not met for this coupon.');
     <% } %>
-
+    <% if(error === 'couponUsed') { %>
+      toastr.error('You have already used this coupon.');
+    <% } %>
 
   </script>
 </body>

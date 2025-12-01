@@ -2,9 +2,7 @@
   <!-- Breadcrumb -->
   <nav class="text-sm mb-6 text-gray-500">
     <ol class="flex items-center space-x-2">
-      <li>
-        <a href="/admin/dashboard" class="hover:underline text-gray-600">Admin</a>
-      </li>
+      <li><a href="/admin/dashboard" class="hover:underline text-gray-600">Admin</a></li>
       <li>/</li>
       <li class="text-gray-800 font-medium">Products</li>
     </ol>
@@ -19,9 +17,7 @@
   <div class="flex justify-end items-center mb-4 space-x-2">
     <input type="text" id="searchInput" placeholder="Search products..."
       class="px-3 py-2 border rounded-md w-64 focus:outline-none focus:ring focus:ring-blue-300">
-
-    <a href="/admin/products/new"
-      class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 inline-block">
+    <a href="/admin/products/new" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 inline-block">
       + Add Product
     </a>
   </div>
@@ -42,51 +38,45 @@
         </tr>
       </thead>
       <tbody id="productTable">
-  <% rows.forEach((row) => { %>
-    <tr class="border-b hover:bg-gray-50 <%= !row.is_active ? 'opacity-50' : '' %>">
-      <td class="py-3 px-4">
-        <% if (row.images && row.images.length > 0) { %>
-          <img src="<%= row.images[0] %>" class="h-12 w-12 rounded object-cover">
-        <% } else { %>
-          <span class="text-gray-400">No Image</span>
-        <% } %>
-      </td>
-      <td class="py-3 px-4"><%= row.productTitle %></td>
-      <td class="py-3 px-4"><%= row.flavour || '-' %></td>
-      <td class="py-3 px-4"><%= row.size || '-' %></td>
-      <td class="py-3 px-4">₹ <%= row.discounted_price && row.discounted_price > 0 ? row.discounted_price : row.price %></td>
-      <td class="py-3 px-4"><%= row.productCategory?.name || '-' %></td>
-      <td class="py-3 px-4"><%= row.productBrand?.name || '-' %></td>
-      <td class="py-3 px-4 text-center flex justify-center space-x-3">
-        <% if (row.is_active) { %>
-          <button class="deleteBtn" data-product="<%= row.productId %>" data-variant="<%= row._id %>">🗑</button>
-        <% } else { %>
-          <button class="restoreBtn" data-product="<%= row.productId %>" data-variant="<%= row._id %>">♻️</button>
-        <% } %>
-        <button class="editBtn"
-            data-id="<%= row.productId %>"
-            data-variantid="<%= row._id %>"
-            data-title="<%= row.productTitle %>"
-            data-description="<%= row.productDescription %>"
-            data-category="<%= row.productCategory?._id %>"
-            data-brand="<%= row.productBrand?._id %>"
-            data-variants='<%- JSON.stringify(row.allVariants) %>'>
-              ✏️
-        </button>
-
-      </td>
-    </tr>
-  <% }) %>
-</tbody>
-
-
+        <% rows.forEach((row) => { %>
+          <tr class="border-b hover:bg-gray-50 <%= !row.is_active ? 'opacity-50' : '' %>">
+            <td class="py-3 px-4">
+              <% if (row.images && row.images.length > 0) { %>
+                <img src="<%= row.images[0] %>" class="h-12 w-12 rounded object-cover">
+              <% } else { %>
+                <span class="text-gray-400">No Image</span>
+              <% } %>
+            </td>
+            <td class="py-3 px-4"><%= row.productTitle %></td>
+            <td class="py-3 px-4"><%= row.flavour || '-' %></td>
+            <td class="py-3 px-4"><%= row.size || '-' %></td>
+            <td class="py-3 px-4">₹ <%= row.price %></td>
+            <td class="py-3 px-4"><%= row.productCategory?.name || '-' %></td>
+            <td class="py-3 px-4"><%= row.productBrand?.name || '-' %></td>
+            <td class="py-3 px-4 text-center flex justify-center space-x-3">
+              <% if (row.is_active) { %>
+                <button class="deleteBtn" data-product="<%= row.productId %>" data-variant="<%= row._id %>">🗑</button>
+              <% } else { %>
+                <button class="restoreBtn" data-product="<%= row.productId %>" data-variant="<%= row._id %>">♻️</button>
+              <% } %>
+              <button class="editBtn"
+                data-id="<%= row.productId %>"
+                data-variantid="<%= row._id %>"
+                data-title="<%= row.productTitle %>"
+                data-description="<%= row.productDescription %>"
+                data-category="<%= row.productCategory?._id %>"
+                data-brand="<%= row.productBrand?._id %>"
+                data-variants='<%- JSON.stringify(row.allVariants) %>'>✏️</button>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
     </table>
   </div>
 </div>
 
 <!-- Edit Product Modal -->
-<div id="editModal"
-  class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+<div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
   <div class="bg-white rounded-lg shadow-lg w-4/5 p-6 relative max-h-[90vh] overflow-y-auto">
     <h2 class="text-xl font-semibold mb-4">Edit Product</h2>
     <form id="editProductForm" method="POST" enctype="multipart/form-data">
@@ -96,8 +86,7 @@
       <div class="grid grid-cols-2 gap-4 mb-6">
         <div>
           <label class="block text-sm">Name</label>
-          <input type="text" name="title" id="editName"
-            class="w-full border rounded px-3 py-2">
+          <input type="text" name="title" id="editName" class="w-full border rounded px-3 py-2">
         </div>
         <div>
           <label class="block text-sm">Category</label>
@@ -117,8 +106,7 @@
         </div>
         <div class="col-span-2">
           <label class="block text-sm">Description</label>
-          <textarea name="description" id="editDescription" rows="3"
-            class="w-full border rounded px-3 py-2"></textarea>
+          <textarea name="description" id="editDescription" rows="3" class="w-full border rounded px-3 py-2"></textarea>
         </div>
       </div>
 
@@ -126,12 +114,9 @@
       <h3 class="text-lg font-semibold mb-2">Variants</h3>
       <div id="variantEditContainer"></div>
 
-      <!-- Buttons -->
       <div class="flex justify-end space-x-2 mt-6">
-        <button type="button" id="closeEditModal"
-          class="px-4 py-2 border rounded hover:bg-gray-100">Cancel</button>
-        <button type="submit"
-          class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Save</button>
+        <button type="button" id="closeEditModal" class="px-4 py-2 border rounded hover:bg-gray-100">Cancel</button>
+        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Save</button>
       </div>
     </form>
   </div>
@@ -151,7 +136,7 @@
 
 <%- include('../partials/pagination.ejs',{currentPage , totalPages, query}) %>
 
-<link  href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
 
@@ -162,9 +147,8 @@
   // -----------------------
   // Build Variants in Modal
   // -----------------------
-  // Event delegation for edit buttons
-document.addEventListener("click", (e) => {
-  if (e.target.classList.contains("editBtn")) {
+  document.addEventListener("click", (e) => {
+    if (!e.target.classList.contains("editBtn")) return;
     const btn = e.target;
 
     document.getElementById('editModal').classList.remove('hidden');
@@ -193,8 +177,8 @@ document.addEventListener("click", (e) => {
           <div class="relative inline-block mr-2 mb-2">
             <img src="${img}" class="w-24 h-24 object-cover rounded-md border">
             <button type="button"
-                    class="absolute top-0 right-0 bg-red-500 text-white rounded-full px-1 text-xs removeExistingImage"
-                    data-variant="${idx}" data-index="${i}">✕</button>
+              class="absolute top-0 right-0 bg-red-500 text-white rounded-full px-1 text-xs removeExistingImage"
+              data-variant="${idx}" data-index="${i}">✕</button>
             <input type="hidden" name="existing_images_${idx}[]" value="${img}">
           </div>
         `).join("");
@@ -224,11 +208,6 @@ document.addEventListener("click", (e) => {
             <p class="text-red-500 text-sm mt-1 hidden" id="priceError_${idx}"></p>
           </div>
           <div>
-            <label class="block text-sm font-medium mb-1">Discounted Price</label>
-            <input type="number" name="discounted_price[]" value="${variant.discounted_price || ''}" class="w-full border rounded px-3 py-2">
-            <p class="text-red-500 text-sm mt-1 hidden" id="discountError_${idx}"></p>
-          </div>
-          <div>
             <label class="block text-sm font-medium mb-1">Stock</label>
             <input type="number" name="stock[]" value="${variant.stock || ''}" class="w-full border rounded px-3 py-2">
             <p class="text-red-500 text-sm mt-1 hidden" id="stockError_${idx}"></p>
@@ -243,13 +222,11 @@ document.addEventListener("click", (e) => {
           <input type="file" name="variant_images_${idx}[]" multiple accept="image/*"
             class="w-full border rounded px-3 py-2 imageInput">
           <div class="previewContainer flex gap-2 mt-2"></div>
-
           <p class="text-red-500 text-sm mt-1 hidden" id="imageError_${idx}"></p>
         </div>
       `;
       container.appendChild(div);
     });
-
     const targetVariantId = btn.dataset.variantid;
     const targetElement = document.getElementById(`variant-${targetVariantId}`);
     if (targetElement) {
@@ -258,9 +235,7 @@ document.addEventListener("click", (e) => {
       targetElement.style.background = "#fff3cd";
       setTimeout(() => targetElement.style.background = "", 1000);
     }
-  }
-});
-
+  });
 
   // -----------------------
   // Remove Existing Images
@@ -272,172 +247,137 @@ document.addEventListener("click", (e) => {
     }
   });
 
-// -----------------------
-// Cropper + Preview Logic
-// -----------------------
-let currentCropper = null;
-let currentInput = null;
-let cropQueue = [];
+  // -----------------------
+  // Cropper + Preview Logic
+  // -----------------------
+  let currentCropper = null;
+  let currentInput = null;
+  let cropQueue = [];
 
-// When user selects images
-document.addEventListener("change", (e) => {
-  if (e.target.classList.contains("imageInput")) {
-    const files = Array.from(e.target.files);
-    if (files.length === 0) return;
+  document.addEventListener("change", (e) => {
+    if (e.target.classList.contains("imageInput")) {
+      const files = Array.from(e.target.files);
+      if (!files.length) return;
+      currentInput = e.target;
+      cropQueue = files;
+      startNextCrop();
+    }
+  });
 
-    currentInput = e.target;
-    cropQueue = files; // put all into queue
-    startNextCrop();
+  function startNextCrop() {
+    if (!cropQueue.length) return;
+    const file = cropQueue.shift();
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const cropImage = document.getElementById("cropImage");
+      cropImage.src = ev.target.result;
+      document.getElementById("cropModal").classList.remove("hidden");
+      if (currentCropper) currentCropper.destroy();
+      setTimeout(() => {
+        currentCropper = new Cropper(cropImage, { aspectRatio: 1, viewMode: 1, autoCropArea: 1 });
+      }, 100);
+    };
+    reader.readAsDataURL(file);
   }
-});
 
-function startNextCrop() {
-  if (cropQueue.length === 0) return;
-
-  const file = cropQueue.shift();
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    const cropImage = document.getElementById("cropImage");
-    cropImage.src = ev.target.result;
-
-    // Show modal
-    document.getElementById("cropModal").classList.remove("hidden");
-
-    // Reset cropper after modal is visible
-    if (currentCropper) currentCropper.destroy();
-    setTimeout(() => {
-      currentCropper = new Cropper(cropImage, {
-        aspectRatio: 1,
-        viewMode: 1,
-        autoCropArea: 1
-      });
-    }, 100);
-  };
-  reader.readAsDataURL(file);
-}
-
-// Cancel cropping
-document.getElementById("cropCancel").addEventListener("click", () => {
-  document.getElementById("cropModal").classList.add("hidden");
-  if (currentCropper) currentCropper.destroy();
-  currentCropper = null;
-
-  // move to next file
-  startNextCrop();
-});
-
-// Save cropped image
-document.getElementById("cropSave").addEventListener("click", () => {
-  if (!currentCropper || !currentInput) {
+  document.getElementById("cropCancel").addEventListener("click", () => {
     document.getElementById("cropModal").classList.add("hidden");
-    return;
-  }
+    if (currentCropper) currentCropper.destroy();
+    currentCropper = null;
+    startNextCrop();
+  });
 
-  currentCropper.getCroppedCanvas({ width: 500, height: 500 }).toBlob((blob) => {
-    if (!blob) {
+  document.getElementById("cropSave").addEventListener("click", () => {
+    if (!currentCropper || !currentInput) {
       document.getElementById("cropModal").classList.add("hidden");
       return;
     }
+    currentCropper.getCroppedCanvas({ width: 500, height: 500 }).toBlob((blob) => {
+      if (!blob) {
+        document.getElementById("cropModal").classList.add("hidden");
+        return;
+      }
+      const croppedFile = new File([blob], "cropped_" + Date.now() + ".png", { type: "image/png" });
+      let files = currentInput._filesBackup ? Array.from(currentInput._filesBackup) : [];
+      files.push(croppedFile);
+      files = files.slice(0, 3);
 
-    const croppedFile = new File([blob], "cropped_" + Date.now() + ".png", { type: "image/png" });
+      const dt = new DataTransfer();
+      files.forEach(f => dt.items.add(f));
+      currentInput.files = dt.files;
+      currentInput._filesBackup = dt.files;
 
-    // keep previous files
-    let files = currentInput._filesBackup ? Array.from(currentInput._filesBackup) : [];
-    files.push(croppedFile);
+      const previewContainer = currentInput.closest(".variantBox").querySelector(".previewContainer");
+      previewContainer.innerHTML = "";
+      files.forEach((file, index) => {
+        const url = URL.createObjectURL(file);
+        previewContainer.innerHTML += `
+          <div class="relative inline-block">
+            <img src="${url}" class="w-24 h-24 object-cover rounded-md border">
+            <button type="button"
+              class="absolute top-0 right-0 bg-red-500 text-white rounded-full px-1 text-xs removeImage"
+              data-index="${index}">✕</button>
+          </div>`;
+      });
 
-    // limit to 3 images
-    files = files.slice(0, 3);
-
-    // update input
-    const dt = new DataTransfer();
-    files.forEach(f => dt.items.add(f));
-    currentInput.files = dt.files;
-    currentInput._filesBackup = dt.files;
-
-    // show preview
-    const previewContainer = currentInput.closest(".variantBox").querySelector(".previewContainer");
-    previewContainer.innerHTML = "";
-    files.forEach((file, index) => {
-      const url = URL.createObjectURL(file);
-      previewContainer.innerHTML += `
-        <div class="relative inline-block">
-          <img src="${url}" class="w-24 h-24 object-cover rounded-md border">
-          <button type="button"
-                  class="absolute top-0 right-0 bg-red-500 text-white rounded-full px-1 text-xs removeImage"
-                  data-index="${index}">✕</button>
-        </div>`;
+      document.getElementById("cropModal").classList.add("hidden");
+      currentCropper.destroy();
+      currentCropper = null;
+      startNextCrop();
     });
-
-    // close modal + reset
-    document.getElementById("cropModal").classList.add("hidden");
-    currentCropper.destroy();
-    currentCropper = null;
-
-    // move to next file in queue
-    startNextCrop();
   });
-});
-
-// Remove an uploaded image (before save)
-document.addEventListener("click", (e) => {
-  if (e.target.classList.contains("removeImage")) {
-    const indexToRemove = parseInt(e.target.dataset.index, 10);
-    const variantBox = e.target.closest(".variantBox");
-    const imageInput = variantBox.querySelector(".imageInput");
-    const previewContainer = variantBox.querySelector(".previewContainer");
-
-    let files = Array.from(imageInput.files);
-    files.splice(indexToRemove, 1);
-
-    const dt = new DataTransfer();
-    files.forEach(f => dt.items.add(f));
-    imageInput.files = dt.files;
-    imageInput._filesBackup = dt.files;
-
-    // re-render previews
-    previewContainer.innerHTML = "";
-    files.forEach((file, index) => {
-      const url = URL.createObjectURL(file);
-      previewContainer.innerHTML += `
-        <div class="relative inline-block">
-          <img src="${url}" class="w-24 h-24 object-cover rounded-md border">
-          <button type="button"
-                  class="absolute top-0 right-0 bg-red-500 text-white rounded-full px-1 text-xs removeImage"
-                  data-index="${index}">✕</button>
-        </div>`;
-    });
-  }
-});
-
-
-// -----------------------
-// Close Edit Modal & Reset
-// -----------------------
-document.getElementById('closeEditModal').addEventListener('click', () => {
-  const modal = document.getElementById('editModal');
-  modal.classList.add('hidden');
-
-  // reset form
-  document.getElementById('editProductForm').reset();
-
-  // clear variant blocks
-  document.getElementById('variantEditContainer').innerHTML = "";
-});
-
-
 
   // -----------------------
-  // Submit with Swal + Fetch
+  // Remove Uploaded Image
+  // -----------------------
+  document.addEventListener("click", (e) => {
+    if (e.target.classList.contains("removeImage")) {
+      const indexToRemove = parseInt(e.target.dataset.index, 10);
+      const variantBox = e.target.closest(".variantBox");
+      const imageInput = variantBox.querySelector(".imageInput");
+      const previewContainer = variantBox.querySelector(".previewContainer");
+
+      let files = Array.from(imageInput.files);
+      files.splice(indexToRemove, 1);
+      const dt = new DataTransfer();
+      files.forEach(f => dt.items.add(f));
+      imageInput.files = dt.files;
+      imageInput._filesBackup = dt.files;
+
+      previewContainer.innerHTML = "";
+      files.forEach((file, index) => {
+        const url = URL.createObjectURL(file);
+        previewContainer.innerHTML += `
+          <div class="relative inline-block">
+            <img src="${url}" class="w-24 h-24 object-cover rounded-md border">
+            <button type="button"
+              class="absolute top-0 right-0 bg-red-500 text-white rounded-full px-1 text-xs removeImage"
+              data-index="${index}">✕</button>
+          </div>`;
+      });
+    }
+  });
+
+  // -----------------------
+  // Close Edit Modal
+  // -----------------------
+  document.getElementById('closeEditModal').addEventListener('click', () => {
+    document.getElementById('editModal').classList.add('hidden');
+    document.getElementById('editProductForm').reset();
+    document.getElementById('variantEditContainer').innerHTML = "";
+  });
+
+  // -----------------------
+  // Form Submit (Validate + Save)
   // -----------------------
   document.getElementById('editProductForm').addEventListener('submit', async function (e) {
     e.preventDefault();
 
-    let allValid = true
-    document.querySelectorAll('.variantBox').forEach((box,idx) => {
-      if(!validateVariant(box,idx)) allValid = false
-    })
-
-    if(!allValid) return
+    let allValid = true;
+    document.querySelectorAll('.variantBox').forEach((box, idx) => {
+      if (!validateVariant(box, idx)) allValid = false;
+    });
+    if (!allValid) return;
 
     const productId = document.getElementById('editProductId').value;
     const formData = new FormData(this);
@@ -449,19 +389,7 @@ document.getElementById('closeEditModal').addEventListener('click', () => {
         Swal.fire({ icon: "success", title: "Updated!", text: data.message || "Product updated successfully" })
           .then(() => window.location.reload());
       } else {
-        if(data.field === "variants") {
-        Swal.fire({
-          icon: "error",
-          title: "Duplicate Variant",
-          text: data.message || "Duplicate flavour + size is not allowed"
-        });
-        }else{
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: data.message || "Something went wrong"
-        });
-        }
+        Swal.fire({ icon: "error", title: "Error", text: data.message || "Something went wrong" });
       }
     } catch (err) {
       Swal.fire({ icon: "error", title: "Server Error", text: "Could not update product" });
@@ -469,212 +397,111 @@ document.getElementById('closeEditModal').addEventListener('click', () => {
   });
 
   // -----------------------
-// Delete with Swal + Fetch
-// -----------------------
-document.addEventListener("click", async (e) => {
-  if (e.target.classList.contains("deleteBtn")) {
-    const productId = e.target.dataset.product;
-    const variantId = e.target.dataset.variant;
+  // Delete + Restore
+  // -----------------------
+  document.addEventListener("click", async (e) => {
+    if (e.target.classList.contains("deleteBtn") || e.target.classList.contains("restoreBtn")) {
+      const isDelete = e.target.classList.contains("deleteBtn");
+      const productId = e.target.dataset.product;
+      const variantId = e.target.dataset.variant;
+      const url = isDelete
+        ? `/admin/products/${productId}/variants/${variantId}`
+        : `/admin/products/${productId}/variants/${variantId}/restore`;
+      const method = isDelete ? "DELETE" : "PATCH";
+      const text = isDelete ? "This variant will be deactivated." : "Restore this variant?";
 
-    Swal.fire({
-      title: "Are you sure?",
-      text: "This variant will be deactivated (not permanently deleted).",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, delete it",
-      cancelButtonText: "Cancel"
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          const res = await fetch(`/admin/products/${productId}/variants/${variantId}`, {
-            method: "DELETE",
-          });
-          const data = await res.json();
-
-          if (data.success) {
-            Swal.fire({ icon: "success", title: "Deleted!", text: data.message })
-              .then(() => window.location.reload());
-          } else {
-            Swal.fire({ icon: "error", title: "Error", text: data.message || "Something went wrong" });
+      Swal.fire({
+        title: isDelete ? "Are you sure?" : "Restore Variant?",
+        text,
+        icon: isDelete ? "warning" : "question",
+        showCancelButton: true,
+        confirmButtonText: isDelete ? "Yes, delete it" : "Yes, restore it"
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          try {
+            const res = await fetch(url, { method });
+            const data = await res.json();
+            if (data.success) {
+              Swal.fire({ icon: "success", title: isDelete ? "Deleted!" : "Restored!", text: data.message })
+                .then(() => window.location.reload());
+            }
+          } catch {
+            Swal.fire({ icon: "error", title: "Server Error", text: "Operation failed" });
           }
-        } catch (err) {
-          Swal.fire({ icon: "error", title: "Server Error", text: "Could not delete variant" });
         }
-      }
-    });
-  }
-});
-
-// Variant Restore
-document.addEventListener("click", async (e) => {
-  if (e.target.classList.contains("restoreBtn")) {
-    const productId = e.target.dataset.product;
-    const variantId = e.target.dataset.variant;
-
-    Swal.fire({
-      title: "Restore Variant?",
-      text: "This will make the variant active again.",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Yes, restore it",
-      cancelButtonText: "Cancel"
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          const res = await fetch(`/admin/products/${productId}/variants/${variantId}/restore`, {
-            method: "PATCH",
-          });
-          const data = await res.json();
-
-          if (data.success) {
-            Swal.fire({ icon: "success", title: "Restored!", text: data.message })
-              .then(() => window.location.reload());
-          } else {
-            Swal.fire({ icon: "error", title: "Error", text: data.message || "Something went wrong" });
-          }
-        } catch (err) {
-          Swal.fire({ icon: "error", title: "Server Error", text: "Could not restore variant" });
-        }
-      }
-    });
-  }
-});
-
-
-////search 
-
-
-  document.getElementById("searchInput").addEventListener("input", async function () {
-  const query = this.value.trim();
-
-  try {
-    const url = query 
-      ? `/admin/products/search?q=${encodeURIComponent(query)}` 
-      : `/admin/products/search`; // 👈 no query = return all
-
-    const res = await fetch(url);
-    const data = await res.json();
-
-    if (data.success) {
-      const tbody = document.getElementById("productTable");
-      tbody.innerHTML = "";
-
-      data.products.forEach(row => {
-        const tr = document.createElement("tr");
-        tr.className = `border-b hover:bg-gray-50 ${!row.is_active ? 'opacity-50' : ''}`;
-
-        tr.innerHTML = `
-          <td class="py-3 px-4">
-            ${row.images && row.images.length > 0
-              ? `<img src="${row.images[0]}" class="h-12 w-12 rounded object-cover">`
-              : `<span class="text-gray-400">No Image</span>`}
-          </td>
-          <td class="py-3 px-4">${row.productTitle}</td>
-          <td class="py-3 px-4">${row.flavour || '-'}</td>
-          <td class="py-3 px-4">${row.size || '-'}</td>
-          <td class="py-3 px-4">₹ ${row.discounted_price && row.discounted_price > 0 ? row.discounted_price : row.price}</td>
-          <td class="py-3 px-4">${row.productCategory?.name || '-'}</td>
-          <td class="py-3 px-4">${row.productBrand?.name || '-'}</td>
-          <td class="py-3 px-4 text-center flex justify-center space-x-3">
-            ${row.is_active
-              ? `<button class="deleteBtn" data-product="${row.productId}" data-variant="${row._id}">🗑</button>`
-              : `<button class="restoreBtn" data-product="${row.productId}" data-variant="${row._id}">♻️</button>`}
-            <button class="editBtn"
-              data-id="${row.productId}"
-              data-variantid="${row._id}"
-              data-title="${row.productTitle}"
-              data-description="${row.productDescription}"
-              data-category="${row.productCategory?._id}"
-              data-brand="${row.productBrand?._id}"
-              data-variants='${JSON.stringify(row.allVariants)}'>
-              ✏️
-            </button>
-          </td>
-        `;
-
-        tbody.appendChild(tr);
       });
     }
-  } catch (err) {
-    console.error("Search failed", err);
+  });
+
+  // -----------------------
+  // Search Products
+  // -----------------------
+  document.getElementById("searchInput").addEventListener("input", async function () {
+    const query = this.value.trim();
+    try {
+      const url = query ? `/admin/products/search?q=${encodeURIComponent(query)}` : `/admin/products/search`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.success) {
+        const tbody = document.getElementById("productTable");
+        tbody.innerHTML = "";
+        data.products.forEach(row => {
+          const tr = document.createElement("tr");
+          tr.className = `border-b hover:bg-gray-50 ${!row.is_active ? 'opacity-50' : ''}`;
+          tr.innerHTML = `
+            <td class="py-3 px-4">
+              ${row.images?.length ? `<img src="${row.images[0]}" class="h-12 w-12 rounded object-cover">` : 'No Image'}
+            </td>
+            <td class="py-3 px-4">${row.productTitle}</td>
+            <td class="py-3 px-4">${row.flavour || '-'}</td>
+            <td class="py-3 px-4">${row.size || '-'}</td>
+            <td class="py-3 px-4">₹ ${row.price}</td>
+            <td class="py-3 px-4">${row.productCategory?.name || '-'}</td>
+            <td class="py-3 px-4">${row.productBrand?.name || '-'}</td>`;
+          tbody.appendChild(tr);
+        });
+      }
+    } catch (err) {
+      console.error("Search failed", err);
+    }
+  });
+
+  // -----------------------
+  // Validate Variant
+  // -----------------------
+  function validateVariant(box, idx) {
+    let valid = true;
+    const priceError = document.getElementById(`priceError_${idx}`);
+    const stockError = document.getElementById(`stockError_${idx}`);
+    const imageError = document.getElementById(`imageError_${idx}`);
+
+    const price = Number(box.querySelector('input[name="price[]"]').value.trim());
+    const stock = Number(box.querySelector('input[name="stock[]"]').value.trim());
+
+    [priceError, stockError, imageError].forEach(el => {
+      if (el) { el.classList.add("hidden"); el.innerText = ""; }
+    });
+
+    if (!price || price <= 0) {
+      priceError.innerText = "Price must be greater than 0";
+      priceError.classList.remove("hidden");
+      valid = false;
+    }
+
+    if (isNaN(stock) || stock < 0) {
+      stockError.innerText = "Stock must be 0 or more";
+      stockError.classList.remove("hidden");
+      valid = false;
+    }
+
+    const existingImages = box.querySelectorAll(`input[name^="existing_images_"]`);
+    const newImages = box.querySelector('.imageInput')?.files;
+    if ((!existingImages || existingImages.length === 0) && (!newImages || newImages.length === 0)) {
+      imageError.innerText = "At least one image is required";
+      imageError.classList.remove("hidden");
+      valid = false;
+    }
+
+    return valid;
   }
-});
-
-function validateVariant(box, idx) {
-  let valid = true
-
-  const priceError = document.getElementById(`priceError_${idx}`)
-  const discountError = document.getElementById(`discountError_${idx}`)
-  const stockError = document.getElementById(`stockError_${idx}`)
-  const imageError1 = document.getElementById(`imageError_${idx}`)
-
-  const price = box.querySelector('input[name="price[]"]').value.trim()
-  const discounted = box.querySelector('input[name="discounted_price[]"]').value.trim()
-  const stock = box.querySelector('input[name="stock[]"]').value.trim()
-
-  const priceVal = Number(price);
-  const discountedVal = Number(discounted);
-  const stockVal = Number(stock);
-
-
-  [priceError,discountError,stockError,imageError1].forEach(el => {
-    if(el){
-    el.classList.add("hidden")
-    el.innerText =""
-    }
-  })
-
-  if(!priceVal || priceVal <= 0) {
-    if(priceError) {
-    priceError.innerText = "Price is required and must be greater than 0"
-    priceError.classList.remove("hidden")
-    }
-    valid = false
-  }
-
-  if (discounted && discountedVal < 0) {
-    if (discountError) {
-      discountError.innerText = "Discount price cannot be negative";
-      discountError.classList.remove("hidden");
-    }
-    valid = false;
-  }
-
-  if(discounted && discountedVal >=priceVal) {
-    if(discountError) {
-    discountError.innerText = "Discount price must be less than price"
-    discountError.classList.remove("hidden")
-    }
-    valid = false
-  }
-
-  if(stock === '') {
-    if(stockError) {
-      stockError.innerHTML = 'Stock is required'
-      stockError.classList.remove("hidden")
-    }
-    valid = false
-  }else if(stockVal < 0) {
-    if(stockError) {
-      stockError.innerHTML = 'Stock cannot be negative'
-      stockError.classList.remove("hidden")
-    }
-    valid = false
-  }
-
-  const existingImages = box.querySelectorAll(`input[name="existing_images_${idx}[]"]`);
-  const newImages = box.querySelector('.imageInput')?.files;
-
-  if ((!existingImages || existingImages.length === 0) && (!newImages || newImages.length === 0)) {
-    if(imageError1) {
-    imageError1.innerText = "At least one image is required";
-    imageError1.classList.remove("hidden");
-    }
-    valid = false;
-  }
-
-  return valid
-}
-
-
 </script>

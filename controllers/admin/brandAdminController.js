@@ -12,7 +12,7 @@ const loadBrands = asyncHandler( async (req,res) => {
 
 const addBrand = asyncHandler( async( req,res) => {
     const {name} = req.body
-    const logo_url = req.file ? `/uploads/brands/${req.file.filename}` : ''
+    const logo_url = req.file ? req.file.path : ''
 
     const exists =await Brand.findOne({name:{$regex: new RegExp('^'+name+'$','i')}})
     

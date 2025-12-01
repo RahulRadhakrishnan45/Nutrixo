@@ -321,119 +321,42 @@
     </div>
     <!-- Product cards to be added here later -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-      <!-- Example card (replace with dynamic content later) -->
-      <div
-        class="group border border-gray-100 py-3 px-3 bg-white rounded-lg overflow-hidden"
-      >
-        <div class="aspect-w-1 aspect-h-1 bg-white rounded-lg overflow-hidden">
-          <img
-            src="/images/sample product1.jpeg"
-            alt="Sample Product"
-            class="w-full h-64 object-contain"
-          />
-        </div>
-        <div class="mt-4">
-          <h3 class="text-base text-gray-700 font-semibold">ATOM Whey Protein with Enzymes</h3>
-          <div class="flex items-center mt-2">
-            <span class="text-sm font-bold text-gray-900">&#8377;7973</span>
-          </div>
-          <div class="mt-2 flex items-center">
-            <div class="flex">
-              <i class="fas fa-star text-yellow-400 text-xs"></i>
-              <i class="fas fa-star text-yellow-400 text-xs"></i>
-              <i class="fas fa-star text-yellow-400 text-xs"></i>
-              <i class="far fa-star text-gray-300 text-xs"></i>
-              <i class="far fa-star text-gray-300 text-xs"></i>
+      <% if (bestSelling && bestSelling.length > 0) { %>
+        <% bestSelling.forEach(item => { %>
+          <a 
+            href="/products/<%= item.productId %>?variant=<%= item.variantId %>"
+            class="group block border border-gray-100 py-3 px-3 bg-white rounded-lg overflow-hidden hover:shadow-lg transition"
+          >
+            <div class="aspect-w-1 aspect-h-1 bg-white rounded-lg overflow-hidden">
+              <img 
+                src="<%= item.images[0] %>" 
+                alt="<%= item.title %>"
+                class="w-full h-64 object-contain group-hover:scale-105 transition-transform duration-300"
+              />
             </div>
-            <span class="ml-2 text-xs text-gray-600">(3.0)</span>
-          </div>
-        </div>
-      </div>
 
-      <div
-        class="group border border-gray-100 py-3 px-3 bg-white rounded-lg overflow-hidden"
-      >
-        <div class="aspect-w-1 aspect-h-1 bg-white rounded-lg overflow-hidden">
-          <img
-            src="/images/sample2.webp"
-            alt="Sample Product"
-            class="w-full h-64 object-contain"
-          />
-        </div>
-        <div class="mt-4">
-          <h3 class="text-base text-gray-700 font-semibold">Wellcore - Creatine Monohydrate</h3>
-          <div class="flex items-center mt-2">
-            <span class="text-sm font-bold text-gray-900">&#8377;1199</span>
-          </div>
-          <div class="mt-2 flex items-center">
-            <div class="flex">
-              <i class="fas fa-star text-yellow-400 text-xs"></i>
-              <i class="fas fa-star text-yellow-400 text-xs"></i>
-              <i class="fas fa-star text-yellow-400 text-xs"></i>
-              <i class="far fa-star text-gray-300 text-xs"></i>
-              <i class="far fa-star text-gray-300 text-xs"></i>
-            </div>
-            <span class="ml-2 text-xs text-gray-600">(3.0)</span>
-          </div>
-        </div>
-      </div>
+            <div class="mt-4">
+              <h3 class="text-base text-gray-700 font-semibold">
+                <%= item.title %>
+              </h3>
+              <p class="text-sm text-gray-500">
+                <%= item.flavour %> - <%= item.size %>
+              </p>
 
-      <div
-        class="group border border-gray-100 py-3 px-3 bg-white rounded-lg overflow-hidden"
-      >
-        <div class="aspect-w-1 aspect-h-1 bg-white rounded-lg overflow-hidden">
-          <img
-            src="/images/sample3.webp"
-            alt="Sample Product"
-            class="w-full h-64 object-contain"
-          />
-        </div>
-        <div class="mt-4">
-          <h3 class="text-base text-gray-700 font-semibold">MuscleBlaze Whey Protein</h3>
-          <div class="flex items-center mt-2">
-            <span class="text-sm font-bold text-gray-900">&#8377;5649</span>
-          </div>
-          <div class="mt-2 flex items-center">
-            <div class="flex">
-              <i class="fas fa-star text-yellow-400 text-xs"></i>
-              <i class="fas fa-star text-yellow-400 text-xs"></i>
-              <i class="fas fa-star text-yellow-400 text-xs"></i>
-              <i class="far fa-star text-gray-300 text-xs"></i>
-              <i class="far fa-star text-gray-300 text-xs"></i>
+              <div class="flex items-center mt-2">
+                <% if (item.calculated_price) { %>
+                  <span class="text-sm font-bold text-gray-900">₹<%= item.calculated_price %></span>
+                  
+                <% } else { %>
+                  <span class="text-sm font-bold text-gray-900">₹<%= item.price %></span>
+                <% } %>
+              </div>
             </div>
-            <span class="ml-2 text-xs text-gray-600">(3.0)</span>
-          </div>
-        </div>
-      </div>
-
-      <div
-        class="group border border-gray-100 py-3 px-3 bg-white rounded-lg overflow-hidden"
-      >
-        <div class="aspect-w-1 aspect-h-1 bg-white rounded-lg overflow-hidden">
-          <img
-            src="/images/sample 4.jpg"
-            alt="Sample Product"
-            class="w-full h-64 object-contain"
-          />
-        </div>
-        <div class="mt-4">
-          <h3 class="text-base text-gray-700 font-semibold">Optimum Nutrition Gold Standard</h3>
-          <div class="flex items-center mt-2">
-            <span class="text-sm font-bold text-gray-900">&#8377;3625</span>
-          </div>
-          <div class="mt-2 flex items-center">
-            <div class="flex">
-              <i class="fas fa-star text-yellow-400 text-xs"></i>
-              <i class="fas fa-star text-yellow-400 text-xs"></i>
-              <i class="fas fa-star text-yellow-400 text-xs"></i>
-              <i class="far fa-star text-gray-300 text-xs"></i>
-              <i class="far fa-star text-gray-300 text-xs"></i>
-            </div>
-            <span class="ml-2 text-xs text-gray-600">(3.0)</span>
-          </div>
-        </div>
-      </div>
-      <!-- Add more cards -->
+          </a>
+        <% }) %>
+      <% } else { %>
+        <p class="text-gray-500">No best-selling products available.</p>
+      <% } %>
     </div>
   </div>
 </section>
@@ -496,15 +419,16 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
       <% if (newArrivals && newArrivals.length > 0) { %>
         <% newArrivals.forEach(item => { %>
-          <div class="group border border-gray-100 py-3 px-3 bg-white rounded-lg overflow-hidden hover:shadow-lg transition">
-
+          <a 
+            href="/products/<%= item.productId %>?variant=<%= item.variantId %>" 
+            class="group block border border-gray-100 py-3 px-3 bg-white rounded-lg overflow-hidden hover:shadow-lg transition"
+          >
             <!-- Variant Image -->
-             <a href="/products/<%= item.productId %>?variant=<%= item.variantId %>"">
             <div class="aspect-w-1 aspect-h-1 bg-white rounded-lg overflow-hidden">
               <img 
                 src="<%= item.images[0] %>" 
                 alt="<%= item.title %>" 
-                class="w-full h-64 object-contain" 
+                class="w-full h-64 object-contain group-hover:scale-105 transition-transform duration-300"
               />
             </div>
 
@@ -534,8 +458,7 @@
               </div>
             </div>
           </a>
-        </div>
-      <% }) %>
+        <% }) %>
       <% } else { %>
         <p class="text-gray-500">No new arrivals available.</p>
       <% } %>
@@ -543,7 +466,130 @@
   </div>
 </section>
 
+<!-- Referral Icon -->
+<% if (!referalClaimed) { %>
+<div class="fixed bottom-4 left-4 z-50">
+  <div id="referalBtn" 
+    class="inline-flex items-center border text-xs font-semibold focus:outline-none focus:ring-2 
+           focus:ring-ring focus:ring-offset-2 border-transparent text-primary-foreground 
+           hover:bg-primary/80 cursor-pointer hover:scale-105 transition-transform 
+           bg-white/80 backdrop-blur-sm rounded-full p-2 shadow-lg hover:shadow-xl">
+           
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
+      viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" 
+      stroke-linecap="round" stroke-linejoin="round" 
+      class="lucide lucide-gift w-6 h-6 text-primary">
+      <rect x="3" y="8" width="18" height="4" rx="1"></rect>
+      <path d="M12 8v13"></path>
+      <path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"></path>
+      <path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"></path>
+    </svg>
+  </div>
+</div>
+<% } %>
 
+<!-- Referral Modal -->
+<div id="referalModal"
+  class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
 
+  <div class="bg-white rounded-xl shadow-lg w-full max-w-3xl flex overflow-hidden">
 
+    <!-- Left Image -->
+    <div class="w-1/2 hidden md:flex justify-center items-center">
+      <img src="/images/Logo.png" alt="Referral Bonus" 
+           class="max-w-full h-auto object-cover">
+    </div>
 
+    <!-- Right Content -->
+    <div class="w-full md:w-1/2 p-8 relative">
+      
+      <!-- Close Button -->
+      <button class="close-btn absolute top-4 right-4 text-black text-xl font-bold">&times;</button>
+
+      <h2 class="text-lg font-semibold text-gray-700 mb-2">Welcome!</h2>
+      <h1 class="text-2xl font-bold text-brown-700 mb-2">Got a referral code?</h1>
+      <p class="text-gray-500 mb-6">Enter your code below to receive a bonus in your wallet</p>
+
+      <input
+        id="referalInput"
+        type="text"
+        placeholder="Enter your referral code"
+        class="w-full px-4 py-2 border border-gray-300 rounded-md mb-4 
+               focus:outline-none focus:ring-2 focus:ring-gray-900"
+      />
+
+      <button id="applyBtn"
+        class="w-full bg-black text-white py-2 rounded-md hover:bg-gray-800 transition mb-3">
+        Apply Code
+      </button>
+
+      <button class="close-btn w-full border border-black text-black py-2 rounded-md hover:bg-gray-100 transition">
+        I don't have a code
+      </button>
+
+    </div>
+  </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script>
+  toastr.options = {
+    "positionClass": "toast-bottom-right",
+    "closeButton": true,
+    "progressBar": true,
+    "timeOut": "3000"
+  }
+</script>
+
+<script>
+  const referalBtn = document.getElementById('referalBtn')
+  const modal = document.getElementById('referalModal')
+  const closeBtns = document.querySelectorAll('.close-btn')
+  const applyBtn = document.getElementById("applyBtn")
+
+  if (referalBtn) {
+    referalBtn.addEventListener('click', () => {
+      modal.classList.remove('hidden')
+    })
+  }
+
+  closeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      modal.classList.add('hidden')
+    })
+  })
+
+applyBtn.addEventListener("click", async () => {
+  const code = document.getElementById("referalInput").value.trim()
+
+  if (!code) {
+    toastr.error("Please enter a referral code")
+    return
+  }
+
+  const res = await fetch("/refer", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ referralCode: code })
+  })
+
+  const data = await res.json()
+
+  if (data.success) {
+    toastr.success("Referral applied successfully!")
+
+    setTimeout(() => {
+      location.reload()
+    }, 1500)
+
+  } else {
+    toastr.error(data.message)
+  }
+})
+
+</script>

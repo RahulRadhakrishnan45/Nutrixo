@@ -1,0 +1,160 @@
+<body class="bg-gray-50">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    <!-- 🧭 Breadcrumb -->
+    <nav class="text-sm mb-10 text-gray-500">
+      <ol class="flex items-center space-x-2">
+        <li>
+          <a href="/" class="hover:underline text-gray-600 font-medium">Nutrixo</a>
+        </li>
+        <li>/</li>
+        <li class="text-gray-800 font-semibold">Wishlist</li>
+      </ol>
+    </nav>
+
+    <!-- Wishlist Items -->
+    <% if (wishlist && wishlist.items && wishlist.items.length > 0) { %>
+      <div class="space-y-8">
+        <% wishlist.items.forEach(item => { 
+            const product = item.product_id;
+            const variant = product?.variants?.find(v => v._id.toString() === item.variant_id.toString());
+            const image = variant?.images?.[0] || '/images/no-image.png';
+            const price = variant?.discounted_price || variant?.price;
+        %>
+
+        <!-- Wishlist Item Card -->
+        <div 
+            class="wishlist-card flex flex-col sm:flex-row items-center sm:items-start justify-between bg-white rounded-xl shadow-sm hover:shadow-md transition p-4 sm:p-6"
+            data-variant="<%= item.variant_id %>">
+
+          
+          <!-- Left: Image + Details -->
+          <div class="flex items-center space-x-4">
+            <img src="<%= image %>" alt="<%= product.title %>"
+                 class="w-20 h-20 object-contain rounded-md border">
+
+            <div>
+              <h2 class="text-lg font-semibold text-gray-900"><%= product.title %></h2>
+              <p class="text-gray-500 text-sm mt-1">Added On: 
+                <%= new Date(item.addedAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) %>
+              </p>
+              <button 
+                onclick="removeFromWishlist('<%= item.variant_id %>')"
+                class="mt-2 text-sm text-red-500 hover:underline font-medium">
+                Remove Item
+              </button>
+            </div>
+          </div>
+
+          <!-- Right: Price + Button -->
+          <div class="flex items-center gap-4 mt-4 sm:mt-0">
+            <p class="text-lg font-semibold text-gray-800">₹ <%= price %></p>
+            <button 
+              onclick="addToCart('<%= product._id %>', '<%= item.variant_id %>')" 
+              class="border border-gray-400 text-gray-800 hover:bg-gray-100 font-medium px-5 py-2 rounded-md transition">
+              Add to cart
+            </button>
+          </div>
+        </div>
+
+        <% }) %>
+      </div>
+
+    <% } else { %>
+      <!-- 🌙 Empty Wishlist Animation -->
+      <div class="text-center  flex flex-col items-center justify-center space-y-4">
+        <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.8.5/dist/dotlottie-wc.js" type="module"></script>
+        <dotlottie-wc 
+          src="https://lottie.host/3d75cf9e-cb51-4068-b177-fb6414f467f9/mCT2Wc4F7T.lottie"
+          style="width: 300px; height: 300px;"
+          autoplay loop>
+        </dotlottie-wc>
+
+        <p class="text-gray-600 text-lg mt-4">Your wishlist is empty</p>
+
+        <a href="/products" 
+          class="mt-4 inline-block bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition">
+          Browse Products
+        </a>
+      </div>
+    <% } %>
+  </div>
+
+  <% if (wishlist && wishlist.items && wishlist.items.length > 0) { %>
+    <%- include('../partials/pagination.ejs', { currentPage, totalPages, query }) %>
+  <% } %>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script>
+  toastr.options = {
+    closeButton: true,
+    progressBar: true,
+    positionClass: "toast-bottom-right",
+    timeOut: "2500",
+    showDuration: "300",
+    hideDuration: "1000",
+    showMethod: "fadeIn",
+    hideMethod: "fadeOut"
+  };
+
+  async function removeFromWishlist(variantId) {
+    try {
+      const res = await fetch(`/wishlist/${variantId}`, { method: "DELETE" })
+      const data = await res.json()
+
+      if (data.success) {
+        toastr.success("Item removed from wishlist")
+
+        const card = document.querySelector(`[data-variant="${variantId}"]`)
+        if (card) card.remove()
+
+        await updateBadgesFromServer()
+
+        if (document.querySelectorAll(".wishlist-card").length === 0) {
+          setTimeout(() => window.location.reload(), 600)
+        }
+      } else {
+        toastr.error(data.message || "Failed to remove item")
+      }
+    } catch (err) {
+      console.error("Error removing from wishlist:", err)
+      toastr.error("Something went wrong")
+    }
+  }
+
+  async function addToCart(productId, variantId) {
+    try {
+      const res = await fetch(`/cart`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, variantId, quantity: 1 })
+      })
+      const data = await res.json()
+
+      if (data.success) {
+        toastr.success("Added to cart successfully!")
+
+        await fetch(`/wishlist/${variantId}`, { method: "DELETE" })
+
+        const card = document.querySelector(`[data-variant="${variantId}"]`)
+        if (card) card.remove()
+
+        await updateBadgesFromServer()
+
+        if (document.querySelectorAll(".wishlist-card").length === 0) {
+          setTimeout(() => window.location.reload(), 600)
+        }
+      } else {
+        toastr.warning(data.message || "Unable to add to cart")
+      }
+    } catch (error) {
+      console.error("Add to cart error:", error)
+      toastr.error("Something went wrong")
+    }
+  }
+</script>
+</body>

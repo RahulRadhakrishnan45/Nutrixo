@@ -7,19 +7,14 @@ const expressLayouts = require('express-ejs-layouts')
 const passport = require('./config/passport')
 const userRoutes = require('./routes/user')
 const adminRoutes = require('./routes/admin')
-const authRoutes = require('./routes/user/authRoutes')
 const connectDB = require('./config/connectDB')
 const globalMiddleware = require('./middlewares/globalMiddleware')
-const seedAdmin=require('./utils/seedAdmin')
 const headerData = require('./middlewares/headerData')
 const {errorLog,apiLog} = require('./config/logger')
 
 dotenv.config()
 const app = express()
 const port = process.env.PORT || 3001
-
-
-// seedAdmin()
 
 app.use(express.static('public'))
 app.use('/uploads',express.static(path.join(__dirname,'uploads')))
@@ -68,4 +63,3 @@ app.listen(process.env.PORT,()=>{
     console.log(`server running at http://localhost:${port}`)
     connectDB()
 });
-

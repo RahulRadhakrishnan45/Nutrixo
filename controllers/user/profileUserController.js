@@ -15,7 +15,7 @@ const uploadProfileImage = asyncHandler( async( req,res) => {
         return res.json({success:false,message:messages.FILE.NO_FILE})
     }
 
-    const imagePath = '/uploads/profiles/' + req.file.filename
+    const imagePath = req.file.path
     await User.findByIdAndUpdate(userId,{profile_image:imagePath})
 
     res.json({success:true,image:imagePath,message:messages.PROFILE.PROFILE_IMG_UPDATE})

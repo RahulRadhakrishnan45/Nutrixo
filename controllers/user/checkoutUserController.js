@@ -6,69 +6,97 @@ const Cart = require('../../models/cartSchema')
 const Order = require('../../models/orderSchema')
 const User = require('../../models/userSchema')
 const Product = require('../../models/productSchema')
+const Coupon = require('../../models/couponSchema')
+const Offer = require('../../models/offerSchema')
+const Wallet = require('../../models/walletSchema')
+const applyOffersToProduct = require('../../utils/applyOffer')
+const finalizeOrder = require('../../utils/finalizeOrder')
+const razorpay = require('../../config/razorpay')
+const crypto = require('crypto')
+const mongoose = require('mongoose')
 
 
 const loadCheckout = asyncHandler( async( req,res) => {
     const userId = req.session.user._id
-    if(!userId) {
-        return res.redirect('/auth/login')
-    }
+    if(!userId) return res.redirect('/auth/login')
 
     const addresses = await Address.find({user_id:userId}).lean()
-
     const cart = await Cart.findOne({user_id:userId}).populate('items.product_id').lean()
-
     if(!cart || cart.items.length === 0) {
+        req.session.coupon = null
         return res.redirect('/cart')
     }
     let removedItems = false
+    const validItems = []
 
-    cart.items = cart.items.filter(item => {
-        if(!item.product_id) return false
+    for(const item of cart.items) {
+        const product = item.product_id
+        if(!product) continue
 
-        const variant = item.product_id.variants.find(v => v._id.toString() === item.variant_id.toString())
-        if (!variant || !variant.is_active) return false
-
-        if(variant.stock < item.quantity) {
+        const variant = product.variants.find(v => v._id.toString() === item.variant_id.toString())
+        if(!variant || !variant.is_active || variant.stock < item.quantity) {
             removedItems = true
-            return false
+            continue
         }
-        return true
-    })
+        validItems.push(item)
+    }
 
     if(removedItems) {
-        await Cart.updateOne({_id:cart._id},{$set:{items:cart.items}})
+        await Cart.updateOne({_id:cart._id},{$set:{items:validItems}})
         return res.redirect('/cart?error=stock')
     }
 
-    let subtotal = 0, discount = 0, tax = 0, total = 0
+    let actualPrice = 0, subtotalAfterOffer = 0, offerDiscount = 0, couponDiscount = 0, tax = 0, total = 0
 
-    if(cart && cart.items.length > 0) {
-        subtotal = cart.items.reduce((acc,item) => {
-            const variant = item.product_id.variants.find((v) => v._id.toString() === item.variant_id.toString())
-            
-            if(!variant) return acc
+    for(const item of validItems) {
+        const product = await Product.findById(item.product_id._id).populate('brand_id').populate('category_id').lean()
+        if(!product) continue
 
-            const price = variant.discounted_price || variant.price
-            return acc + price * item.quantity
-        },0)
+        const offeredProduct = await applyOffersToProduct(product)
+        const variant = offeredProduct.variants.find(v => v._id.toString() === item.variant_id.toString())
+        if(!variant) continue
 
-        discount = cart.items.reduce((acc,item) => {
-            const variant = item.product_id.variants.find((v) => v._id.toString() === item.variant_id.toString())
+        const basePrice = variant.price
+        const offerPrice = variant.calculated_price
 
-            if(!variant) return acc
-
-            if(variant.discounted_price && variant.discounted_price < variant.price) {
-                acc += (variant.price - variant.discounted_price) * item.quantity
-            }
-            return acc
-        },0)
-
-        tax = Number((subtotal * 0.02).toFixed(2))
-        total = subtotal + tax
+        actualPrice += basePrice * item.quantity
+        offerDiscount += (basePrice - offerPrice) * item.quantity
     }
 
-    res.render('user/checkout',{layout:'layouts/user_main',addresses,cart,subtotal,discount,tax,total,cartLength:cart?.items?.length || 0,selectedId:req.query.selected || null,error:req.query.error || null})
+    subtotalAfterOffer = actualPrice - offerDiscount
+
+    let appliedCoupon = null
+    if(req.session.coupon) {
+        const coupon = await Coupon.findOne({code:req.session.coupon.code,isActive:true})
+        if(coupon && subtotalAfterOffer >= coupon.minimumPurchase && new Date() >= coupon.startDate && new Date() <= coupon.endDate) {
+            if(subtotalAfterOffer >= coupon.minimumPurchase) {
+                if(coupon.discountType === 'percentage') {
+                    couponDiscount = Math.min((subtotalAfterOffer * coupon.discountAmount) / 100, subtotalAfterOffer)
+                }else{
+                    couponDiscount = Math.min(coupon.discountAmount, subtotalAfterOffer)
+                }
+                appliedCoupon = coupon
+            }else{
+                req.session.coupon = null
+                couponDiscount = 0
+            }
+        }
+    }
+
+    const totalDiscount = offerDiscount + couponDiscount
+    tax = Number(((subtotalAfterOffer - couponDiscount) * 0.02).toFixed(2))
+    total = subtotalAfterOffer - couponDiscount + tax
+
+    const wallet = await Wallet.findOne({user_id:userId}).lean()
+    const walletBalance = wallet?.balance || 0
+
+    const today = new Date()
+    const coupons = await Coupon.find({isActive:true,startDate:{$lte:today},endDate:{$gte:today},}).lean()
+    
+    const isRetry = req.query.retry ==='1'
+    const lastFailedOrderId = req.session.lastFailedOrderId || null
+
+    res.render('user/checkout',{layout:'layouts/user_main',walletBalance,addresses,coupons,cart:{...cart,items:validItems},actualPrice:actualPrice.toFixed(2),offerDiscount:offerDiscount.toFixed(2),subtotal:subtotalAfterOffer.toFixed(2),couponDiscount:couponDiscount.toFixed(2),totalDiscount:totalDiscount.toFixed(2),tax:tax.toFixed(2),total:total.toFixed(2),appliedCoupon,cartLength:validItems.length || 0,selectedId:req.query.selected || null,error:req.query.error || null,retry:isRetry,retryOrderId:lastFailedOrderId})
 })
 
 const placeOrder = asyncHandler( async( req,res) => {
@@ -89,9 +117,9 @@ const placeOrder = asyncHandler( async( req,res) => {
     let stockAdjustedProducts = []
 
     for(const item of cart.items) {
-        const product = item.product_id
+        const product = await Product.findById(item.product_id)
         if(!product) continue
-        const variant = item.product_id?.variants.find((v) => v._id.toString() === item.variant_id.toString())
+        const variant = product.variants.find((v) => v._id.toString() === item.variant_id.toString())
         if(!variant || !variant.is_active) {
             stockIssue = true
             continue
@@ -117,69 +145,263 @@ const placeOrder = asyncHandler( async( req,res) => {
 
     await Cart.updateOne({_id:cart._id},{$set:{items:updatedItems}})
 
-    if(updatedItems.length === 0) {
-        return res.redirect('/cart?error=stock')
-    }
-
+    if(updatedItems.length === 0) return res.redirect('/cart?error=stock')
+    
     if(stockIssue) {
         const productList = stockAdjustedProducts.map((p) => `${p.name} (only ${p.available} left)`).join(', ')
         return res.redirect(`/cart?error=stockUpdate&products=${encodeURIComponent(productList)}`)
     }
     
-    let subtotal = 0, discount = 0
-    updatedItems.forEach(item => {
-        const variant = item.product_id.variants.find(v => v._id.toString() === item.variant_id.toString())
-        if(!variant) return 
-        const price = variant.discounted_price || variant.price
-        subtotal += price * item.quantity
+    let actualTotal = 0, offerDiscount = 0, couponDiscount = 0, subtotal = 0, tax = 0, total = 0
 
-        if(variant.discounted_price && variant.discounted_price < variant.price) {
-            discount += (variant.price - variant.discounted_price) * item.quantity
-        }
-    })
+    const now = new Date()
+    const activeOffers = await Offer.find({isActive:true,validFrom:{$lte:now},validTo:{$gte:now},}).lean()
 
-    const tax = Number((subtotal * 0.02).toFixed(2))
-    const total = subtotal + tax
+    for(const item of updatedItems) {
+        const product = await Product.findById(item.product_id._id).populate('brand_id').populate('category_id').lean()
 
-    const orderItem = updatedItems.map((item) => {
-        const variant = item.product_id.variants.find(v => v._id.toString() === item.variant_id.toString())
-        return {
-            product: item.product_id._id,
-            variantId: variant._id,
-            title: item.product_id.title,
-            flavour: variant.flavour,
-            size: variant.size,
-            image: variant.images?.[0] || null,
-            price: variant.discounted_price || variant.price,
-            quantity: item.quantity,
-            totalPrice: (variant.discounted_price || variant.price) * item.quantity,
-            tax: Number(((variant.discounted_price || variant.price) * item.quantity * 0.02).toFixed(2)),
-            discount: variant.discounted_price ? (variant.price - variant.discounted_price) * item.quantity : 0,
-            offerApplied: 0
-        }
-    })
+        const offeredProduct = await applyOffersToProduct(product,activeOffers)
+        const variant = offeredProduct.variants.find(v => v._id.toString() === item.variant_id.toString())
+        if(!variant) continue
 
-    const embeddedAddress = {fullname: selectedAddress.fullname,mobile: selectedAddress.mobile,address: selectedAddress.address,district: selectedAddress.district,state: selectedAddress.state,country: selectedAddress.country,pincode: selectedAddress.pincode}
+        const base = Number(variant.price)
+        const offerPrice = Number(variant.calculated_price)
 
-    const order = await Order.create({
-        user:userId,
-        orderAddress:embeddedAddress,
-        paymentMethod,
-        subtotal,
-        tax,
-        couponDiscount:0,
-        totalAmount:total,
-        items:orderItem
-    })
-
-    for(const item of orderItem) {
-        await Product.updateOne(
-            {_id:item.product,'variants._id':item.variantId},{$inc:{'variants.$.stock':-item.quantity}}
-        )
+        actualTotal += base * item.quantity
+        offerDiscount += (base - offerPrice) * item.quantity
     }
 
-    await Cart.findOneAndUpdate({user_id:userId},{$set:{items:[]}})
-    res.redirect(`/checkout/${order._id}/success`)
+    subtotal = actualTotal - offerDiscount
+
+    let appliedCoupon = null
+    if(req.session.coupon) {
+        const coupon = await Coupon.findOne({code:req.session.coupon.code,isActive:true})
+        if(coupon && subtotal >= coupon.minimumPurchase) {
+            if(coupon.discountType === 'percentage') {
+                couponDiscount = Math.min((subtotal * coupon.discountAmount) / 100, subtotal)
+            }else{
+                couponDiscount = Math.min(coupon.discountAmount, subtotal)
+            }
+            appliedCoupon = coupon
+        }else{
+            req.session.coupon = null
+        }
+    }
+
+    const totalDiscount = offerDiscount + couponDiscount
+    tax = Number(((subtotal - couponDiscount) * 0.02).toFixed(2))
+    total = subtotal - couponDiscount + tax
+
+    const orderItems = await Promise.all(updatedItems.map(async (it) => {
+        const product = await Product.findById(it.product_id._id).populate('brand_id').populate('category_id').lean();
+
+        const offeredProduct = await applyOffersToProduct(product, activeOffers);
+
+        const offeredVariant = offeredProduct.variants.find((v) => v._id.toString() === it.variant_id.toString())
+
+        const baseVariant = it.product_id.variants.find((v) => v._id.toString() === it.variant_id.toString())
+
+        const actualPrice = Number(baseVariant.price);
+        const offerPrice = Number(offeredVariant.calculated_price);
+
+        const qty = it.quantity;
+        const totalPrice = offerPrice * qty;
+
+        return {
+            product: it.product_id._id,
+            variantId: it.variant_id,
+            title: it.product_id.title,
+            flavour: baseVariant.flavour || null,
+            size: baseVariant.size || null,
+            image: baseVariant.images?.[0] || null,
+            actualPrice,
+            offerPrice,   
+            price: offerPrice,
+            quantity: qty,
+            totalPrice,
+            tax: Number((offerPrice * 0.02).toFixed(2)),
+            discount: actualPrice - offerPrice,
+            offerApplied: actualPrice - offerPrice,
+            status: "PROCESSING",
+            previousStatus: null,
+            statusHistory: [
+                { status: "PROCESSING", note: "Order Created" }
+            ],
+        }
+    }))
+
+    const pendingOrder = new Order({
+        user: userId,
+        items: orderItems,
+        orderAddress: {
+            fullname: selectedAddress.fullname,
+            mobile: selectedAddress.mobile,
+            address: selectedAddress.address,
+            district: selectedAddress.district,
+            state: selectedAddress.state,
+            country: selectedAddress.country,
+            pincode: selectedAddress.pincode,
+        },
+        paymentMethod,
+        paymentStatus:'PENDING',
+        showInOrders:false,
+        actualTotal,
+        offerDiscount,
+        totalDiscount,
+        subtotal,
+        couponDiscount,
+        tax,
+        totalAmount: total,
+        orderStatus: paymentMethod === 'COD' ? 'PLACED' : 'PENDING PAYMENT',
+        coupon: appliedCoupon?._id || null,
+    })
+
+    await pendingOrder.save()
+
+    if(paymentMethod === 'WALLET') {
+        try {
+            await finalizeOrder({orderId:pendingOrder._id,userId,paymentMethod:'WALLET',paymentDetails:{method:'WALLET'}})
+            await Order.findByIdAndUpdate(pendingOrder._id,{showInOrders:true})
+            req.session.coupon = null
+            return res.redirect(`/checkout/${pendingOrder._id}/success`)     
+        } catch (err) {
+            console.error('Wallet finalize error', err)
+            await Order.findByIdAndUpdate(pendingOrder._id, { paymentStatus: 'FAILED', orderStatus: 'PAYMENT FAILED' })
+            return res.redirect('/checkout?error=wallet')
+        }
+    }
+
+    if(paymentMethod === 'COD') {
+        try {
+            await finalizeOrder({ orderId: pendingOrder._id, userId, paymentMethod: 'COD', paymentDetails: { method: 'COD' } })
+            await Order.findByIdAndUpdate(pendingOrder._id,{showInOrders:true})
+            req.session.coupon = null
+            return res.redirect(`/checkout/${pendingOrder._id}/success`)
+        } catch (err) {
+            console.error('COD finalize error', err)
+            await Order.findByIdAndUpdate(pendingOrder._id, { paymentStatus: 'FAILED', orderStatus: 'PAYMENT FAILED' })
+            return res.redirect('/checkout?error=cod')
+        }
+    }
+
+    try {
+        const razorOrder = await razorpay.orders.create({
+        amount: Math.round(total * 100),
+        currency: 'INR',
+        receipt: pendingOrder._id.toString(),
+        })
+
+        pendingOrder.razorpayOrderId = razorOrder.id
+        await pendingOrder.save()
+
+        return res.render('user/razorpayPage', { layout: 'layouts/userLogin',razorOrder,total,addressIndex,key_id: process.env.RAZORPAY_KEY_ID,retry: false,orderId: pendingOrder._id,})
+    } catch (err) {
+        console.error('Razorpay order create error', err)
+        await Order.findByIdAndUpdate(pendingOrder._id, { paymentStatus: 'FAILED', orderStatus: 'PAYMENT FAILED',showInOrders:false })
+        return res.redirect('/checkout?error=payment')
+    }
+})
+
+const verifyRazorpay = asyncHandler(async (req, res) => {
+    const userId = req.session.user._id;
+    const {razorpay_order_id,razorpay_payment_id,razorpay_signature,orderId,retryOrderId} = req.body
+
+    const body = razorpay_order_id + "|" + razorpay_payment_id
+
+    const expectSign = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET).update(body).digest("hex")
+
+    if (expectSign !== razorpay_signature) {
+        if (orderId) {
+            await Order.findByIdAndUpdate(orderId, {paymentStatus: "FAILED",orderStatus: "PAYMENT FAILED",showInOrders:false})
+            req.session.lastFailedOrderId = orderId
+        }
+        return res.json({success: false,message: messages.AUTH.INVALID_SIGN})
+    }
+
+    const targetOrder = retryOrderId ? await Order.findById(retryOrderId) : await Order.findById(orderId)
+
+    if (!targetOrder) {
+        return res.json({success: false,message: messages.ORDER.ORDER_NOT_FOUND});
+    }
+
+    await Order.findByIdAndUpdate(targetOrder._id, {
+        razorpayOrderId: razorpay_order_id,
+        razorpayPaymentId: razorpay_payment_id
+    });
+
+    try {
+        await finalizeOrder({
+            orderId: targetOrder._id,
+            userId,
+            paymentMethod: "CARD",
+            paymentDetails: {transactionId: razorpay_payment_id,paidAt: new Date() }
+        })
+
+        await Order.findByIdAndUpdate(targetOrder._id, {showInOrders:true})
+
+        req.session.coupon = null
+        req.session.lastFailedOrderId = null
+
+        return res.json({success: true,orderId: targetOrder._id})
+
+    } catch (err) {
+        console.error("Finalize after verify failed", err);
+        await Order.findByIdAndUpdate(targetOrder._id, {paymentStatus: "FAILED", orderStatus: "PAYMENT FAILED",showInOrders:false})
+
+        req.session.lastFailedOrderId = targetOrder._id;
+
+        return res.json({success: false, message: "Failed to finalize order after payment"})
+    }
+})
+
+const retryCheckStock = asyncHandler( async( req,res) => {
+    const userId = req.session.user._id
+    const orderId = req.params.orderId
+
+    const order = await Order.findOne({_id:orderId,user:userId})
+    if(!order) {
+        return res.json({success:false,message:messages.ORDER.ORDER_NOT_FOUND})
+    }
+
+    for(const item of order.items) {
+        const product = await Product.findById(item.product)
+        if(!product) {
+            return res.json({success:false,message:messages.PRODUCT.PRODUCT_UNAVAILABLE})
+        }
+        
+        const variant = product.variants.id(item.variantId)
+        if(!variant || !variant.is_active) {
+            return res.json({success:false,message:`${item.title} is inactive now.`})
+        }
+        if(variant.stock < item.quantity) {
+            return res.json({success:false,message:`${item.title} has only ${variant.stock} left.`})
+        }
+    }
+    return res.json({success:true})
+})
+
+const retryPaymentDirect = asyncHandler( async( req,res) => {
+    const userId = req.session.user._id
+    const orderId = req.params.orderId
+
+    const order = await Order.findOne({_id:orderId,user:userId,paymentStatus:{$ne:'COMPLETED'},paymentMethod:'CARD'})
+    
+    if(!order) {
+        return res.redirect('/checkout?error=retry')
+    }
+
+    try {
+        const razorOrder = await razorpay.orders.create({
+            amount:Math.round(order.totalAmount * 100),currency:'INR',receipt:order._id.toString()
+        })
+
+        await Order.findByIdAndUpdate(orderId,{razorpayOrderId:razorOrder.id})
+
+        return res.render('user/razorpayPage',{layout:'layouts/userLogin',razorOrder,total:order.totalAmount,addressIndex:0,key_id:process.env.RAZORPAY_KEY_ID,retry:true,orderId})
+    } catch (err) {
+        console.log('Retry razorpay error', err)
+        return res.redirect('/checkout?error=payment')
+    }
 })
 
 const viewOrderSuccess = asyncHandler( async( req,res) => {
@@ -192,4 +414,39 @@ const viewOrderSuccess = asyncHandler( async( req,res) => {
     res.render('user/orderSuccess',{layout:'layouts/user_main',order})
 })
 
-module.exports = {loadCheckout,placeOrder,viewOrderSuccess}
+const viewOrderFail = asyncHandler( async( req,res) => {
+    const orderId = req.params.orderId
+    res.render('user/orderFail',{layout:'layouts/user_main',orderId})
+})
+
+const retryPayment = asyncHandler( async( req,res) => {
+    const userId = req.session.user._id
+    const {orderId} = req.params
+    if(!userId) return res.redirect('/auth/login')
+
+    const order = await Order.findOne({_id:orderId,user:userId,paymentMethod:'CARD',paymentStatus:'FAILED'}).lean()
+    if(!order) {
+        return res.status(httpStatus.bad_request).json({success:false,message:messages.CARD.CARD_ONLY_RETRY})
+    }
+
+    const cartItems = order.items.map((item) => ({
+        product_id:item.product,
+        variant_id:item.variantId,
+        quantity:item.quantity,
+    }))
+
+    await Cart.updateOne({user_id:userId},{$set:{items:cartItems}},{upsert:true})
+
+    if(order.coupon && order.coupon.code) {
+        req.session.coupon = {
+            code:order.coupon.code,
+            discountAmount:order.coupon.discountAmount
+        }
+    }else{
+        req.session.coupon = null
+    }
+    req.session.lastFailedOrderId = orderId
+    return res.redirect('/checkout?retry=1')
+})
+
+module.exports = {loadCheckout,placeOrder,viewOrderSuccess,verifyRazorpay,viewOrderFail,retryPayment,retryCheckStock,retryPaymentDirect}

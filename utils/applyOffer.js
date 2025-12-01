@@ -1,0 +1,60 @@
+const Offer = require('../models/offerSchema');
+
+async function applyOffersToProduct(product, activeOffers = null) {
+  const now = new Date();
+
+  if (!activeOffers) {
+    activeOffers = await Offer.find({
+      isActive: true,
+      validFrom: { $lte: now },
+      validTo: { $gte: now },
+    }).lean();
+  }
+
+  const productId = product._id?.toString();
+  const brandId =
+    product.brand_id?._id?.toString() ||
+    product.brand_id?.toString() ||
+    null;
+  const categoryId =
+    product.category_id?._id?.toString() ||
+    product.category_id?.toString() ||
+    null;
+
+  const variants = (product.variants || []).map((variant) => {
+    const basePrice = Number(variant.price || 0);
+    let bestOffer = null;
+    let maxDiscount = 0;
+
+    for (const offer of activeOffers) {
+      const matchesProduct = offer.product?.some((id) => id?.toString() === productId);
+      const matchesBrand = offer.brand?.some((id) => id?.toString() === brandId);
+      const matchesCategory = offer.category?.some((id) => id?.toString() === categoryId);
+
+      if (matchesProduct || matchesBrand || matchesCategory) {
+        if (offer.discountPercentage > maxDiscount) {
+          maxDiscount = offer.discountPercentage;
+          bestOffer = offer;
+        }
+      }
+    }
+
+    const offerApplied = bestOffer ? true : false;
+    const calculatedPrice = offerApplied
+      ? Number((basePrice - basePrice * maxDiscount / 100).toFixed(2))
+      : basePrice;
+
+    return {
+      ...variant,
+      price: basePrice,                     
+      calculated_price: calculatedPrice,   
+      offerPercent: offerApplied ? maxDiscount : 0,
+      offerName: offerApplied ? bestOffer.offerName : null,
+      is_active: variant.is_active !== false,
+    };
+  });
+
+  return { ...product, variants };
+}
+
+module.exports = applyOffersToProduct;

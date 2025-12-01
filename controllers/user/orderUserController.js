@@ -7,6 +7,7 @@ const Order = require('../../models/orderSchema')
 const User = require('../../models/userSchema')
 const Product = require('../../models/productSchema')
 const pdfDocument = require('pdfkit')
+const {creditToWallet} = require('../../utils/walletRefund')
 
 
 const loadOrders = asyncHandler( async( req,res) => {
@@ -17,10 +18,28 @@ const loadOrders = asyncHandler( async( req,res) => {
     const limit = 4
     const skip = (page - 1) * limit
 
-    const totalOrder = await Order.countDocuments({user:userId})
+    const totalOrder = await Order.countDocuments({user:userId,showInOrders:true})
     const totalPages = Math.ceil(totalOrder / limit)
 
-    const orders = await Order.find({user:userId}).populate('orderAddress').populate('items.product').sort({createdAt:-1}).skip(skip).limit(limit).lean()
+    const orders = await Order.find({user:userId,showInOrders:true}).populate('orderAddress').populate('items.product').sort({createdAt:-1}).skip(skip).limit(limit).lean()
+
+    orders.forEach(order => {
+        order.showRetry = false
+        if(order.paymentStatus === 'FAILED') {
+            order.showRetry = true
+        }
+
+        const anyCancelled = order.items.some(i => i.status === 'CANCELLED' || i.status === 'RETURNED')
+        if(anyCancelled) {
+            order.showRetry = false
+        }
+
+        const activeStatuses = ["PROCESSING", "PACKED", "SHIPPED", "DELIVERED"]
+        const anyActive = order.items.some(i => activeStatuses.includes(i.status))
+        if(anyActive && order.paymentStatus !== 'FAILED') {
+            order.showRetry = false
+        }
+    })
 
     res.render('user/order',{layout:'layouts/user_main',orders,currentPage:page,totalPages,query:req.query})
 })
@@ -136,9 +155,7 @@ const downloadInvoice = asyncHandler(async (req, res) => {
 
   const order = await Order.findOne({ _id: orderId, user: userId }).lean()
   if (!order) {
-    return res
-      .status(httpStatus.not_found)
-      .json({ success: false, message: messages.ORDER.ORDER_NOT_FOUND })
+    return res.status(httpStatus.not_found).json({ success: false, message: messages.ORDER.ORDER_NOT_FOUND })
   }
 
   const doc = new pdfDocument({ margin: 50 })
@@ -185,15 +202,10 @@ const downloadInvoice = asyncHandler(async (req, res) => {
 
   doc.font('Helvetica').fontSize(10)
 
-  let subtotal = 0
-  let taxTotal = 0
-  let totalPaid = 0
-  const TAX_RATE = 0.02
-
   order.items.forEach((item) => {
     const lineY = doc.y
 
-    let itemPaymentStatus = 'PENDING';
+    let itemPaymentStatus = 'PENDING'
     if (order.paymentStatus === 'COMPLETED') {
       itemPaymentStatus = 'PAID'
     } else {
@@ -206,40 +218,68 @@ const downloadInvoice = asyncHandler(async (req, res) => {
       }
     }
 
-    const includeInTotal = !['CANCELLED', 'RETURNED'].includes(item.status)
-    const itemTotal = item.price * item.quantity
+    const basePrice = item.originalPrice || item.price
+    const sellingPrice = item.offerPrice || item.price
+    const itemTotal = sellingPrice * item.quantity
 
     doc.text(item.title, startX, lineY, { width: 180 })
     doc.text(`${item.quantity}`, 250, lineY)
-    doc.text(`Rs. ${item.price.toFixed(2)}`, 300, lineY)
+
+    if (item.offerPrice) {
+      doc.text(`Rs. ${sellingPrice.toFixed(2)} (Offer)`, 300, lineY)
+    } else {
+      doc.text(`Rs. ${basePrice.toFixed(2)}`, 300, lineY)
+    }
+
     doc.text(item.status, 380, lineY)
     doc.text(itemPaymentStatus, 470, lineY)
     doc.text(`Rs. ${itemTotal.toFixed(2)}`, 540, lineY, { align: 'right' })
 
     doc.moveDown(0.6)
-
-    if (includeInTotal) {
-      subtotal += itemTotal
-      taxTotal += itemTotal * TAX_RATE
-      totalPaid += itemTotal + itemTotal * TAX_RATE
-    }
   })
+
+  const actual = order.actualTotal || 0
+  const offer = order.offerDiscount || 0
+  const coupon = order.couponDiscount || 0
+
+  let taxableAmount = actual
+
+  if (offer > 0) taxableAmount -= offer
+  if (coupon > 0) taxableAmount -= coupon
+
+  const taxTotal = taxableAmount * 0.02    
+  const subtotal = taxableAmount              
+  const grandTotal = subtotal + taxTotal      
 
   doc.moveTo(startX, doc.y).lineTo(560, doc.y).stroke()
   doc.moveDown(1.5)
 
   const summaryX = 350
   doc.fontSize(11).font('Helvetica')
+
+  doc.text('Price (Actual):', summaryX, doc.y, { continued: true })
+  doc.text(`Rs. ${actual.toFixed(2)}`, { align: 'right' })
+
+  if (offer > 0) {
+    doc.text('Offer Discount:', summaryX, doc.y, { continued: true })
+    doc.text(`- Rs. ${offer.toFixed(2)}`, { align: 'right' })
+  }
+
+  if (coupon > 0) {
+    doc.text('Coupon Discount:', summaryX, doc.y, { continued: true })
+    doc.text(`- Rs. ${coupon.toFixed(2)}`, { align: 'right' })
+  }
+
   doc.text('Subtotal:', summaryX, doc.y, { continued: true })
   doc.text(`Rs. ${subtotal.toFixed(2)}`, { align: 'right' })
 
   doc.text('Tax (2%):', summaryX, doc.y, { continued: true })
   doc.text(`Rs. ${taxTotal.toFixed(2)}`, { align: 'right' })
 
-  doc.moveDown(0.8);
+  doc.moveDown(0.8)
   doc.font('Helvetica-Bold')
   doc.text('Total Amount:', summaryX, doc.y, { continued: true })
-  doc.text(`Rs. ${totalPaid.toFixed(2)}`, { align: 'right' })
+  doc.text(`Rs. ${grandTotal.toFixed(2)}`, { align: 'right' })
 
   doc.moveDown(1)
   doc.fontSize(10).font('Helvetica-Oblique').text(
@@ -249,7 +289,6 @@ const downloadInvoice = asyncHandler(async (req, res) => {
 
   doc.end()
 })
-
 
 const returnSingleOrder = asyncHandler( async( req,res) => {
     const {orderId,itemId} = req.params
@@ -329,18 +368,6 @@ const returnEntireOrder = asyncHandler( async( req,res) => {
             note:`Full order return requested by user : ${reason}`,
             timestamp: new Date()
         })
-
-        const product = await Product.findById(item.product)
-        if(product && product.variants && product.variants.length > 0) {
-            const variant = product.variants.id(item.variantId)
-            if(variant) {
-                variant.stock += item.quantity
-            }
-            await product.save()
-        }else if(product) {
-            product.stock += item.quantity
-            await product.save()
-        }
     }
 
     await order.save()
