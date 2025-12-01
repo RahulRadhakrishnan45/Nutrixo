@@ -24,12 +24,12 @@ const loadProducts = asyncHandler( async( req,res) => {
                 productDescription:product.description,
                 productCategory:product.category_id,
                 productBrand:product.brand_id,
-                allVariants:product.variants,
+                allVariants:product.variants,           
                 ...variant.toObject()
             })
         })
     })
-
+    
     const totalRows = rows.length
     rows = rows.slice((page - 1) * perPage, page * perPage)
 

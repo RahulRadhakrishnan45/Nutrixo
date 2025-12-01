@@ -158,25 +158,28 @@
       let relatedPrice = rp.variants[0]?.price || 0;
       let relatedFinal = relatedOffer > 0 ? (relatedPrice - (relatedPrice * relatedOffer / 100)).toFixed(2) : relatedPrice;
     %>
-      <div class="border p-4 rounded-lg text-center relative">
+      <a href="/products/<%= rp._id %>?variant=<%= rp.variants[0]?._id %>" 
+        class="block border p-4 rounded-lg text-center relative hover:shadow-lg transition">
+        
         <% if (relatedOffer > 0) { %>
           <span class="absolute top-3 left-3 bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded">
             <%= relatedOffer %>% OFF
           </span>
         <% } %>
+
         <img src="<%= rp.variants[0]?.images?.[0] || '/images/no-image.png' %>" 
-             alt="<%= rp.title %>" 
-             class="mb-2 w-full h-40 object-contain" />
+            alt="<%= rp.title %>" 
+            class="mb-2 w-full h-40 object-contain" />
+
         <h3 class="text-sm font-bold"><%= rp.title %></h3>
-        <p class="text-gray-800 font-semibold">
-          ₹ <%= relatedFinal %>
-        </p>
+
+        <p class="text-gray-800 font-semibold">₹ <%= relatedFinal %></p>
+
         <% if (relatedOffer > 0) { %>
           <span class="line-through text-gray-400 text-sm">₹ <%= relatedPrice %></span>
         <% } %>
-        <a href="/products/<%= rp._id %>?variant=<%= rp.variants[0]?._id %>" 
-           class="text-blue-500 mt-2 inline-block">View</a>
-      </div>
+      </a>
+
     <% }) %>
   </div>
 </div>
