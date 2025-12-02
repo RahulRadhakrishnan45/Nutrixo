@@ -242,10 +242,16 @@
             `[data-order-id="${selectedOrderId}"] .status-badge`
           )
           .forEach((badge) => {
-            badge.textContent = "Cancellation Requested";
-            badge.className =
-              "status-badge px-3 py-1 text-sm rounded-full bg-orange-100 text-orange-800";
-          });
+            const currentStatus = badge.textContent.trim();
+            const cancellable = ["Processing", "Packed", "Shipped"]
+
+            if (cancellable.includes(currentStatus)) {
+              badge.textContent = "Cancellation Requested";
+              badge.className =
+                "status-badge px-3 py-1 text-sm rounded-full bg-orange-100 text-orange-800";
+            }
+            
+          })
 
         const orderCard = document.querySelector(
           `[data-order-id="${selectedOrderId}"]`

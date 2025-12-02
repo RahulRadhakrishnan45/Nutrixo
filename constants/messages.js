@@ -123,6 +123,7 @@ const messages = Object.freeze({
     },
     ITEM:{
         ITEM_UPDATED:"Item status updatedd successfully",
+        ITEM_CANCELLED:"Item cancelled successfully",
     },
     RETURN:{
         RETURN_REJECT:"Return request rejected",
@@ -175,6 +176,9 @@ const messages = Object.freeze({
         OWN_REFERRAL:"You cannot use your own referral code",
         INVALID_REFERRAL:"Invalid referral code",
         REFERRAL_APPLIED:"Referral applied successfully",
+    },
+    STATUS:{
+        CANNOT_MODIFY:"You cannot modify status after cancellation or return",
     }
 });
 

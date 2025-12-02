@@ -1,0 +1,56 @@
+2025-12-02 20:47:55 [error] : Unhandled error: C:\Users\ASUS\Desktop\Nutrixo Project\views\admin\orderDetail.ejs:192
+    190|           if (!result.isConfirmed) {
+    191|             // revert dropdown to previous value if canceled
+ >> 192|             e.target.value = "<%= item.status %>";
+    193|             return;
+    194|           }
+    195|         }
+
+item is not defined | Stack: ReferenceError: C:\Users\ASUS\Desktop\Nutrixo Project\views\admin\orderDetail.ejs:192
+    190|           if (!result.isConfirmed) {
+    191|             // revert dropdown to previous value if canceled
+ >> 192|             e.target.value = "<%= item.status %>";
+    193|             return;
+    194|           }
+    195|         }
+
+item is not defined
+    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:166:26)
+    at orderDetail (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:703:17)
+    at tryHandleCache (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:274:36)
+    at exports.renderFile [as engine] (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:491:10)
+    at View.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\view.js:139:8)
+    at tryRender (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:627:10)
+    at Function.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:574:3)
+    at ServerResponse.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\response.js:909:7)
+    at res.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express-ejs-layouts\lib\express-layouts.js:77:18)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\admin\orderAdminController.js:48:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-12-02 20:50:09 [error] : Unhandled error: C:\Users\ASUS\Desktop\Nutrixo Project\views\admin\orderDetail.ejs:192
+    190|           if (!result.isConfirmed) {
+    191|             // revert dropdown to previous value if canceled
+ >> 192|             e.target.value = "<%= item.status %>";
+    193|             return;
+    194|           }
+    195|         }
+
+item is not defined | Stack: ReferenceError: C:\Users\ASUS\Desktop\Nutrixo Project\views\admin\orderDetail.ejs:192
+    190|           if (!result.isConfirmed) {
+    191|             // revert dropdown to previous value if canceled
+ >> 192|             e.target.value = "<%= item.status %>";
+    193|             return;
+    194|           }
+    195|         }
+
+item is not defined
+    at eval (eval at compile (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:673:12), <anonymous>:168:26)
+    at orderDetail (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:703:17)
+    at tryHandleCache (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:274:36)
+    at exports.renderFile [as engine] (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\ejs\lib\ejs.js:491:10)
+    at View.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\view.js:139:8)
+    at tryRender (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:627:10)
+    at Function.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\application.js:574:3)
+    at ServerResponse.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express\lib\response.js:909:7)
+    at res.render (C:\Users\ASUS\Desktop\Nutrixo Project\node_modules\express-ejs-layouts\lib\express-layouts.js:77:18)
+    at C:\Users\ASUS\Desktop\Nutrixo Project\controllers\admin\orderAdminController.js:48:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)

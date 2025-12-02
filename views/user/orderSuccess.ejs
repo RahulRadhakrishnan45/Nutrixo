@@ -2,8 +2,9 @@
 
   <!-- ✅ Success Animation + Message -->
   <div class="text-center mt-4">
+
     <dotlottie-wc 
-      src="https://lottie.host/dce51402-3d96-4073-b0c7-0e559a46e9aa/UG8tKSj4Ic.lottie"
+      src="https://lottie.host/da752c78-438a-4984-8bcf-6334804e63f7/k3nc8Knjgi.lottie"
       style="width: 300px; height: 300px; display:block; margin:0 auto 1.5rem;"
       autoplay
       loop="false">
@@ -117,6 +118,8 @@
   </div>
 </div>
 
+<audio id="success-audio" src="/audio/recept.mp3" muted></audio>
+
 <!-- ✅ Animations -->
 <style>
   @keyframes fadeIn {
@@ -127,3 +130,24 @@
     animation: fadeIn 0.8s ease-in-out forwards;
   }
 </style>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const audio = document.getElementById("success-audio")
+
+  audio.muted = true
+  audio.volume = 1
+
+  audio.play().then(() => {
+
+    setTimeout(() => {
+      audio.muted = false;
+      audio.currentTime = 0
+      audio.play()          
+    }, 300)
+
+  }).catch(err => {
+    console.log("Muted autoplay failed:", err)
+  })
+})
+</script>
