@@ -32,44 +32,44 @@ const options = {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    orderId: orderId,   // 🔥 REQUIRED
+                    orderId: orderId,  
                     razorpay_payment_id: response.razorpay_payment_id,
                     razorpay_order_id: response.razorpay_order_id,
                     razorpay_signature: response.razorpay_signature
                 })
             });
 
-            const data = await res.json();
+            const data = await res.json()
 
             if (data.success) {
-                window.location.href = `/checkout/${data.orderId}/success`;
+                window.location.href = `/checkout/${data.orderId}/success`
             } else {
-                window.location.href = `/checkout/${orderId}/fail`;
+                window.location.href = `/checkout/${orderId}/fail`
             }
 
         } catch (err) {
-            const orderId = document.getElementById("orderId").value;
-            console.error("Verification error:", err);
-            window.location.href = `/checkout/${orderId}/fail`;
+            const orderId = document.getElementById("orderId").value
+            console.error("Verification error:", err)
+            window.location.href = `/checkout/${orderId}/fail`
         }
     },
 
     modal: {
         ondismiss: function () {
-            const orderId = document.getElementById("orderId").value;
-            window.location.href = `/checkout/${orderId}/fail`;
+            const orderId = document.getElementById("orderId").value
+            window.location.href = `/checkout/${orderId}/fail`
         }
     }
-};
+}
 
-const rzp = new Razorpay(options);
+const rzp = new Razorpay(options)
 
 rzp.on("payment.failed", function () {
-    const orderId = document.getElementById("orderId").value;
-    window.location.href = `/checkout/${orderId}/fail`;
-});
+    const orderId = document.getElementById("orderId").value
+    window.location.href = `/checkout/${orderId}/fail`
+})
 
 window.onload = function () {
-    rzp.open();
-};
+    rzp.open()
+}
 </script>

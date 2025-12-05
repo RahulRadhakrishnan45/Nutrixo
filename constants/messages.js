@@ -176,6 +176,7 @@ const messages = Object.freeze({
         OWN_REFERRAL:"You cannot use your own referral code",
         INVALID_REFERRAL:"Invalid referral code",
         REFERRAL_APPLIED:"Referral applied successfully",
+        REFERRAL_DAYS_EXHAUSTED:"Referral code can only be applied within 2 days of joining",
     },
     STATUS:{
         CANNOT_MODIFY:"You cannot modify status after cancellation or return",

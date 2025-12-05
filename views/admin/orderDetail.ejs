@@ -156,6 +156,26 @@
 
   <script>
 document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".status-select").forEach(sel => {
+    const current = sel.value;
+
+    if (current === "CANCELLATION REQUESTED" || current === "RETURN REQUESTED") {
+      sel.disabled = true;
+    }
+  })
+
+  document.querySelectorAll(".status-select").forEach(sel => {
+    [...sel.options].forEach(opt => {
+      if (
+        opt.value === "CANCELLATION REQUESTED" ||
+        opt.value === "RETURN REQUESTED" ||
+        opt.value === "RETURNED"
+      ) {
+        opt.disabled = true;
+        opt.classList.add("text-gray-400");
+      }
+    });
+  })
 
   // 🚫 Disable dropdown for cancelled or returned items initially
   document.querySelectorAll(".status-select").forEach(sel => {
@@ -170,6 +190,20 @@ document.addEventListener("DOMContentLoaded", function () {
     const prev = selectEl.dataset.prevStatus ?? "";
     selectEl.value = prev;
   }
+
+  document.querySelectorAll(".status-select").forEach(sel => {
+    const current = sel.value;
+
+    // If the item is NOT delivered → disable return-related options
+    if (current !== "DELIVERED") {
+      [...sel.options].forEach(opt => {
+        if (opt.value === "RETURN REQUESTED" || opt.value === "RETURNED") {
+          opt.disabled = true;
+          opt.classList.add("text-gray-400"); // optional visual cue
+        }
+      });
+    }
+  });
 
   // 🔄 HANDLE STATUS CHANGE (WITH SWEETALERT FOR CANCEL)
   document.querySelectorAll(".status-select").forEach(function (sel) {
@@ -288,5 +322,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 </script>
-
 </body>

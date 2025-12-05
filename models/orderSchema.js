@@ -126,8 +126,8 @@ orderSchema.pre("save", async function (next) {
     const timePart = Date.now().toString().slice(-4); // last 4 digits of timestamp
     this.orderNumber = `NUT-${randomPart}${timePart}`;
   }
-  next();
-});
+  next()
+})
 
 orderSchema.pre("save", function (next) {
   if(this.items.length === 0) return next()

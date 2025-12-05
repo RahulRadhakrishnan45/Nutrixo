@@ -141,11 +141,9 @@
     emailInput.addEventListener('input', validateEmail);
     passwordInput.addEventListener('input', validatePassword);
 
-    // Toggle password visibility
     togglePassword.addEventListener('click', () => {
       if (passwordInput.type === "password") {
         passwordInput.type = "text";
-        // eye-off icon
         eyeIcon.innerHTML = `
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7 
@@ -186,14 +184,7 @@
         const data = await res.json();
 
         if (res.ok && data.success) {
-          Swal.fire({
-            icon:'success',
-            title:data.message,
-            timer:1500,
-            showConfirmButton:false
-          }).then(() => {
-            window.location.href = data.redirect;
-          });
+          window.location.href = data.redirect
         } else {
           Swal.fire({
             icon:'error',
