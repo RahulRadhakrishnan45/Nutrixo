@@ -7,7 +7,7 @@ const Order = require('../../models/orderSchema')
 const Product = require('../../models/productSchema')
 const httpStatus = require('../../constants/httpStatus')
 const messages = require('../../constants/messages')
-
+const {buildDashboardResponse} = require('../../utils/dashboardHelper')
 
 
 
@@ -57,50 +57,85 @@ const logout = asyncHandler( async (req,res) => {
     })
 })
 
-const loadDashboard = asyncHandler( async (req,res) => {
+const loadDashboard = asyncHandler( async( req,res) => {
     const message = req.session.message
     delete req.session.message
 
-    const revenueResult = await Order.aggregate([
-        {$match:{'items.status':{$nin:['CANCELLED','RETURNED']},},},
-        {$group:{_id:null,totalRevenue:{$sum:'$totalAmount'},},}
-    ])
+    res.render('admin/dashboard',{layout:'layouts/admin_main',message})
+})
 
-    const totalRevenue = revenueResult[0]?.totalRevenue || 0
-    const totalOrders = await Order.countDocuments()
-    const totalCustomers = await User.countDocuments()
+const dashboardDetails = asyncHandler( async (req,res) => {
+    const period = req.query.timeFilter || 'monthly'
+    const now = new Date()
+    let startDate 
+    let labels = []
+    let data = []
 
-    const salesOverview = await Order.aggregate([
-        {$match:{createdAt:{$gte:new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)},'items.status':{$nin:['CANCELLED','RETURNED']},},},
-        {$group:{_id:{$dayOfWeek:'$createdAt'},total:{$sum:'$totalAmount'},},},{$sort:{'_id':1}},
-    ])
+    if(period === 'daily') {
+        startDate = new Date()
+        startDate.setHours(0, 0, 0, 0)
 
-    const bestSellingProducts = await Order.aggregate([
-        {$unwind:{path:'$items'}},{$match:{'items.status':{$nin:['CANCELLED','RETURNED']},},},
-        {$group:{_id:'$items.product',totalSold:{$sum:'$items.quantity'},},},
-        {$sort:{totalSold:-1}},
-        {$limit:5},
-        {$lookup:{
-            from:'products',
-            localField:'_id',
-            foreignField:'_id',
-            as:'product',
-        },},
-        {$unwind:{path:'$product',preserveNullAndEmptyArrays:true}},
-        {$project:{_id:1,totalSold:1,name:'$product.title',image:{$arrayElemAt:[{$arrayElemAt:['$product.variants.images',0],},0,],},},},
-    ])
+        const dailySeries = await Order.aggregate([
+            {$unwind:'$items'},
+            {$match:{createdAt:{$gte:startDate},'items.status':{$nin:['CANCELLED','RETURNED']}}},
+            {$group:{_id:{$hour:'$createdAt'},total:{$sum:'$totalAmount'}}},
+            {$sort:{_id:1}}
+        ])
 
-    const recentOrders = await Order.find({}).populate('user','name').sort({createdAt:-1}).limit(5).lean()
-    recentOrders.forEach(order => {
-        const statuses = order.items.map(item => item.status)
-        if(statuses.every(s => s === 'DELIVERED')) order.status ='DELIVERED'
-        else if (statuses.some(s => s === 'PROCESSING')) order.status = 'PROCESSING'
-        else if (statuses.some(s => s === 'CANCELLED')) order.status = 'CANCELLED'
-        else order.status = statuses[0] || 'PENDING'
-    })
+        labels = Array.from({length:24},(_,i) => i)
+        data = labels.map(h => dailySeries.find(x => x._id === h)?.total || 0)
 
-    res.render('admin/dashboard',{layout:'layouts/admin_main',message,totalRevenue,totalOrders,totalCustomers,salesOverview,bestSellingProducts,recentOrders})
+    }else if (period === 'weekly') {
+        const day = now.getDay()
+        startDate = new Date()
+        startDate.setDate(now.getDate() - day)
+        startDate.setHours(0, 0 ,0 ,0)
+
+        const weeklySeries = await Order.aggregate([
+            {$unwind:'$items'},
+            {$match:{createdAt:{$gte:startDate},'items.status':{$nin:['CANCELLED','RETURNED']}}},
+            {$group:{_id:{$dayOfWeek:'$createdAt'},total:{$sum:'$totalAmount'}}},
+            {$sort:{_id:1}}
+        ])
+
+        labels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+        data = labels.map((_, i) => weeklySeries.find(x => x._id === i + 1)?.total || 0)
+
+    }else if (period === 'monthly') {
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+        const daysInMonth = new Date(now.getFullYear(),now.getMonth() + 1, 0).getDate()
+
+        const monthlySeries = await Order.aggregate([
+            {$unwind:'$items'},
+            {$match:{createdAt:{$gte:startDate},'items.status':{$nin:['CANCELLED','RETURNED']}}},
+            {$group:{_id:{$dayOfMonth:'$createdAt'},total:{$sum:'$totalAmount'}}},
+            {$sort:{_id:1}}
+        ])
+
+        labels = Array.from({length:daysInMonth},(_, i) => i + 1)
+        data = labels.map(day => monthlySeries.find(x => x._id === day)?.total || 0)
+
+    }else if (period === 'yearly') {
+        startDate = new Date(now.getFullYear(), 0, 1)
+
+        const yearlySeries = await Order.aggregate([
+            {$unwind:'$items'},
+            {$match:{createdAt:{$gte:startDate},'items.status':{$nin:['CANCELLED','RETURNED']}}},
+            {$group:{_id:{$month:'$createdAt'},total:{$sum:'$totalAmount'}}},
+            {$sort:{_id:1}}
+        ])
+
+        labels = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+        data = labels.map((_, i) => yearlySeries.find(x => x._id === i + 1)?.total || 0)
+    }
+
+    const dashboardData = await buildDashboardResponse(startDate)
+
+    dashboardData.timeSeriesLabels = labels
+    dashboardData.timeSeriesData = data
+
+    return res.json(dashboardData)
 })
 
 
-module.exports = {loadLogin,login,logout,loadDashboard}
+module.exports = {loadLogin,login,logout,dashboardDetails,loadDashboard}

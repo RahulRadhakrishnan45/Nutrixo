@@ -192,6 +192,10 @@ const placeOrder = asyncHandler( async( req,res) => {
     tax = Number(((subtotal - couponDiscount) * 0.02).toFixed(2))
     total = subtotal - couponDiscount + tax
 
+    if(paymentMethod === 'COD' && total > 1000) {
+        return res.redirect('/checkout?error=codLimit')
+    }
+
     const orderItems = await Promise.all(updatedItems.map(async (it) => {
         const product = await Product.findById(it.product_id._id).populate('brand_id').populate('category_id').lean();
 

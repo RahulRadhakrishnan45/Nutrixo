@@ -142,12 +142,22 @@
               </span>
             </label>
 
+              <!-- Disable COD if total > 1000 -->
             <label class="flex items-center space-x-2">
-              <input type="radio" name="payment" value="COD">
-              <span>Cash on Delivery</span>
+              <input 
+                type="radio" 
+                name="payment" 
+                value="COD"
+                <%= total > 1000 ? "disabled" : "" %>
+              >
+              <span>
+                Cash on Delivery 
+                <% if (total > 1000) { %>
+                  <span class="text-red-500 text-xs ml-1">(Unavailable for orders above ₹1000)</span>
+                <% } %>
+              </span>
             </label>
           </div>
-
         </div>
       </div>
 
@@ -319,18 +329,16 @@
   <% }) %>
 
   <%- include('../partials/addressModal.ejs') %>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-  <script src="/js/addressModal.js"></script>
-
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+  <script src="/js/addressModal.js"></script>
 
   <script>
     const addresses = <%- JSON.stringify(addresses) %>;
     const addressSelect = document.getElementById("addressSelect");
     const selectedAddressIndex = document.getElementById("selectedAddressIndex");
-    selectedAddressIndex.value = addressSelect.value
+
     const street = document.getElementById("street");
     const fullname = document.getElementById("fullname");
     const district = document.getElementById("district");
@@ -340,23 +348,31 @@
     const mobile = document.getElementById("mobile");
     const editBtn = document.querySelector(".edit-btn");
 
-    addressSelect.addEventListener("change", (e) => {
-      const selected = addresses[e.target.value];
-      street.value = selected.address;
-      fullname.value = selected.fullname;
-      district.value = selected.district;
-      state.value = selected.state;
-      pincode.value = selected.pincode;
-      country.value = selected.country;
-      mobile.value = selected.mobile;
-      selectedAddressIndex.value = e.target.value;
-      if (editBtn) editBtn.dataset.id = selected._id;
-    });
+    if(addressSelect) {
+      selectedAddressIndex.value = addressSelect.value
 
+      addressSelect.addEventListener("change", (e) => {
+          const selected = addresses[e.target.value];
+          street.value = selected.address;
+          fullname.value = selected.fullname;
+          district.value = selected.district;
+          state.value = selected.state;
+          pincode.value = selected.pincode;
+          country.value = selected.country;
+          mobile.value = selected.mobile;
+          selectedAddressIndex.value = e.target.value;
+          if (editBtn) editBtn.dataset.id = selected._id;
+      });
+    }
+    // Payment select handler
     const paymentRadios = document.querySelectorAll('input[name="payment"]');
     const paymentInput = document.getElementById("selectedPayment");
+
     paymentRadios.forEach(radio => {
-      radio.addEventListener("change", e => paymentInput.value = e.target.value);
+        radio.addEventListener("change", (e) => {
+            if (e.target.disabled) return; // ⛔ Ignore disabled payment methods
+            paymentInput.value = e.target.value;
+        });
     });
 
     // Coupon modal toggle
@@ -365,38 +381,47 @@
     const closeCouponModal = document.getElementById("closeCouponModal");
 
     viewCouponsBtn.addEventListener("click", () => {
-      couponModal.classList.remove("hidden");
+        couponModal.classList.remove("hidden");
     });
 
     closeCouponModal.addEventListener("click", () => {
-      couponModal.classList.add("hidden");
+        couponModal.classList.add("hidden");
     });
 
     window.addEventListener("click", (e) => {
-      if (e.target === couponModal) couponModal.classList.add("hidden");
+        if (e.target === couponModal) couponModal.classList.add("hidden");
     });
 
     toastr.options = {
-      closeButton: true,
-      progressBar: true,
-      positionClass: "toast-bottom-right",
-      timeOut: "3000"
+        closeButton: true,
+        progressBar: true,
+        positionClass: "toast-bottom-right",
+        timeOut: "3000"
     };
 
-    <% if(error === 'stockAdjusted') { %>
-      toastr.warning('Some products had limited stock. Quantities were adjusted accordingly.');
-    <% } else if(error === 'allOutOfStock') { %>
-      toastr.error('All items in your cart are currently out of stock.');
-    <% } else if(error === 'noAddress') { %>
-      toastr.error('Please add an address before placing your order.');
-    <% } else if(error === 'invalidCoupon') { %>
-      toastr.error('Invalid or expired coupon.');
-    <% } else if(error === 'minimumNotMet') { %>
-      toastr.warning('Minimum purchase requirement not met for this coupon.');
-    <% } %>
-    <% if(error === 'couponUsed') { %>
-      toastr.error('You have already used this coupon.');
-    <% } %>
+    <% if(error === 'stockAdjusted') { %> toastr.warning('Some products had limited stock. Quantities were adjusted.'); <% } %>
+    <% if(error === 'allOutOfStock') { %> toastr.error('All items are out of stock.'); <% } %>
+    <% if(error === 'noAddress') { %> toastr.error('Please add an address before ordering.'); <% } %>
+    <% if(error === 'invalidCoupon') { %> toastr.error('Invalid or expired coupon.'); <% } %>
+    <% if(error === 'minimumNotMet') { %> toastr.warning('Minimum purchase requirement not met.'); <% } %>
+    <% if(error === 'couponUsed') { %> toastr.error('You have already used this coupon.'); <% } %>
+    <% if(error === 'codLimit') { %> toastr.error("COD is not available for orders above ₹1000."); <% } %>
 
-  </script>
+    // ⭐ FULL COD BLOCKING LOGIC ⭐
+    const codRadio = document.querySelector('input[value="COD"]');
+    const paymentInputValue = document.getElementById("selectedPayment");
+
+    if (codRadio && codRadio.disabled) {
+
+        codRadio.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toastr.error("COD is not available for orders above ₹1000.");
+        });
+
+        if (paymentInputValue.value === "COD") {
+            paymentInputValue.value = "CARD";
+        }
+    }
+</script>
 </body>
