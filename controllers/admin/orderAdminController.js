@@ -7,11 +7,14 @@ const httpStatus = require('../../constants/httpStatus')
 const {STATUS_ENUM} = require('../../constants/orderStatus')
 const { creditToWallet } = require('../../utils/walletRefund')
 const {computeItemRefund} = require('../../utils/refund')
+const {errorLog} = require('../../config/logger')
 
 
 const loadOrders = asyncHandler( async( req,res) => {
     const {search = '', paymentStatus = '', sort = 'newest', page = 1 } = req.query
-    const filter = {}
+    const filter = {
+        showInOrders:true
+    }
 
     if(search) {
         const users = await User.find({email:{$regex:search,$options:'i'},}).select('_id')
@@ -35,7 +38,8 @@ const loadOrders = asyncHandler( async( req,res) => {
 
     const orders = await Order.find(filter).populate('user','email').sort({createdAt:sortOrder}).skip(skip).limit(limit).lean()
 
-    res.render('admin/order',{layout:'layouts/admin_main',orders,search,paymentStatus,sort,currentPage,totalPages,query:req.query})
+    const filteredOrders = orders.filter(order => !order.showRetry)
+    res.render('admin/order',{layout:'layouts/admin_main',orders:filteredOrders,search,paymentStatus,sort,currentPage,totalPages,query:req.query})
 })
 
 const loadOrderDetails = asyncHandler( async( req,res) => {
@@ -56,6 +60,54 @@ const updateItemStatus = asyncHandler( async( req,res) => {
     
     const item = order.items.id(itemId)
     if(!item) return res.status(httpStatus.not_found).json({message:messages.PRODUCT.PRODUCT_NOT_FOUND})
+
+    if(['CANCELLED','RETURNED'].includes(item.status)) {
+        return res.status(httpStatus.bad_request).json({success:false,message:messages.STATUS.CANNOT_MODIFY})
+    }
+
+    if(status === 'CANCELLED') {
+        const previousStatus = item.status
+        const {refundAmount, breakdown} = computeItemRefund(item,order)
+
+        const isCOD = order.paymentMethod === 'COD'
+        const isBeforeDelivery = previousStatus !== 'DELIVERED'
+
+        if(!(isCOD && isBeforeDelivery)) {
+            if(refundAmount > 0) {
+                try {
+                    await creditToWallet(
+                        order.user,refundAmount,`Refund for admin-cancelled item ${item.title}`,orderId
+                    )
+                } catch (err) {
+                    errorLog.error("Wallet refund failed", { error: err })
+                }
+            }
+        }
+
+        const product = await Product.findById(item.product)
+        if(product && product.variants) {
+            const variant = product.variants.id(item.variantId)
+            if(variant) variant.stock += item.quantity
+            await product.save()
+        }
+
+        item.previousStatus = previousStatus
+        item.status = 'CANCELLED'
+
+        item.offerApplied = breakdown.itemOfferTotal ?? item.offerApplied
+        item.couponDiscount = breakdown.itemCouponTotal ?? item.couponDiscount
+        item.tax = breakdown.tax ?? item.tax
+
+        item.statusHistory = item.statusHistory || []
+        item.statusHistory.push({
+            status:'CANCELLED',timestamp:new Date(),note:'Admin cancelled item' + (isCOD && isBeforeDelivery ? '(COD before delivery - no wallet refund)' : '& refund processed')
+        })
+
+        order.markModified('items')
+        await order.save()
+
+        return res.json({success:true,message:messages.ITEM.ITEM_CANCELLED})
+    }
 
     item.status = status
     order.markModified('items')

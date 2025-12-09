@@ -13,41 +13,52 @@
       <!-- Hidden input to check Add/Edit -->
       <input type="hidden" name="id" id="addressId">
 
+      <!-- Name + Mobile -->
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="text-sm font-medium">Full Name</label>
           <input type="text" name="fullname" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black">
+          <p class="error-msg text-red-600 text-sm mt-1 hidden"></p>
         </div>
+
         <div>
           <label class="text-sm font-medium">Mobile</label>
           <input type="text" name="mobile" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black">
+          <p class="error-msg text-red-600 text-sm mt-1 hidden"></p>
         </div>
       </div>
 
+      <!-- Address -->
       <div>
         <label class="text-sm font-medium">Address</label>
         <input type="text" name="address" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black">
+        <p class="error-msg text-red-600 text-sm mt-1 hidden"></p>
       </div>
 
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="text-sm font-medium">District</label>
-          <input type="text" name="district" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black">
-        </div>
-        <div>
-          <label class="text-sm font-medium">State</label>
-          <input type="text" name="state" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black">
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="text-sm font-medium">Country</label>
-          <input type="text" name="country" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black">
-        </div>
+      <!-- Pincode, District, State, Country all inline -->
+      <div class="grid grid-cols-4 gap-4">
         <div>
           <label class="text-sm font-medium">Pincode</label>
           <input type="text" name="pincode" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black">
+          <p class="error-msg text-red-600 text-sm mt-1 hidden"></p>
+        </div>
+
+        <div>
+          <label class="text-sm font-medium">District</label>
+          <input type="text" name="district" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black" readonly>
+          <p class="error-msg text-red-600 text-sm mt-1 hidden"></p>
+        </div>
+
+        <div>
+          <label class="text-sm font-medium">State</label>
+          <input type="text" name="state" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black" readonly>
+          <p class="error-msg text-red-600 text-sm mt-1 hidden"></p>
+        </div>
+
+        <div>
+          <label class="text-sm font-medium">Country</label>
+          <input type="text" name="country" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black" readonly>
+          <p class="error-msg text-red-600 text-sm mt-1 hidden"></p>
         </div>
       </div>
 

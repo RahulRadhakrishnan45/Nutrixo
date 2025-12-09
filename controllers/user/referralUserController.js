@@ -34,6 +34,16 @@ const applyReferralCode = asyncHandler( async( req,res) => {
 
     const user = await User.findById(userId)
 
+    const joinedAt = user.createdAt
+    const now = new Date()
+
+    const diffInMs = now - joinedAt
+    const diffInDays = diffInMs / (1000 * 60 * 24)
+
+    if(diffInDays > 2) {
+        return res.status(httpStatus.bad_request).json({success:false,message:messages.REFERRAL.REFERRAL_DAYS_EXHAUSTED})
+    }
+
     if(user.referralClaimed) {
         return res.status(httpStatus.bad_request).json({success:false,message:messages.REFERRAL.REFERRAL_EXISTS})
     }
@@ -52,7 +62,6 @@ const applyReferralCode = asyncHandler( async( req,res) => {
 
     user.referralClaimed = true
     user.referredBy = referrer._id
-    
     await user.save()
 
     return res.status(httpStatus.ok).json({success:true,message:messages.REFERRAL.REFERRAL_APPLIED,userBonus:50,referrerBonus:100})

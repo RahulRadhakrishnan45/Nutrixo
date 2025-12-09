@@ -7,6 +7,7 @@ const {checkAdminSession} = require('../../middlewares/checkSession')
 router.get('/login',adminController.loadLogin)
 router.post('/login',adminController.login)
 router.get('/dashboard',checkAdminSession,adminController.loadDashboard)
+router.get('/dashboard-details',checkAdminSession,adminController.dashboardDetails)
 router.post('/logout',adminController.logout)
 
 

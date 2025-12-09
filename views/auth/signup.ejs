@@ -187,10 +187,19 @@
       passid.addEventListener('input', passValidateChecking)
       confirmpassid.addEventListener('input', passValidateChecking)
       mobileid.addEventListener('input', mobileValidateChecking)
-                            
+              
+      const submitBtn = document.querySelector('button[type="submit"]');
+      let isSubmitting = false;
     
       signform.addEventListener('submit',async function(e){
         e.preventDefault()
+
+        if (isSubmitting) return
+        isSubmitting = true;
+
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Processing...";
+        submitBtn.classList.add("opacity-60", "cursor-not-allowed");
 
         nameValidateChecking()
         emailValidateChecking()
@@ -198,6 +207,10 @@
         passValidateChecking()
 
         if(error1.innerHTML || error2.innerHTML || error3.innerHTML || error4.innerHTML || error5.innerHTML){
+          isSubmitting = false;
+          submitBtn.disabled = false;
+          submitBtn.innerText = "Create account";
+          submitBtn.classList.remove("opacity-60", "cursor-not-allowed");
           return
         }
         
@@ -219,13 +232,23 @@
               title:'Oops...',
               text:result.message
             })
+
+            isSubmitting = false;
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Create account";
+            submitBtn.classList.remove("opacity-60", "cursor-not-allowed");
+
           }else{
             window.location.href = '/auth/otp'
           }
         }catch (err) {
           Swal.fire('error','something went wrong','error')
+
+          isSubmitting = false;
+          submitBtn.disabled = false;
+          submitBtn.innerText = "Create account";
+          submitBtn.classList.remove("opacity-60", "cursor-not-allowed");
         }
       })
     
-
 </script>

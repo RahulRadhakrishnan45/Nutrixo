@@ -65,6 +65,15 @@ const signupUser = asyncHandler( async (req,res) =>{
         return res.status(httpStatus.bad_request).json({success:false,message:messages.USER.USER_MOB_EXISTS})
     }
 
+    const now = Date.now()
+    const lastOtpTime = req.session.lastOtpTime || 0
+
+    if(now - lastOtpTime < 6000) {
+        const wait = Math.ceil((60000 - (now - lastOtpTime)) / 1000)
+
+        return res.json({success:false,message:`OTP already sent. Try again in ${wait} seconds.`,})
+    }
+
     const otp = generateOtp()
     const otpExpiry = Date.now() + 2*60*1000
 
@@ -78,6 +87,7 @@ const signupUser = asyncHandler( async (req,res) =>{
     req.session.otpExpiry = otpExpiry
     req.session.userData = {name,email,password,mobile}
     req.session.purpose = 'signup'
+    req.session.lastOtpTime = now
 
     apiLog.info(`OTP sent successfully to ${email}: ${otp}`)
 
