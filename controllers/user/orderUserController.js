@@ -163,6 +163,19 @@ const downloadInvoice = asyncHandler(async (req, res) => {
   res.setHeader('Content-Disposition', `attachment; filename=invoice-${orderId}.pdf`)
   doc.pipe(res)
 
+  function splitTitleBalanced(title) {
+    const words = title.split(" ")
+    const total = words.length
+
+    const perLine = Math.ceil(total / 3)
+
+    const line1 = words.slice(0, perLine).join(" ")
+    const line2 = words.slice(perLine, perLine * 2).join(" ")
+    const line3 = words.slice(perLine * 2).join(" ")
+
+    return [line1, line2, line3].filter(Boolean).join("\n")
+  }
+
   doc.fontSize(18).font('Helvetica-Bold').text('Tax Invoice', { align: 'center' })
   doc.moveDown(1.5)
 
@@ -190,15 +203,15 @@ const downloadInvoice = asyncHandler(async (req, res) => {
 
   doc.font('Helvetica-Bold')
   doc.text('Product Name', startX, tableTop)
-  doc.text('Qty', 250, tableTop)
+  doc.text('Qty', 230, tableTop)
   doc.text('Price', 300, tableTop)
   doc.text('Status', 380, tableTop)
-  doc.text('Payment', 470, tableTop)
-  doc.text('Total', 540, tableTop, { align: 'right' })
+  doc.text('Payment', 460, tableTop)
+  doc.text('Total', 520, tableTop)
 
-  doc.moveDown(0.3)
-  doc.moveTo(startX, doc.y).lineTo(560, doc.y).stroke()
-  doc.moveDown(0.6)
+  const underlineY = tableTop + 30
+  doc.moveTo(startX, underlineY).lineTo(560, underlineY).stroke()
+  doc.y = underlineY + 12
 
   doc.font('Helvetica').fontSize(10)
 
@@ -222,20 +235,22 @@ const downloadInvoice = asyncHandler(async (req, res) => {
     const sellingPrice = item.offerPrice || item.price
     const itemTotal = sellingPrice * item.quantity
 
-    doc.text(item.title, startX, lineY, { width: 180 })
-    doc.text(`${item.quantity}`, 250, lineY)
+    const formattedTitle = splitTitleBalanced(item.title)
+    doc.text(formattedTitle, startX, lineY, { width: 180, lineBreak : true })
+    const titleHeight = doc.heightOfString(formattedTitle, { width: 180 })
+    doc.text(`${item.quantity}`, 230, lineY)
 
     if (item.offerPrice) {
-      doc.text(`Rs. ${sellingPrice.toFixed(2)} (Offer)`, 300, lineY)
+      doc.text(`Rs. ${sellingPrice.toFixed(2)}`, 300, lineY)
     } else {
       doc.text(`Rs. ${basePrice.toFixed(2)}`, 300, lineY)
     }
 
     doc.text(item.status, 380, lineY)
-    doc.text(itemPaymentStatus, 470, lineY)
-    doc.text(`Rs. ${itemTotal.toFixed(2)}`, 540, lineY, { align: 'right' })
+    doc.text(itemPaymentStatus, 460, lineY)
+    doc.text(`Rs. ${itemTotal.toFixed(2)}`, 520, lineY)
 
-    doc.moveDown(0.6)
+    doc.y = lineY + titleHeight + 20; 
   })
 
   const actual = order.actualTotal || 0

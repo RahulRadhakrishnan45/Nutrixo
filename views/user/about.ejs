@@ -1,0 +1,249 @@
+<style>
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .delay-200 { transition-delay: 200ms; }
+  .delay-400 { transition-delay: 400ms; }
+  .delay-600 { transition-delay: 600ms; }
+</style>
+
+<body class="bg-gray-50 text-gray-800 font-sans">
+
+  <!-- Hero Section -->
+  <section class="min-h-screen flex items-center justify-center bg-gradient-to-r from-black to-gray-800 text-white relative overflow-hidden">
+
+  <!-- Background Image -->
+  <div
+    class="absolute inset-0 bg-cover bg-center grayscale opacity-30 mix-blend-overlay"
+    style="background-image: url('/images/body1.jpg');">
+  </div>
+
+  <!-- Content -->
+  <div class="container mx-auto px-6 py-16 relative z-10 text-center">
+    <h1 class="text-5xl md:text-7xl font-extrabold mb-6 reveal">Nutrixo</h1>
+
+    <p class="text-xl md:text-2xl max-w-3xl mx-auto mb-10 text-white/90 reveal delay-200">
+      Fueling the Best Version of You.
+    </p>
+
+    <p class="max-w-2xl mx-auto text-lg text-white/80 reveal delay-400">
+      We fuel your fitness journey with premium supplements crafted for strength, energy, and everyday health.
+    </p>
+
+    <a href="#story" class="mt-10 inline-block animate-bounce">
+      <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+      </svg>
+    </a>
+  </div>
+
+</section>
+
+
+
+  <!-- Our Story -->
+  <section id="story" class="py-20 bg-white">
+    <div class="container mx-auto px-6">
+      <div class="flex flex-col md:flex-row items-center">
+        <div class="md:w-1/2 mb-10 md:mb-0 reveal flex justify-center">
+          <img src="/images/body.jpg" alt="Our Story" class="rounded-lg shadow-xl w-[60%] grayscale" />
+        </div>
+        <div class="md:w-1/2 md:pl-12">
+          <h2 class="text-4xl font-bold mb-6 reveal text-black">Our Story</h2>
+
+          <p class="text-lg mb-6 reveal delay-200 text-gray-800">
+            Nutrixo started as a personal vision — where a love for building products and a passion for health and performance come together.
+          </p>
+
+          <p class="text-lg mb-6 reveal delay-400 text-gray-800">
+            As a fitness enthusiast and a developer, I wanted to build something impactful — a platform that empowers individuals who carry their dedication, consistency, and ambition into every workout.
+          </p>
+
+          <p class="text-lg reveal delay-600 text-gray-800">
+            Nutrixo is more than a project. It’s a milestone in my growth as a developer — uniting thoughtful design, powerful backend logic, and a meaningful goal: providing trusted nutrition for people committed to their fitness journey.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- What We Offer -->
+  <section class="py-20 bg-gray-100">
+    <div class="container mx-auto px-6">
+      <h2 class="text-4xl font-bold text-center mb-16 reveal text-black">What We Offer</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+        
+        <!-- Football -->
+        <div class="bg-white rounded-lg shadow-lg p-8 text-center reveal">
+          <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg fill="#000000" viewBox="0 0 15 15" id="fitness-centre" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path id="daec40ff-71f5-4432-9d75-dcba7b9c1b89" d="M14.5,7V8h-1v2h-1v1H11V8H4v3H2.5V10h-1V8H.5V7h1V5h1V4H4V7h7V4h1.5V5h1V7Z"></path> </g></svg>
+          </div>
+          <h3 class="text-2xl font-bold mb-4 text-black">Whey Protein</h3>
+          <p class="text-gray-600">High-quality whey blends crafted to support muscle growth, faster recovery, and lean strength.</p>
+        </div>
+
+        <!-- Cricket -->
+        <div class="bg-white rounded-lg shadow-lg p-8 text-center reveal delay-200">
+          <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg height="200px" width="200px" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <style type="text/css"> .st0{fill:#000000;} </style> <g> <path class="st0" d="M188.858,102.634c26.588,10.645,56.793-2.287,67.428-28.874C266.941,47.171,254,16.966,227.411,6.33 c-26.597-10.654-56.782,2.278-67.438,28.876C149.339,61.794,162.251,91.98,188.858,102.634z"></path> <path class="st0" d="M502.664,130.434L433.106,13.819c-5.298-9.872-16.011-14.946-26.5-13.607c-0.245,0.02-0.489,0.078-0.723,0.098 c-0.773,0.127-1.555,0.294-2.326,0.479c-0.46,0.127-0.929,0.225-1.378,0.371c-1.604,0.5-3.177,1.144-4.702,1.965 c-2.835,1.526-6.031,3.618-8.045,5.905l-76.508,59.256l-55.668,42.775c-23.382,15.122-41.496,14.389-62.58,9.56L30.582,74.052 C19.918,70.836,8.647,76.877,5.441,87.551c-3.206,10.664,2.834,21.935,13.509,25.151l156.39,60.624 c6.882,2.014,18.445,18.456,26.362,27.233c11.564,12.864,55.62,78.493,159.9,80.839c6.402,0.147,7.996,1.76,8.788,6.159 l19.677,200.758c0,13.078,10.606,23.684,23.685,23.684c13.069,0,23.684-10.606,23.684-23.684c0,0,2.336-257.004,2.63-261.383 c0.352-5.386,3.734-8.445,8.524-12.707c0,0,40.244-39.609,40.947-40.068C509.81,160.736,510.768,143.748,502.664,130.434z M372.159,181.245c-4.887,3.538-22.59,6.95-29.863,6.822c-42.638-0.684-46.294-35.238-33.401-48.132l35.913-33.723l51.622-47.438 l36.188,74.955L372.159,181.245z"></path> </g> </g></svg>
+          </div>
+          <h3 class="text-2xl font-bold mb-4 text-black">Creatine</h3>
+          <p class="text-gray-600">Pure, powerful creatine designed to boost strength, enhance performance, and maximize workout output.</p>
+        </div>
+
+        <!-- Basketball -->
+        <div class="bg-white rounded-lg shadow-lg p-8 text-center reveal delay-400">
+          <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg fill="#000000" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><title>ionicons-v5-m</title><path d="M193.69,152.84a16,16,0,0,1,29.64,2.56l36.4,121.36,30-59.92a16,16,0,0,1,28.62,0L345.89,272h96.76A213.08,213.08,0,0,0,464,176.65C463.37,114.54,413.54,64,352.92,64c-48.09,0-80,29.54-96.92,51-16.88-21.49-48.83-51-96.92-51C98.46,64,48.63,114.54,48,176.65A211.13,211.13,0,0,0,56.93,240h93.18Z"></path><path d="M321.69,295.16,304,259.78l-33.69,67.38A16,16,0,0,1,256,336q-.67,0-1.38-.06a16,16,0,0,1-14-11.34l-36.4-121.36-30,59.92A16,16,0,0,1,160,272H69.35q14,29.29,37.27,57.66c18.77,22.88,52.8,59.46,131.39,112.81a31.84,31.84,0,0,0,36,0c78.59-53.35,112.62-89.93,131.39-112.81a316.79,316.79,0,0,0,19-25.66H336A16,16,0,0,1,321.69,295.16Z"></path><path d="M464,272H442.65a260.11,260.11,0,0,1-18.25,32H464a16,16,0,0,0,0-32Z"></path><path d="M48,240a16,16,0,0,0,0,32H69.35a225.22,225.22,0,0,1-12.42-32Z"></path></g></svg>
+          </div>
+          <h3 class="text-2xl font-bold mb-4 text-black">Daily Essentials</h3>
+          <p class="text-gray-600">Foundational nutrition for everyday wellness — vitamins, minerals, and essentials that keep you at your best.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Choose Us -->
+  <section class="py-20 bg-white">
+  <div class="container mx-auto px-6">
+    <h2 class="text-4xl font-bold text-center mb-16 reveal text-black">Why Choose Us</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+
+      <!-- Authentic Quality -->
+      <div class="text-center reveal">
+        <div class="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg
+              class="w-8 h-8 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+              ></path>
+            </svg>
+        </div>
+        <h3 class="text-xl font-bold mb-3 text-black">Authentic Quality</h3>
+        <p class="text-gray-600">Pure ingredients and strict quality standards in every supplement we create.</p>
+      </div>
+
+      <!-- Quick Support -->
+      <div class="text-center reveal delay-200">
+        <div class="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg
+              class="w-8 h-8 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"
+              ></path>
+            </svg>
+        </div>
+        <h3 class="text-xl font-bold mb-3 text-black">Quick Support</h3>
+        <p class="text-gray-600">Fast and friendly assistance whenever you need it.</p>
+      </div>
+
+      <!-- Worldwide Delivery -->
+      <div class="text-center reveal delay-400">
+        <div class="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg
+              class="w-8 h-8 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+        </div>
+        <h3 class="text-xl font-bold mb-3 text-black">Worldwide Delivery</h3>
+        <p class="text-gray-600">We ship safely and reliably to customers everywhere.</p>
+      </div>
+
+      <!-- Best Price Guarantee -->
+      <div class="text-center reveal delay-600">
+        <div class="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg
+              class="w-8 h-8 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+        </div>
+        <h3 class="text-xl font-bold mb-3 text-black">Best Price Guarantee</h3>
+        <p class="text-gray-600">Top-tier quality at affordable rates.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+  <!-- CTA Section -->
+  <section class="py-20 bg-gradient-to-r from-black to-gray-800 text-white">
+    <div class="container mx-auto px-6 text-center">
+      <h2 class="text-4xl font-bold mb-8 reveal">Join the Nutrixo Community</h2>
+      <p class="text-xl max-w-2xl mx-auto mb-10 reveal delay-200">
+        Pick supplements that reflect your grind. Train harder, grow stronger, stay unstoppable.
+      </p>
+      <a href="/" class="bg-white text-black px-8 py-4 rounded-lg font-bold text-lg inline-block hover:bg-gray-200 transition duration-300 reveal delay-400">
+        Shop Now
+      </a>
+    </div>
+  </section>
+
+  <!-- Animation Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const revealElements = document.querySelectorAll('.reveal');
+
+      function checkReveal() {
+        const windowHeight = window.innerHeight;
+        const revealPoint = 150;
+
+        revealElements.forEach(element => {
+          const revealTop = element.getBoundingClientRect().top;
+
+          if (revealTop < windowHeight - revealPoint) {
+            element.classList.add('active');
+          }
+        });
+      }
+
+      window.addEventListener('scroll', checkReveal);
+      checkReveal();
+    });
+  </script>
+</body>

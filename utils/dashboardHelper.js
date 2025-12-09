@@ -6,7 +6,7 @@ async function buildDashboardResponse(startDate) {
     const salesAgg = await Order.aggregate([
         {
             $match: {
-                createdAt: { $gte: startDate },
+                createdAt: { $gte: startDate },showInOrders: true,
                 "items.status": { $nin: ["CANCELLED", "RETURNED"] }
             }
         },
@@ -15,13 +15,13 @@ async function buildDashboardResponse(startDate) {
 
     const totalSales = salesAgg[0]?.total || 0;
     const customers = await User.countDocuments();
-    const totalOrders = await Order.countDocuments();
+    const totalOrders = await Order.countDocuments({showInOrders: true});
 
     const topProducts = await Order.aggregate([
         { $unwind: "$items" },
         {
             $match: {
-                createdAt: { $gte: startDate },
+                createdAt: { $gte: startDate },showInOrders: true,
                 "items.status": { $nin: ["CANCELLED", "RETURNED"] }
             }
         },
@@ -50,7 +50,7 @@ async function buildDashboardResponse(startDate) {
         { $unwind: "$items" },
         {
             $match: {
-                createdAt: { $gte: startDate },
+                createdAt: { $gte: startDate },showInOrders: true,
                 "items.status": { $nin: ["CANCELLED", "RETURNED"] }
             }
         },
@@ -82,7 +82,7 @@ async function buildDashboardResponse(startDate) {
         { $unwind: "$items" },
         {
             $match: {
-                createdAt: { $gte: startDate },
+                createdAt: { $gte: startDate },showInOrders: true,
                 "items.status": { $nin: ["CANCELLED", "RETURNED"] }
             }
         },
@@ -110,7 +110,7 @@ async function buildDashboardResponse(startDate) {
         { $project: { name: "$brand.name", totalQty: 1 } }
     ]);
 
-    const recentOrders = await Order.find({})
+    const recentOrders = await Order.find({showInOrders: true})
         .populate("user", "name")
         .sort({ createdAt: -1 })
         .limit(5)

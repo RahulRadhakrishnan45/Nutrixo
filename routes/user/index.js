@@ -12,5 +12,6 @@ router.use('/wishlist',require('./wishlistRoutes'))
 router.use('/coupons', require('./couponRoutes'))
 router.use('/wallet', require('./walletRoutes'))
 router.use('/refer', require('./referralRoutes'))
+router.use('/about', require('./pageRoutes'))
 
 module.exports = router

@@ -12,7 +12,9 @@ const {errorLog} = require('../../config/logger')
 
 const loadOrders = asyncHandler( async( req,res) => {
     const {search = '', paymentStatus = '', sort = 'newest', page = 1 } = req.query
-    const filter = {}
+    const filter = {
+        showInOrders:true
+    }
 
     if(search) {
         const users = await User.find({email:{$regex:search,$options:'i'},}).select('_id')
@@ -36,7 +38,8 @@ const loadOrders = asyncHandler( async( req,res) => {
 
     const orders = await Order.find(filter).populate('user','email').sort({createdAt:sortOrder}).skip(skip).limit(limit).lean()
 
-    res.render('admin/order',{layout:'layouts/admin_main',orders,search,paymentStatus,sort,currentPage,totalPages,query:req.query})
+    const filteredOrders = orders.filter(order => !order.showRetry)
+    res.render('admin/order',{layout:'layouts/admin_main',orders:filteredOrders,search,paymentStatus,sort,currentPage,totalPages,query:req.query})
 })
 
 const loadOrderDetails = asyncHandler( async( req,res) => {

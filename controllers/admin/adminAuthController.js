@@ -77,7 +77,7 @@ const dashboardDetails = asyncHandler( async (req,res) => {
 
         const dailySeries = await Order.aggregate([
             {$unwind:'$items'},
-            {$match:{createdAt:{$gte:startDate},'items.status':{$nin:['CANCELLED','RETURNED']}}},
+            {$match:{createdAt:{$gte:startDate},showInOrders:true,'items.status':{$nin:['CANCELLED','RETURNED']}}},
             {$group:{_id:{$hour:'$createdAt'},total:{$sum:'$totalAmount'}}},
             {$sort:{_id:1}}
         ])
@@ -93,7 +93,7 @@ const dashboardDetails = asyncHandler( async (req,res) => {
 
         const weeklySeries = await Order.aggregate([
             {$unwind:'$items'},
-            {$match:{createdAt:{$gte:startDate},'items.status':{$nin:['CANCELLED','RETURNED']}}},
+            {$match:{createdAt:{$gte:startDate},showInOrders: true,'items.status':{$nin:['CANCELLED','RETURNED']}}},
             {$group:{_id:{$dayOfWeek:'$createdAt'},total:{$sum:'$totalAmount'}}},
             {$sort:{_id:1}}
         ])
@@ -107,7 +107,7 @@ const dashboardDetails = asyncHandler( async (req,res) => {
 
         const monthlySeries = await Order.aggregate([
             {$unwind:'$items'},
-            {$match:{createdAt:{$gte:startDate},'items.status':{$nin:['CANCELLED','RETURNED']}}},
+            {$match:{createdAt:{$gte:startDate},showInOrders: true,'items.status':{$nin:['CANCELLED','RETURNED']}}},
             {$group:{_id:{$dayOfMonth:'$createdAt'},total:{$sum:'$totalAmount'}}},
             {$sort:{_id:1}}
         ])
@@ -120,7 +120,7 @@ const dashboardDetails = asyncHandler( async (req,res) => {
 
         const yearlySeries = await Order.aggregate([
             {$unwind:'$items'},
-            {$match:{createdAt:{$gte:startDate},'items.status':{$nin:['CANCELLED','RETURNED']}}},
+            {$match:{createdAt:{$gte:startDate},showInOrders: true,'items.status':{$nin:['CANCELLED','RETURNED']}}},
             {$group:{_id:{$month:'$createdAt'},total:{$sum:'$totalAmount'}}},
             {$sort:{_id:1}}
         ])
