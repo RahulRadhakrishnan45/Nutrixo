@@ -112,116 +112,180 @@
   </div>
 </div>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
 <script>
+
+toastr.options = {
+  closeButton: true,
+  progressBar: true,
+  positionClass: "toast-bottom-right",
+  timeOut: 2000
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("addCouponForm");
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    let isValid = true;
+  // === Fields ===
+  const code = form.querySelector('input[name="code"]');
+  const description = form.querySelector('textarea[name="description"]');
+  const discountType = form.querySelector('select[name="discountType"]');
+  const discountAmount = form.querySelector('input[name="discountAmount"]');
+  const minimumPurchase = form.querySelector('input[name="minimumPurchase"]');
+  const startDate = form.querySelector('input[name="startDate"]');
+  const endDate = form.querySelector('input[name="endDate"]');
 
-    // Clear previous errors
-    document.querySelectorAll(".errorText").forEach(div => div.textContent = "");
+  // === Error fields ===
+  const codeError = document.querySelector('.codeError');
+  const descriptionError = document.querySelector('.descriptionError');
+  const discountTypeError = document.querySelector('.discountTypeError');
+  const discountError = document.querySelector('.discountError');
+  const minPurchaseError = document.querySelector('.minPurchaseError');
+  const dateErrors = document.querySelectorAll('.dateError');
 
-    // Form fields
-    const code = form.querySelector('input[name="code"]');
-    const description = form.querySelector('textarea[name="description"]');
-    const discountType = form.querySelector('select[name="discountType"]');
-    const discountAmount = form.querySelector('input[name="discountAmount"]');
-    const minimumPurchase = form.querySelector('input[name="minimumPurchase"]');
-    const startDate = form.querySelector('input[name="startDate"]');
-    const endDate = form.querySelector('input[name="endDate"]');
+  // LIVE VALIDATION
+  code.addEventListener("input", () => {
+    const val = code.value.trim();
+    const regex = /^(?=(.*[A-Za-z]){3,})(?=.*\d).+$/; 
 
-    // Error divs
-    const codeError = document.querySelector('.codeError');
-    const descriptionError = document.querySelector('.descriptionError');
-    const discountTypeError = document.querySelector('.discountTypeError');
-    const discountError = document.querySelector('.discountError');
-    const minPurchaseError = document.querySelector('.minPurchaseError');
-    const dateError = document.querySelector('.dateError');
+    if (!val) codeError.textContent = "Coupon code is required";
+    else if (!regex.test(val)) codeError.textContent = "Must contain 3 letters and 1 number";
+    else codeError.textContent = "";
+  });
 
-    // Values
-    const discountValue = parseFloat(discountAmount.value) || 0;
-    const minPurchaseValue = parseFloat(minimumPurchase.value) || 0;
-    const start = new Date(startDate.value);
-    const end = new Date(endDate.value);
+  description.addEventListener("input", () => {
+    const raw = description.value || "";
+    const totalChars = raw.replace(/\s+/g, "").length; 
 
-    // -------- Validation --------
-    if (!code.value.trim()) { codeError.textContent = "Coupon code is required"; isValid = false; }
-    if (!description.value.trim()) { descriptionError.textContent = "Description is required"; isValid = false; }
-    if (!discountType.value) { discountTypeError.textContent = "Select a discount type"; isValid = false; }
-    if (discountValue <= 0) { discountError.textContent = "Enter a valid discount amount"; isValid = false; }
-    if (discountType.value === "percentage" && discountValue > 100) {
-      discountError.textContent = "Percentage discount cannot exceed 100%"; isValid = false;
+    if (totalChars < 10) {
+      descriptionError.textContent = 'Description must be at least 10 characters';
+    } else {
+      descriptionError.textContent = "";
     }
-    if (minPurchaseValue > 0 && discountType.value === "fixed" && discountValue >= minPurchaseValue) {
-      minPurchaseError.textContent = "Discount cannot exceed or equal minimum purchase amount"; isValid = false;
-    }
-    if (discountType.value === "fixed" && discountValue > 10000) {
-      discountError.textContent = "Fixed discount cannot exceed ₹10,000";
-      isValid = false;
-    }
-    if (!startDate.value) { dateError.textContent = "Start date is required"; isValid = false; }
-    if (!endDate.value) { dateError.textContent = "End date is required"; isValid = false; }
-    if (startDate.value && endDate.value && start > end) {
-      dateError.textContent = "End date must be after start date"; isValid = false;
+  });
+
+  // --- Discount Validation ---
+  function validateDiscount() {
+    const type = discountType.value;
+    const val = parseFloat(discountAmount.value) || 0;
+    const minVal = parseFloat(minimumPurchase.value) || 0;
+
+    discountError.textContent = "";
+    minPurchaseError.textContent = "";
+
+    if (!type) {
+      discountTypeError.textContent = "Select a discount type";
+      return;
+    } else {
+      discountTypeError.textContent = "";
     }
 
-    // SweetAlert error if invalid
-    if (!isValid) {
-      Swal.fire({
-        icon: "error",
-        title: "Validation Error",
-        text: "Please fix the highlighted issues before submitting.",
-      });
+    // percentage 1 - 90
+    if (type === "percentage") {
+      if (val < 1 || val > 90) {
+        discountError.textContent = "Percentage must be between 1% - 90%";
+        return;
+      }
+    }
+
+    // fixed 1 - 10000
+    if (type === "fixed") {
+      if (val < 1 || val > 10000) {
+        discountError.textContent = "Fixed discount must be 1 - 10,000";
+        return;
+      }
+
+      if (minVal > 0 && val >= minVal) {
+        minPurchaseError.textContent = "Discount cannot be ≥ minimum purchase";
+        return;
+      }
+    }
+  }
+
+  discountType.addEventListener("change", validateDiscount);
+  discountAmount.addEventListener("input", validateDiscount);
+  minimumPurchase.addEventListener("input", validateDiscount);
+
+  // --- Date validation ---
+  function validateDates() {
+    dateErrors.forEach(el => el.textContent = "");
+
+    if (!startDate.value) {
+      dateErrors.forEach(el => el.textContent = "Start date is required");
       return;
     }
 
-    // Show loading alert
-    Swal.fire({
-      title: "Creating Coupon...",
-      didOpen: () => Swal.showLoading(),
-      allowOutsideClick: false,
+    if (!endDate.value) {
+      dateErrors.forEach(el => el.textContent = "End date is required");
+      return;
+    }
+
+    if (new Date(startDate.value) > new Date(endDate.value)) {
+      dateErrors.forEach(el => el.textContent = "End date must be after start date");
+    }
+  }
+
+  startDate.addEventListener("change", validateDates);
+  endDate.addEventListener("change", validateDates);
+
+  // 🔥 SUBMIT HANDLER
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Trigger validation before submit
+    code.dispatchEvent(new Event("input"));
+    description.dispatchEvent(new Event("input"));
+    validateDiscount();
+    validateDates();
+
+    let isValid = true;
+    document.querySelectorAll(".errorText").forEach(err => {
+      if (err.textContent.trim() !== "") isValid = false;
     });
 
-    // Submit via AJAX
+    if (!isValid) {
+      toastr.error("Please fix the highlighted issues.");
+      return;
+    }
+
     try {
+      
       const formData = new URLSearchParams(new FormData(form));
-      const response = await fetch('/admin/coupons', {
+
+      const response = await fetch("/admin/coupons", {
         method: "POST",
-        headers:{'Content-Type':'application/x-www-form-urlencoded'},
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: formData,
       });
-      Swal.close();
 
       const data = await response.json();
 
-      if (data.success) {
-        Swal.fire({
-          icon: "success",
-          title: "Coupon Created!",
-          text: data.message || "Coupon has been added successfully.",
-          timer: 1800,
-          showConfirmButton: false,
-        }).then(() => {
-          window.location.href = "/admin/coupons";
-        });
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: data.message || "Something went wrong while creating the coupon.",
-        });
+      Swal.close(); 
+
+      if (!data.success) {
+        toastr.error(data.message || "Error creating coupon.");
+        return;
       }
+
+      // ✅ SUCCESS → SHOW SWEETALERT
+      Swal.fire({
+        icon: "success",
+        title: "Coupon Created!",
+        text: data.message || "Coupon has been created successfully.",
+        timer: 1800,
+        showConfirmButton: false
+      }).then(() => {
+        window.location.href = "/admin/coupons";
+      });
+
     } catch (err) {
       Swal.close();
-      Swal.fire({
-        icon: "error",
-        title: "Server Error",
-        text: "Could not connect to server. Please try again later.",
-      });
+      toastr.error("Server error. Try again later.");
     }
   });
+
 });
 </script>

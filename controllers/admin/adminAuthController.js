@@ -47,13 +47,15 @@ const login = asyncHandler( async (req,res) => {
 })
 
 const logout = asyncHandler( async (req,res) => {
-    req.session.destroy(err => {
+    delete req.session.admin
+
+    req.session.save(err => {
         if(err) {
-            console.log('Logout error',err)
+            console.log('Admin logout error',err)
             return res.status(httpStatus.internal_server_error).send(messages.AUTH.LOGOUT_FAILED)
         }
-        res.clearCookie('connect.sid')
-        res.redirect('/admin/login?logout=1')
+
+        return res.redirect('/admin/login?logout=1')
     })
 })
 

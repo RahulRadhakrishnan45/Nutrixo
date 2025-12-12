@@ -38,8 +38,4 @@ router.get('/google/callback',passport.authenticate('google',{failureRedirect:'/
     res.redirect('/')
 })
 
-
-
-
-
 module.exports = router

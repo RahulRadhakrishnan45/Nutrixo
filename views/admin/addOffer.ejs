@@ -100,6 +100,7 @@
             <% } %>
           </select>
         </div>
+        <div class="text-red-500 text-sm mt-1 selectionError errorText"></div>
       </div>
 
       <!-- BUTTONS -->
@@ -119,90 +120,140 @@
 
 <!-- Tom Select JS -->
 <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-  // Initialize Tom Select (multi-selects)
-  new TomSelect("#categorySelect", { plugins: ['remove_button'], create: false });
-  new TomSelect("#productSelect", { plugins: ['remove_button'], create: false });
-  new TomSelect("#brandSelect", { plugins: ['remove_button'], create: false });
 
-  const form = document.getElementById("addOfferForm");
+toastr.options = {
+  closeButton: true,
+  progressBar: true,
+  positionClass: "toast-bottom-right",
+  timeOut: 2000
+};
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  document.addEventListener("DOMContentLoaded", () => {
 
-    // Reset errors
-    document.querySelectorAll(".errorText").forEach(div => div.textContent = "");
-    let isValid = true;
+    const categorySelect = new TomSelect("#categorySelect", { plugins: ['remove_button'], create: false });
+    const productSelect = new TomSelect("#productSelect", { plugins: ['remove_button'], create: false });
+    const brandSelect   = new TomSelect("#brandSelect",   { plugins: ['remove_button'], create: false });
 
-    const name = form.offerName.value.trim();
-    const discount = parseFloat(form.discountPercentage.value);
-    const validFrom = form.validFrom.value;
-    const validTo = form.validTo.value;
+    const form = document.getElementById("addOfferForm");
 
-    // Error divs
+    const nameField = form.offerName;
+    const discountField = form.discountPercentage;
+    const fromField = form.validFrom;
+    const toField = form.validTo;
+
     const nameErr = document.querySelector(".offerNameError");
     const discountErr = document.querySelector(".discountError");
     const fromErr = document.querySelector(".validFromError");
     const toErr = document.querySelector(".validToError");
+    const selectionErr = document.querySelector(".selectionError");
 
-    // Validation
-    if (!name) { nameErr.textContent = "Offer name is required."; isValid = false; }
-    if (!discount || discount < 1 || discount > 90) { discountErr.textContent = "Discount must be between 1–90%."; isValid = false; }
-    if (!validFrom) { fromErr.textContent = "Start date is required."; isValid = false; }
-    if (!validTo) { toErr.textContent = "End date is required."; isValid = false; }
-    if (validFrom && validTo && new Date(validFrom) > new Date(validTo)) {
-      toErr.textContent = "End date must be after start date.";
-      isValid = false;
+    // -------------------------------------------------------
+    // LIVE VALIDATION
+    // -------------------------------------------------------
+    function validateName() {
+      const value = nameField.value.trim();
+      if (!value) { nameErr.textContent = "Offer name is required."; return false; }
+      if (value.length < 3) { nameErr.textContent = "Offer name must be at least 3 characters."; return false; }
+      nameErr.textContent = ""; return true;
     }
 
-    if (!isValid) {
-      Swal.fire({
-        icon: "error",
-        title: "Validation Error",
-        text: "Please fix the highlighted issues before submitting.",
-      });
-      return;
+    function validateDiscount() {
+      const value = parseFloat(discountField.value);
+      if (!value) { discountErr.textContent = "Discount is required."; return false; }
+      if (value < 1 || value > 90) { discountErr.textContent = "Discount must be between 1–90%."; return false; }
+      discountErr.textContent = ""; return true;
     }
 
-    Swal.fire({
-      title: "Creating Offer...",
-      didOpen: () => Swal.showLoading(),
-      allowOutsideClick: false,
-    });
+    function validateFromDate() {
+      if (!fromField.value) { fromErr.textContent = "Start date is required."; return false; }
+      fromErr.textContent = ""; return true;
+    }
 
-    try {
-      const formData = new URLSearchParams(new FormData(form));
-      const response = await fetch('/admin/offers', {
-        method: "POST",
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: formData
-      });
-
-      const data = await response.json();
-      Swal.close();
-
-      if (data.success) {
-        Swal.fire({
-          icon: "success",
-          title: "Offer Created!",
-          text: data.message || "Offer has been added successfully.",
-          timer: 1800,
-          showConfirmButton: false,
-        }).then(() => window.location.href = "/admin/offers");
-      } else {
-        Swal.fire({ icon: "error", title: "Error", text: data.message || "Something went wrong." });
+    function validateToDate() {
+      if (!toField.value) { toErr.textContent = "End date is required."; return false; }
+      if (fromField.value && new Date(toField.value) < new Date(fromField.value)) {
+        toErr.textContent = "End date must be after start date."; return false;
       }
-    } catch (err) {
-      Swal.close();
-      Swal.fire({
-        icon: "error",
-        title: "Server Error",
-        text: "Could not connect to server. Please try again later.",
-      });
+      toErr.textContent = ""; return true;
     }
+
+    // -------------------------------------------------------
+    // NEW: VALIDATE TOM SELECTS
+    // -------------------------------------------------------
+    function validateSelections() {
+      const cat = categorySelect.getValue();
+      const prod = productSelect.getValue();
+      const brand = brandSelect.getValue();
+
+      // at least ONE of the three must be selected
+      if (cat.length === 0 && prod.length === 0 && brand.length === 0) {
+        selectionErr.textContent = "Select at least one: Category, Product, or Brand.";
+        return false;
+      }
+      selectionErr.textContent = "";
+      return true;
+    }
+
+    // Attach events
+    nameField.addEventListener("input", validateName);
+    discountField.addEventListener("input", validateDiscount);
+    fromField.addEventListener("change", validateFromDate);
+    toField.addEventListener("change", validateToDate);
+
+    categorySelect.on("change", validateSelections);
+    productSelect.on("change", validateSelections);
+    brandSelect.on("change", validateSelections);
+
+    // -------------------------------------------------------
+    // SUBMIT HANDLER
+    // -------------------------------------------------------
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      let isValid =
+        validateName() &
+        validateDiscount() &
+        validateFromDate() &
+        validateToDate() &
+        validateSelections();   // NEW CHECK 🚀
+
+      if (!isValid) {
+        toastr.error("Please fix the errors before submitting.");
+        return;
+      }
+
+      try {
+        const formData = new URLSearchParams(new FormData(form));
+        const response = await fetch('/admin/offers', {
+          method: "POST",
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          Swal.fire({
+            icon: "success",
+            title: "Offer Created!",
+            text: data.message || "Offer added successfully.",
+            timer: 1800,
+            showConfirmButton: false
+          }).then(() => {
+            window.location.href = "/admin/offers";
+          });
+        } else {
+          toastr.error(data.message || "Something went wrong.");
+        }
+
+      } catch (err) {
+        toastr.error("Server error. Please try again.");
+      }
+    });
   });
-});
 </script>

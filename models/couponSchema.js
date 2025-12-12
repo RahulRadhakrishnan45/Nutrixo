@@ -21,6 +21,4 @@ couponSchema.pre('save', function(next) {
   next();
 });
 
-
-
 module.exports = mongoose.model('Coupon', couponSchema)

@@ -10,7 +10,6 @@ const messages = require('../../constants/messages')
 const {apiLog} = require('../../config/logger')
 
 
-
 const loadLogin = asyncHandler(async (req,res) =>{
     const message = req.session.message;
     if(req.session.user) return res.redirect('/');

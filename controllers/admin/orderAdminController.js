@@ -67,6 +67,7 @@ const updateItemStatus = asyncHandler( async( req,res) => {
 
     if(status === 'CANCELLED') {
         const previousStatus = item.status
+        const miniPurchase = order.couponMinPurchase || 0
         const {refundAmount, breakdown} = computeItemRefund(item,order)
 
         const isCOD = order.paymentMethod === 'COD'
