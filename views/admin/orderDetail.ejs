@@ -156,15 +156,44 @@
 
   <script>
 document.addEventListener("DOMContentLoaded", function () {
-  document.querySelectorAll(".status-select").forEach(sel => {
-    const current = sel.value;
 
-    if (current === "CANCELLATION REQUESTED" || current === "RETURN REQUESTED") {
+  const STATUS_FLOW = [
+    "PROCESSING",
+    "PACKED",
+    "SHIPPED",
+    "DELIVERED",
+    "CANCELLATION REQUESTED",
+    "CANCELLED",
+    "RETURN REQUESTED",
+    "RETURNED"
+  ];
+
+  function disablePreviousStatuses(selectEl) {
+    const currentIndex = STATUS_FLOW.indexOf(selectEl.value);
+
+    [...selectEl.options].forEach(opt => {
+      const optIndex = STATUS_FLOW.indexOf(opt.value);
+      if (optIndex < currentIndex) {
+        opt.disabled = true;
+        opt.classList.add("text-gray-400");
+      }
+    });
+  }
+
+  function revertSelect(selectEl) {
+    selectEl.value = selectEl.dataset.prevStatus;
+  }
+
+  // 🔒 Initial setup
+  document.querySelectorAll(".status-select").forEach(sel => {
+    sel.dataset.prevStatus = sel.value;
+
+    if (["CANCELLED", "RETURNED"].includes(sel.value)) {
       sel.disabled = true;
+      return;
     }
-  })
 
-  document.querySelectorAll(".status-select").forEach(sel => {
+    // Disable cancellation & return requests manually
     [...sel.options].forEach(opt => {
       if (
         opt.value === "CANCELLATION REQUESTED" ||
@@ -175,117 +204,87 @@ document.addEventListener("DOMContentLoaded", function () {
         opt.classList.add("text-gray-400");
       }
     });
-  })
 
-  // 🚫 Disable dropdown for cancelled or returned items initially
-  document.querySelectorAll(".status-select").forEach(sel => {
-    const current = sel.value;
-    if (["CANCELLED", "RETURNED"].includes(current)) {
-      sel.disabled = true;
-    }
-  });
-
-  // Helper: revert to previous status stored on the select
-  function revertSelect(selectEl) {
-    const prev = selectEl.dataset.prevStatus ?? "";
-    selectEl.value = prev;
-  }
-
-  document.querySelectorAll(".status-select").forEach(sel => {
-    const current = sel.value;
-
-    // If the item is NOT delivered → disable return-related options
-    if (current !== "DELIVERED") {
+    // Disable return before delivery
+    if (sel.value !== "DELIVERED") {
       [...sel.options].forEach(opt => {
-        if (opt.value === "RETURN REQUESTED" || opt.value === "RETURNED") {
+        if (opt.value === "RETURN REQUESTED") {
           opt.disabled = true;
-          opt.classList.add("text-gray-400"); // optional visual cue
+          opt.classList.add("text-gray-400");
         }
       });
     }
+
+    disablePreviousStatuses(sel);
   });
 
-  // 🔄 HANDLE STATUS CHANGE (WITH SWEETALERT FOR CANCEL)
-  document.querySelectorAll(".status-select").forEach(function (sel) {
+  // 🔄 STATUS CHANGE HANDLER
+  document.querySelectorAll(".status-select").forEach(sel => {
     sel.addEventListener("change", async function (e) {
 
       const selectEl = e.target;
       const newStatus = selectEl.value;
+      const prevStatus = selectEl.dataset.prevStatus;
       const itemId = selectEl.dataset.itemId;
       const orderId = "<%= order._id %>";
-      const prevStatus = selectEl.dataset.prevStatus ?? "";
 
-      // If selecting CANCELLED -> confirm
-      if (newStatus === "CANCELLED") {
-        const result = await Swal.fire({
-          title: "Confirm Cancellation",
-          text: "Are you sure you want to cancel this item?",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#d33",
-          cancelButtonColor: "#3085d6",
-          confirmButtonText: "Yes, cancel it",
-        });
+      const confirm = await Swal.fire({
+        title: "Confirm Status Change",
+        text: `Change status from ${prevStatus} to ${newStatus}?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#2563eb",
+        cancelButtonColor: "#6b7280",
+        confirmButtonText: "Yes, confirm"
+      });
 
-        if (!result.isConfirmed) {
-          // revert dropdown to previous value stored in data attribute
-          revertSelect(selectEl);
-          return;
-        }
+      if (!confirm.isConfirmed) {
+        revertSelect(selectEl);
+        return;
       }
 
-      // optimistically disable selection to avoid double clicks while request pending
       selectEl.disabled = true;
 
       try {
         const res = await fetch(`/admin/orders/${orderId}/items/${itemId}/status`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: newStatus }),
+          body: JSON.stringify({ status: newStatus })
         });
 
-        const text = await res.text();
-        let data;
-        try { data = JSON.parse(text); } catch { data = null; }
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Failed to update");
 
-        if (!res.ok) {
-          // revert UI
-          revertSelect(selectEl);
-          selectEl.disabled = false;
-          throw new Error((data && data.error) ? data.error : "Failed to update");
-        }
+        await Swal.fire({
+          icon: "success",
+          title: "Status Updated",
+          text: `Item moved to ${newStatus}`,
+          timer: 1500,
+          showConfirmButton: false
+        });
 
-        // 🟩 SUCCESS EFFECT
-        selectEl.classList.add("ring", "ring-green-300");
-        setTimeout(() => selectEl.classList.remove("ring", "ring-green-300"), 1200);
-
-        // update stored prev-status to the new status
         selectEl.dataset.prevStatus = newStatus;
+        selectEl.disabled = false;
 
-        // If cancelled or returned → keep dropdown disabled
+        // Final states lock
         if (["CANCELLED", "RETURNED"].includes(newStatus)) {
           selectEl.disabled = true;
-        } else {
-          // re-enable for non-terminal statuses
-          selectEl.disabled = false;
+          return;
         }
 
+        disablePreviousStatuses(selectEl);
+
       } catch (err) {
-        // show user-friendly error and revert
         Swal.fire("Error", err.message || "Update failed", "error");
-        // revert value (if not already reverted)
         revertSelect(selectEl);
         selectEl.disabled = false;
       }
     });
   });
 
-
-  // ======================================================
-  // 🚨 APPROVE / REJECT BUTTONS WITH SWEETALERT CONFIRMATION
-  // ======================================================
+  // ✅ APPROVE / REJECT BUTTONS (UNCHANGED)
   function handleAction(selector, urlSuffix) {
-    document.querySelectorAll(selector).forEach((btn) => {
+    document.querySelectorAll(selector).forEach(btn => {
       btn.addEventListener("click", async () => {
 
         const result = await Swal.fire({
@@ -295,7 +294,7 @@ document.addEventListener("DOMContentLoaded", function () {
           showCancelButton: true,
           confirmButtonColor: "#16a34a",
           cancelButtonColor: "#d33",
-          confirmButtonText: "Yes, proceed",
+          confirmButtonText: "Yes, proceed"
         });
 
         if (!result.isConfirmed) return;
@@ -307,7 +306,7 @@ document.addEventListener("DOMContentLoaded", function () {
         try {
           const res = await fetch(url, { method: "PATCH" });
           if (!res.ok) throw new Error("Server error");
-          location.reload(); // reflect the new UI state
+          location.reload();
         } catch (err) {
           Swal.fire("Error", err.message, "error");
         }
@@ -322,4 +321,5 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 </script>
+
 </body>

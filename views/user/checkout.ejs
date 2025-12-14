@@ -406,6 +406,10 @@
     <% if(error === 'minimumNotMet') { %> toastr.warning('Minimum purchase requirement not met.'); <% } %>
     <% if(error === 'couponUsed') { %> toastr.error('You have already used this coupon.'); <% } %>
     <% if(error === 'codLimit') { %> toastr.error("COD is not available for orders above ₹1000."); <% } %>
+    <% if (success === 'couponApplied') { %>toastr.success('Coupon applied successfully'); <% } %>
+    <% if (success === 'couponRemoved') { %>toastr.info('Coupon removed.'); <% } %>
+    <% if (error === 'couponAlreadyApplied') { %>toastr.info('This coupon is already applied.'); <% } %>
+
 
     // ⭐ FULL COD BLOCKING LOGIC ⭐
     const codRadio = document.querySelector('input[value="COD"]');
