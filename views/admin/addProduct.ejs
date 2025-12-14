@@ -3,10 +3,10 @@
   <nav class="text-sm mb-6 text-gray-500">
     <ol class="flex items-center space-x-2">
       <li>
-        <a href="/admin/dashboard" class="hover:underline text-gray-600">Admin</a>
+        <a href="/admin/products" class="text-sm text-blue-600 hover:underline mb-2 inline-block">
+          ← Back to Products
+        </a>
       </li>
-      <li>/</li>
-      <li class="text-gray-800 font-medium">Add Product</li>
     </ol>
   </nav>
 
@@ -21,14 +21,15 @@
         <!-- Left Section (common fields) -->
         <div class="space-y-4">
           <input type="text" name="title" placeholder="Product Title"
-                 class="w-full border p-2 rounded-md" required>
+                 class="w-full border p-2 rounded-md">
           <div class="text-red-500 text-sm mt-1 titleError"></div>
 
           <textarea name="description" placeholder="Description"
-                    class="w-full border p-2 rounded-md" required></textarea>
+                    class="w-full border p-2 rounded-md"></textarea>
+          <div class="text-red-500 text-sm mt-1 descError"></div>
 
           <!-- Category -->
-          <select name="category_id" class="w-full border p-2 rounded-md" required>
+          <select name="category_id" class="w-full border p-2 rounded-md">
             <option value="">Select Category</option>
             <% categories.forEach(c => { %>
               <option value="<%= c._id %>"><%= c.name %></option>
@@ -36,7 +37,7 @@
           </select>
 
           <!-- Brand -->
-          <select name="brand_id" class="w-full border p-2 rounded-md" required>
+          <select name="brand_id" class="w-full border p-2 rounded-md" >
             <option value="">Select Brand</option>
             <% brands.forEach(b => { %>
               <option value="<%= b._id %>"><%= b.name %></option>
@@ -53,7 +54,7 @@
               <button type="button" class="absolute top-2 right-2 text-red-500 removeVariant hidden">✕</button>
 
               <!-- Flavour -->
-              <select name="flavour[]" class="w-full border p-2 rounded-md mt-2" required>
+              <select name="flavour[]" class="w-full border p-2 rounded-md mt-2">
                 <option value="">Select Flavour</option>
                 <% flavours.forEach(f => { %>
                   <option value="<%= f %>"><%= f %></option>
@@ -61,7 +62,7 @@
               </select>
 
               <!-- Size -->
-              <select name="size[]" class="w-full border p-2 rounded-md mt-2" required>
+              <select name="size[]" class="w-full border p-2 rounded-md mt-2" >
                 <option value="">Select Size</option>
                 <% sizes.forEach(s => { %>
                   <option value="<%= s %>"><%= s %></option>
@@ -70,12 +71,12 @@
 
               <!-- Price -->
               <input type="number" name="price[]" placeholder="Price" 
-                     class="w-full border p-2 rounded-md mt-2 priceInput" required>
+                     class="w-full border p-2 rounded-md mt-2 priceInput" >
               <div class="text-red-500 text-sm mt-1 priceError"></div>
 
               <!-- Stock -->
               <input type="number" name="stock[]" placeholder="Stock Quantity" 
-                     class="w-full border p-2 rounded-md mt-2 stockInput" required>
+                     class="w-full border p-2 rounded-md mt-2 stockInput" >
               <div class="text-red-500 text-sm mt-1 stockError"></div>
 
               <!-- Images -->
@@ -108,16 +109,36 @@
 
 <%- include('../partials/cropperScript.ejs') %>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
 <!-- JS for Variants & Image Preview -->
 <script>
+
+toastr.options = {
+  "closeButton": true,
+  "debug": false,
+  "newestOnTop": true,
+  "progressBar": true,
+  "positionClass": "toast-bottom-right",
+  "preventDuplicates": true,
+  "showDuration": "300",
+  "hideDuration": "1000",
+  "timeOut": "3000",
+  "extendedTimeOut": "1000",
+  "showEasing": "swing",
+  "hideEasing": "linear",
+  "showMethod": "fadeIn",
+  "hideMethod": "fadeOut"
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   const addBtn = document.getElementById("addVariantBtn");
   const container = document.getElementById("variantContainer");
   let variantIndex = 1; // start from 1 since 0 is already rendered
 
-  // -------------------------------
   // Add Variant
-  // -------------------------------
   addBtn.addEventListener("click", () => {
     const firstVariant = container.firstElementChild;
     const newVariant = firstVariant.cloneNode(true);
@@ -137,18 +158,15 @@ document.addEventListener("DOMContentLoaded", () => {
     container.appendChild(newVariant);
   });
 
-  // -------------------------------
   // Remove Variant
-  // -------------------------------
   container.addEventListener("click", (e) => {
     if (e.target.classList.contains("removeVariant")) {
       e.target.closest(".variantBox").remove();
     }
   });
 
-  // -------------------------------
   // Image Preview with Add/Remove
-  // -------------------------------
+
   function handleImagePreview(imageInput, previewContainer, keepExisting = true) {
     let currentFiles = [];
 
@@ -182,9 +200,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // -------------------------------
   // Remove Image
-  // -------------------------------
   document.addEventListener("click", (e) => {
     if (e.target.classList.contains("removeImage")) {
       const indexToRemove = parseInt(e.target.dataset.index, 10);
@@ -204,9 +220,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // -------------------------------
   // Cropper.js Integration
-  // -------------------------------
+  
   let currentCropper = null;
   let currentInput = null;
   let cropQueue = [];
@@ -280,9 +295,18 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // -------------------------------
   // Variant Validation
-  // -------------------------------
+  
+  function showError(element, message) {
+    const errorDiv = element.nextElementSibling;
+    if (errorDiv) errorDiv.textContent = message;
+  }
+
+  function clearError(element) {
+    const errorDiv = element.nextElementSibling;
+    if (errorDiv) errorDiv.textContent = "";
+  }
+
   function validateVariant(variantBox) {
     let isValid = true;
     const priceInput = variantBox.querySelector('.priceInput');
@@ -319,23 +343,90 @@ document.addEventListener("DOMContentLoaded", () => {
     return isValid;
   }
 
-  // -------------------------------
+  function validateFormFields() {
+  let isValid = true;
+
+  const titleInput = document.querySelector('input[name="title"]');
+  const descInput = document.querySelector('textarea[name="description"]');
+
+  const titleValue = titleInput.value.trim();
+  if (!titleValue || titleValue.length < 3) {
+    showError(titleInput, "Title must be at least 3 characters");
+    isValid = false;
+  } else {
+    clearError(titleInput);
+  }
+
+  const descValue = descInput.value.trim();
+  if (!descValue || descValue.length < 10) {
+    showError(descInput, "Description must be at least 10 characters");
+    isValid = false;
+  } else {
+    clearError(descInput);
+  }
+
+  return isValid;
+}
+
+  const titleInput = document.querySelector('input[name="title"]');
+const descInput = document.querySelector('textarea[name="description"]');
+
+titleInput.addEventListener("input", () => {
+  if (titleInput.value.trim().length >= 3) {
+    clearError(titleInput);
+  }
+});
+
+descInput.addEventListener("input", () => {
+  if (descInput.value.trim().length >= 10) {
+    clearError(descInput);
+  }
+});
+
+document.addEventListener("input", (e) => {
+  if (e.target.classList.contains("priceInput")) {
+    if (parseFloat(e.target.value) > 0) {
+      const errorDiv = e.target.parentElement.querySelector(".priceError");
+      errorDiv.textContent = "";
+    }
+  }
+});
+
+document.addEventListener("input", (e) => {
+  if (e.target.classList.contains("stockInput")) {
+    if (parseInt(e.target.value) > 0) {
+      const errorDiv = e.target.parentElement.querySelector(".stockError");
+      errorDiv.textContent = "";
+    }
+  }
+});
+
+document.addEventListener("change", (e) => {
+  if (e.target.classList.contains("imageInput")) {
+    if (e.target.files.length > 0) {
+      const errorDiv = e.target.parentElement.querySelector(".imageError");
+      errorDiv.textContent = "";
+    }
+  }
+});
+  
   // AJAX Submit with Swal
-  // -------------------------------
+
   document.getElementById("addProductForm").addEventListener("submit", async function(e) {
     e.preventDefault();
 
     let allValid = true;
+
+    if (!validateFormFields()) {
+      allValid = false;
+    }
+
     document.querySelectorAll(".variantBox").forEach(box => {
       if (!validateVariant(box)) allValid = false;
     });
 
     if (!allValid) {
-      Swal.fire({
-        icon: "error",
-        title: "Validation Error",
-        text: "Please fix the errors before submitting"
-      });
+      toastr.error("Please fix the errors before submitting");
       return;
     }
 
@@ -371,4 +462,5 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
 </script>

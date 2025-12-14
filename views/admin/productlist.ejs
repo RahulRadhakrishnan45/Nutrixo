@@ -144,9 +144,7 @@
   const FLAVOURS = <%- JSON.stringify(flavours) %>;
   const SIZES = <%- JSON.stringify(sizes) %>;
 
-  // -----------------------
   // Build Variants in Modal
-  // -----------------------
   document.addEventListener("click", (e) => {
     if (!e.target.classList.contains("editBtn")) return;
     const btn = e.target;
@@ -236,10 +234,8 @@
       setTimeout(() => targetElement.style.background = "", 1000);
     }
   });
-
-  // -----------------------
+  
   // Remove Existing Images
-  // -----------------------
   document.addEventListener("click", (e) => {
     if (e.target.classList.contains("removeExistingImage")) {
       e.preventDefault();
@@ -247,9 +243,7 @@
     }
   });
 
-  // -----------------------
   // Cropper + Preview Logic
-  // -----------------------
   let currentCropper = null;
   let currentInput = null;
   let cropQueue = [];
@@ -327,9 +321,7 @@
     });
   });
 
-  // -----------------------
   // Remove Uploaded Image
-  // -----------------------
   document.addEventListener("click", (e) => {
     if (e.target.classList.contains("removeImage")) {
       const indexToRemove = parseInt(e.target.dataset.index, 10);
@@ -358,18 +350,14 @@
     }
   });
 
-  // -----------------------
   // Close Edit Modal
-  // -----------------------
   document.getElementById('closeEditModal').addEventListener('click', () => {
     document.getElementById('editModal').classList.add('hidden');
     document.getElementById('editProductForm').reset();
     document.getElementById('variantEditContainer').innerHTML = "";
   });
 
-  // -----------------------
   // Form Submit (Validate + Save)
-  // -----------------------
   document.getElementById('editProductForm').addEventListener('submit', async function (e) {
     e.preventDefault();
 
@@ -396,9 +384,7 @@
     }
   });
 
-  // -----------------------
   // Delete + Restore
-  // -----------------------
   document.addEventListener("click", async (e) => {
     if (e.target.classList.contains("deleteBtn") || e.target.classList.contains("restoreBtn")) {
       const isDelete = e.target.classList.contains("deleteBtn");
@@ -433,42 +419,64 @@
     }
   });
 
-  // -----------------------
   // Search Products
-  // -----------------------
   document.getElementById("searchInput").addEventListener("input", async function () {
-    const query = this.value.trim();
-    try {
-      const url = query ? `/admin/products/search?q=${encodeURIComponent(query)}` : `/admin/products/search`;
-      const res = await fetch(url);
-      const data = await res.json();
-      if (data.success) {
-        const tbody = document.getElementById("productTable");
-        tbody.innerHTML = "";
-        data.products.forEach(row => {
-          const tr = document.createElement("tr");
-          tr.className = `border-b hover:bg-gray-50 ${!row.is_active ? 'opacity-50' : ''}`;
-          tr.innerHTML = `
-            <td class="py-3 px-4">
-              ${row.images?.length ? `<img src="${row.images[0]}" class="h-12 w-12 rounded object-cover">` : 'No Image'}
-            </td>
-            <td class="py-3 px-4">${row.productTitle}</td>
-            <td class="py-3 px-4">${row.flavour || '-'}</td>
-            <td class="py-3 px-4">${row.size || '-'}</td>
-            <td class="py-3 px-4">₹ ${row.price}</td>
-            <td class="py-3 px-4">${row.productCategory?.name || '-'}</td>
-            <td class="py-3 px-4">${row.productBrand?.name || '-'}</td>`;
-          tbody.appendChild(tr);
-        });
-      }
-    } catch (err) {
-      console.error("Search failed", err);
-    }
-  });
+  const query = this.value.trim();
+  try {
+    const url = query ? `/admin/products/search?q=${encodeURIComponent(query)}` : `/admin/products/search`;
+    const res = await fetch(url);
+    const data = await res.json();
 
-  // -----------------------
+    if (data.success) {
+      const tbody = document.getElementById("productTable");
+      tbody.innerHTML = "";
+
+      data.products.forEach(row => {
+        const tr = document.createElement("tr");
+        tr.className = `border-b hover:bg-gray-50 ${!row.is_active ? 'opacity-50' : ''}`;
+
+        tr.innerHTML = `
+          <td class="py-3 px-4">
+            ${row.images?.length ? `<img src="${row.images[0]}" class="h-12 w-12 rounded object-cover">` : 'No Image'}
+          </td>
+          <td class="py-3 px-4">${row.productTitle}</td>
+          <td class="py-3 px-4">${row.flavour || '-'}</td>
+          <td class="py-3 px-4">${row.size || '-'}</td>
+          <td class="py-3 px-4">₹ ${row.price}</td>
+          <td class="py-3 px-4">${row.productCategory?.name || '-'}</td>
+          <td class="py-3 px-4">${row.productBrand?.name || '-'}</td>
+
+          <td class="py-3 px-4 text-center flex justify-center space-x-3">
+
+            ${row.is_active
+              ? `<button class="deleteBtn" data-product="${row.productId}" data-variant="${row._id}">🗑</button>`
+              : `<button class="restoreBtn" data-product="${row.productId}" data-variant="${row._id}">♻️</button>`
+            }
+
+            <button class="editBtn"
+              data-id="${row.productId}"
+              data-variantid="${row._id}"
+              data-title="${row.productTitle}"
+              data-description="${row.productDescription || ''}"
+              data-category="${row.productCategory?._id || ''}"
+              data-brand="${row.productBrand?._id || ''}"
+              data-variants='${JSON.stringify(row.allVariants)}'
+            >✏️</button>
+
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    }
+
+  } catch (err) {
+    console.error("Search failed", err);
+  }
+});
+;
+
   // Validate Variant
-  // -----------------------
   function validateVariant(box, idx) {
     let valid = true;
     const priceError = document.getElementById(`priceError_${idx}`);

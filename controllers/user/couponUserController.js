@@ -14,13 +14,17 @@ const applyCoupon = asyncHandler( async( req,res) => {
     const coupon = await Coupon.findOne({code:code.toUpperCase(),isActive:true})
     if(!coupon) return res.redirect('/checkout?error=invalidCoupon')
 
+    if(req.session.coupon?.code === coupon.code) {
+        return res.redirect('/checkout?error=invalidCoupon')
+    }
+
     const alreadyUsed = coupon.usedBy.some(id => id.toString() === userId.toString())
     if(alreadyUsed) {
         return res.redirect('/checkout?error=couponUsed')
     }
 
     const cart = await Cart.findOne({user_id:userId}).populate('items.product_id').lean()
-    if(!cart) return res.redirect('/cart')
+    if(!cart || cart.items.length === 0) return res.redirect('/cart')
     
     let subtotal = 0
     for(const item of cart.items) {
@@ -47,14 +51,14 @@ const applyCoupon = asyncHandler( async( req,res) => {
         discountAmount:discountAmount,
     }
 
-    res.redirect('/checkout')
+    res.redirect('/checkout?success=couponApplied')
 })
 
 const removeCoupon = asyncHandler( async( req,res) => {
     if(req.session.coupon) {
         delete req.session.coupon
     }
-    res.redirect('/checkout')
+    res.redirect('/checkout?success=couponRemoved')
 })
 
 

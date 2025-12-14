@@ -9,6 +9,11 @@ const { creditToWallet } = require('../../utils/walletRefund')
 const {computeItemRefund} = require('../../utils/refund')
 const {errorLog} = require('../../config/logger')
 
+const STATUS_FLOW = ['PROCESSING','PACKED','SHIPPED','DELIVERED','CANCELLATION REQUESTED','CANCELLED','RETURN REQUESTED','RETURNED']
+
+function isBackwardStatus(current, next) {
+  return STATUS_FLOW.indexOf(next) < STATUS_FLOW.indexOf(current);
+}
 
 const loadOrders = asyncHandler( async( req,res) => {
     const {search = '', paymentStatus = '', sort = 'newest', page = 1 } = req.query
@@ -63,6 +68,10 @@ const updateItemStatus = asyncHandler( async( req,res) => {
 
     if(['CANCELLED','RETURNED'].includes(item.status)) {
         return res.status(httpStatus.bad_request).json({success:false,message:messages.STATUS.CANNOT_MODIFY})
+    }
+
+    if(isBackwardStatus(item.status,status)) {
+        return res.status(httpStatus.bad_request).json({success:false,message:`Cannot change status from ${item.status} back to ${status}`})
     }
 
     if(status === 'CANCELLED') {

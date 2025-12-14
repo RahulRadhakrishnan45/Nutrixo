@@ -96,7 +96,7 @@ const loadCheckout = asyncHandler( async( req,res) => {
     const isRetry = req.query.retry ==='1'
     const lastFailedOrderId = req.session.lastFailedOrderId || null
 
-    res.render('user/checkout',{layout:'layouts/user_main',walletBalance,addresses,coupons,cart:{...cart,items:validItems},actualPrice:actualPrice.toFixed(2),offerDiscount:offerDiscount.toFixed(2),subtotal:subtotalAfterOffer.toFixed(2),couponDiscount:couponDiscount.toFixed(2),totalDiscount:totalDiscount.toFixed(2),tax:tax.toFixed(2),total:total.toFixed(2),appliedCoupon,cartLength:validItems.length || 0,selectedId:req.query.selected || null,error:req.query.error || null,retry:isRetry,retryOrderId:lastFailedOrderId})
+    res.render('user/checkout',{layout:'layouts/user_main',walletBalance,addresses,coupons,cart:{...cart,items:validItems},actualPrice:actualPrice.toFixed(2),offerDiscount:offerDiscount.toFixed(2),subtotal:subtotalAfterOffer.toFixed(2),couponDiscount:couponDiscount.toFixed(2),totalDiscount:totalDiscount.toFixed(2),tax:tax.toFixed(2),total:total.toFixed(2),appliedCoupon,cartLength:validItems.length || 0,selectedId:req.query.selected || null,error:req.query.error || null,success:req.query.success || null,retry:isRetry,retryOrderId:lastFailedOrderId})
 })
 
 const placeOrder = asyncHandler( async( req,res) => {
@@ -176,6 +176,10 @@ const placeOrder = asyncHandler( async( req,res) => {
     let appliedCoupon = null
     if(req.session.coupon) {
         const coupon = await Coupon.findOne({code:req.session.coupon.code,isActive:true})
+        if (subtotal < coupon.minimumPurchase) {
+            req.session.coupon = null;
+            return res.redirect('/checkout?error=minimumNotMet')
+        }
         if(coupon && subtotal >= coupon.minimumPurchase) {
             if(coupon.discountType === 'percentage') {
                 couponDiscount = Math.min((subtotal * coupon.discountAmount) / 100, subtotal)

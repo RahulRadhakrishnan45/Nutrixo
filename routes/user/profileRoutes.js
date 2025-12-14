@@ -6,7 +6,7 @@ const profileController = require('../../controllers/user/profileUserController'
 const userController = require('../../controllers/user/productUserController')
 
 
-router.get('/', checkSession, userController.loadProfile)
+router.get('/', checkSession,userController.loadProfile)
 router.post('/upload', checkSession, uploadProfile.single('profile_image'), profileController.uploadProfileImage)
 router.get('/address', checkSession, profileController.loadAddress)
 router.post('/address', checkSession, profileController.addAddress)
