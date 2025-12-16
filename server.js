@@ -14,7 +14,7 @@ const {errorLog,apiLog} = require('./config/logger')
 
 dotenv.config()
 const app = express()
-const port = process.env.PORT || 3001
+const port = process.env.PORT || 3000
 
 app.use(express.static('public'))
 app.use('/uploads',express.static(path.join(__dirname,'uploads')))
