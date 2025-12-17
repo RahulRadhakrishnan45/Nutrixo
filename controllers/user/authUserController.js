@@ -18,7 +18,7 @@ const loadLogin = asyncHandler(async (req,res) =>{
 
 const loginUser = asyncHandler(async (req,res) => {
     const {email,password} = req.body
-
+    console.log(email)
     const user = await User.findOne({email})
     if(!user) {
         return res.status(httpStatus.bad_request).json({success:false,message:messages.AUTH.USER_NOT_FOUND})
