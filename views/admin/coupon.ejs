@@ -229,38 +229,44 @@ function deleteCoupon(id) {
 
   // ✅ Toggle Active/Inactive Status
 function toggleStatus(id, isActive) {
+  const checkbox = document.querySelector(
+    `input[onchange*="${id}"]`
+  );
+  const row = checkbox.closest("tr");
+
   fetch(`/admin/coupons/${id}`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ isActive }),
   })
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.success) {
-        Swal.fire({
-          icon: 'success',
-          title: `Coupon ${isActive ? 'Activated' : 'Deactivated'}!`,
-          text: data.message || 'Status updated successfully.',
-          timer: 1500,
-          showConfirmButton: false,
-        }).then(() => location.reload());
-      } else {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: data.message || 'Failed to update status.',
-        }).then(() => location.reload());
+    .then(res => res.json())
+    .then(data => {
+      if (!data.success) {
+        checkbox.checked = !isActive;
+        throw new Error(data.message || "Failed to update status");
       }
-    })
-    .catch((err) => {
-      console.error('Error updating status:', err);
+
+      row.classList.toggle("opacity-50", !isActive);
+
       Swal.fire({
-        icon: 'error',
-        title: 'Server Error',
-        text: 'Something went wrong. Please try again later.',
-      }).then(() => location.reload());
+        icon: "success",
+        title: `Coupon ${isActive ? "Activated" : "Deactivated"}!`,
+        timer: 1200,
+        showConfirmButton: false,
+      });
+    })
+    .catch(err => {
+      console.error(err);
+      checkbox.checked = !isActive;
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: err.message || "Something went wrong",
+      });
     });
 }
+
 
 let currentCouponId = null;
 
