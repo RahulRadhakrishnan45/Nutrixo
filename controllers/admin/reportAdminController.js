@@ -144,11 +144,11 @@ const downloadPdf = asyncHandler( async( req,res) => {
 
     const browser = await puppeteer.launch({
         headless: "new",
-        args: ["--no-sandbox", "--disable-setuid-sandbox"],
+        args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
     })
 
     const page = await browser.newPage()
-    await page.setContent(html,{waitUntil:'networkidle0'})
+    await page.setContent(html,{waitUntil:['load','networkidle0']})
 
     const pdfBuffer = await page.pdf({
         format: "A4",
@@ -168,8 +168,9 @@ const downloadPdf = asyncHandler( async( req,res) => {
         "Content-Disposition",
         `attachment; filename="sales-report-${Date.now()}.pdf"`
     )
+    res.setHeader('Content-Length',pdfBuffer.length)
 
-    res.send(pdfBuffer)
+    res.end(pdfBuffer)
 })
 
 
