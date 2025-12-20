@@ -5,6 +5,7 @@ const path = require('path')
 const ejs = require('ejs')
 const ExcelJS = require('exceljs')
 const puppeteer = require('puppeteer')
+const PDFDocument = require('pdfkit')
 const mongoose = require('mongoose')
 
 const loadSalesReport = asyncHandler( async( req,res) => {
@@ -107,72 +108,171 @@ const downloadExcel = asyncHandler( async( req,res) => {
     res.end()
 })
 
-const downloadPdf = asyncHandler( async( req,res) => {
-    const {filterType = 'daily', from, to, onlyCompleted} = req.query
-    
-    const {startDate, endDate} = buildDateRange(filterType, from, to)
-    const match = buildMatch(startDate, endDate, {onlyCompleted:onlyCompleted === 'true'})
-    match["items.status"] = { $nin: ["CANCELLED", "RETURNED"] }
+const downloadPdf = asyncHandler(async (req, res) => {
+  try {
+    const { filterType = 'daily', from, to, onlyCompleted } = req.query
+
+    const { startDate, endDate } = buildDateRange(filterType, from, to)
+    const match = buildMatch(startDate, endDate, {
+      onlyCompleted: onlyCompleted === 'true',
+    });
+    match['items.status'] = { $nin: ['CANCELLED', 'RETURNED'] }
 
     const result = await Order.aggregate([
-        {$match:match},
-        {$facet:{totals:[
-            {$group:{_id:null,totalOrders:{$sum:1},totalRevenue:{$sum:{$ifNull:['$totalAmount',0]}},totalDiscount:{$sum:{$ifNull:['$totalDiscount',0]}},},},
-        ],
-        data:[
-            {$sort:{createdAt:-1}},
-            {$lookup:{from:'users',localField:'user',foreignField:'_id',as:'user'},},
-            {$unwind:{path:'$user',preserveNullAndEmptyArrays:true}},
-        ],
-    }}
+      { $match: match },
+      {
+        $facet: {
+          totals: [
+            {
+              $group: {
+                _id: null,
+                totalOrders: { $sum: 1 },
+                totalRevenue: { $sum: { $ifNull: ['$totalAmount', 0] } },
+                totalDiscount: { $sum: { $ifNull: ['$totalDiscount', 0] } },
+              },
+            },
+          ],
+          data: [
+            { $sort: { createdAt: -1 } },
+            {
+              $lookup: {
+                from: 'users',
+                localField: 'user',
+                foreignField: '_id',
+                as: 'user',
+              },
+            },
+            { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } },
+          ],
+        },
+      },
     ])
 
-    const totals = result[0].totals[0] || { totalOrders: 0, totalRevenue: 0, totalDiscount: 0 }
-    const orders = result[0].data || []
+    const totals = result[0]?.totals[0] || {
+      totalOrders: 0,
+      totalRevenue: 0,
+      totalDiscount: 0,
+    }
+    const orders = result[0]?.data || []
 
-    const pdfTemplate = path.join(__dirname,'../../views/admin/salesReportPdf.ejs')
-
-    const html = await ejs.renderFile(pdfTemplate, {
-        orders,
-        totalOrders: totals.totalOrders,
-        totalRevenue: totals.totalRevenue,
-        totalDiscount: totals.totalDiscount,
-        filterType,
-        fromDate: from || '',
-        toDate: to || '',
+    const doc = new PDFDocument({ 
+      size: 'A4', 
+      margin: 50,
+      autoFirstPage: true
     })
 
-    const browser = await puppeteer.launch({
-        headless: "new",
-        args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
-    })
-
-    const page = await browser.newPage()
-    await page.setContent(html,{waitUntil:['load','networkidle0']})
-
-    const pdfBuffer = await page.pdf({
-        format: "A4",
-        printBackground: true,
-        margin: {
-            top: "20mm",
-            right: "10mm",
-            bottom: "20mm",
-            left: "10mm",
-        },
-    })
-
-    await browser.close()
-
-    res.setHeader('Content-Type', 'application/pdf')
+    res.setHeader('Content-Type', 'application/pdf');
     res.setHeader(
-        "Content-Disposition",
-        `attachment; filename="sales-report-${Date.now()}.pdf"`
+      'Content-Disposition',
+      `attachment; filename="sales-report-${Date.now()}.pdf"`
     )
-    res.setHeader('Content-Length',pdfBuffer.length)
+    doc.pipe(res)
 
-    res.end(pdfBuffer)
+    doc.fontSize(20).font('Helvetica-Bold').text('Sales Report', { align: 'center' })
+    doc.moveDown(0.5)
+
+    const formatDate = (date) => {
+      return new Date(date).toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      })
+    }
+
+    const reportTypeText = filterType.charAt(0).toUpperCase() + filterType.slice(1)
+    
+    let subtitleText = `Report Type: ${reportTypeText}`
+    
+    if (startDate && endDate) {
+      const formattedStart = formatDate(startDate)
+      const formattedEnd = formatDate(endDate)
+      subtitleText += ` (${formattedStart} - ${formattedEnd})`
+    }
+
+    doc.fontSize(10).font('Helvetica').text(subtitleText, { align: 'center' })
+    doc.moveDown(1.5)
+
+    doc.fontSize(12).font('Helvetica-Bold').text('Summary')
+    doc.moveDown(0.5)
+    doc.fontSize(10).font('Helvetica')
+    doc.text(`Total Orders: ${totals.totalOrders}`)
+    doc.text(`Total Revenue: ₹${totals.totalRevenue.toFixed(2)}`)
+    doc.text(`Total Discount: ₹${totals.totalDiscount.toFixed(2)}`)
+    doc.text(`Net Revenue: ₹${(totals.totalRevenue - totals.totalDiscount).toFixed(2)}`)
+    doc.moveDown(2)
+
+    if (!orders.length) {
+      doc.fontSize(12).text('No orders found for the selected period.', { align: 'center' });
+      doc.end()
+      return
+    }
+
+    const col = { 
+      id: 50,
+      customer: 150,
+      date: 300,
+      amount: 420
+    }
+    const rowHeight = 25
+    
+    const pageHeight = doc.page.height
+    const pageMargin = doc.page.margins.bottom
+    const maxY = pageHeight - pageMargin - 30
+
+    function drawTableHeader(y) {
+      doc.rect(50, y, 495, rowHeight).fill('#4472C4');
+      doc.font('Helvetica-Bold').fontSize(10).fillColor('white')
+        .text('Order ID', col.id + 5, y + 8, { width: 90 })
+        .text('Customer', col.customer + 5, y + 8, { width: 140 })
+        .text('Date', col.date + 5, y + 8, { width: 110 })
+        .text('Amount', col.amount + 5, y + 8, { width: 115 });
+      doc.font('Helvetica').fontSize(9).fillColor('black');
+    }
+
+    let currentY = doc.y
+    drawTableHeader(currentY)
+    currentY += rowHeight
+
+    orders.forEach((order, index) => {
+      const willFit = (currentY + rowHeight) <= maxY
+      
+      if (!willFit) {
+        doc.addPage()
+        currentY = 50
+        drawTableHeader(currentY)
+        currentY += rowHeight
+      }
+
+      if (index % 2 === 0) {
+        doc.rect(50, currentY, 495, rowHeight).fill('#F2F2F2')
+      }
+
+      const orderId = order.orderNumber || order._id.toString().slice(-8)
+      const customer = order.user?.name || 'Guest'
+      const date = new Date(order.createdAt).toLocaleDateString('en-IN')
+      const amount = `₹${order.totalAmount?.toFixed(2) || '0.00'}`
+
+      doc.fillColor('black')
+        .text(orderId, col.id + 5, currentY + 8, { width: 90, ellipsis: true })
+        .text(customer, col.customer + 5, currentY + 8, { width: 140, ellipsis: true })
+        .text(date, col.date + 5, currentY + 8, { width: 110 })
+        .text(amount, col.amount + 5, currentY + 8, { width: 115 })
+
+      currentY += rowHeight
+    })
+
+    doc.end()
+
+  } catch (error) {
+    console.error('PDF generation error:', error)
+    if (!res.headersSent) {
+      res.status(500).json({
+        success: false,
+        message: 'Failed to generate PDF',
+        error: error.message,
+      })
+    }
+  }
 })
-
-
 
 module.exports = {loadSalesReport,downloadExcel,downloadPdf}
