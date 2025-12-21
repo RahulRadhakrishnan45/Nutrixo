@@ -128,7 +128,7 @@ const updateOffer = asyncHandler( async( req,res) => {
         return res.status(httpStatus.bad_request).json({success:false,message:messages.DATE.DATE_INVALID})
     }
 
-    const existing = await Offer.findOne({offerName:{$regex:new RegExp(`^${offerName}$`, "i")},_id:{$ne:offerId}})
+    const existing = await Offer.findOne({offerName:{$regex:new RegExp(`^${offerName}$`, 'i')},_id:{$ne:offerId}})
     if(existing) {
         return res.status(httpStatus.conflict).json({success:false,message:messages.OFFER.OFFER_EXISTS})
     }
@@ -145,7 +145,7 @@ const updateOffer = asyncHandler( async( req,res) => {
             category: normalize(category),
             product: normalize(product),
             brand: normalize(brand),
-            isActive: isActive === "true" || isActive === true
+            isActive: isActive === 'true' || isActive === true
         },
         {new:true}
     )

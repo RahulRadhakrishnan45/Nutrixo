@@ -1,7 +1,7 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const orderSchema = new mongoose.Schema(
   {
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "user", required: true },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true },
     showInOrders: {type:Boolean,default:false},
     orderAddress: {
       fullname: { type: String, required: true },
@@ -14,18 +14,18 @@ const orderSchema = new mongoose.Schema(
     },
     coupon: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Coupon",
+      ref: 'Coupon',
       default: null,
     },
     paymentStatus: {
       type: String,
-      enum: ["PENDING", "COMPLETED", "FAILED", "REFUNDED"],
-      default: "PENDING",
+      enum: ['PENDING', 'COMPLETED', 'FAILED', 'REFUNDED'],
+      default: 'PENDING',
     },
     paymentMethod: {
       type: String,
-      enum: ["COD", "CARD", "WALLET", "BANK"],
-      default: "COD",
+      enum: ['COD', 'CARD', 'WALLET', 'BANK'],
+      default: 'COD',
     },
     paymentDetails: { transactionId: String, paidAt: Date },
     actualTotal: { type: Number, default: 0 },
@@ -42,7 +42,7 @@ const orderSchema = new mongoose.Schema(
       {
         product: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "product",
+          ref: 'product',
           required: true,
         },
         variantId: { type: mongoose.Schema.Types.ObjectId, required: true },
@@ -65,16 +65,16 @@ const orderSchema = new mongoose.Schema(
         status: {
           type: String,
           enum: [
-            "PROCESSING",
-            "PACKED",
-            "SHIPPED",
-            "CANCELLATION REQUESTED",
-            "DELIVERED",
-            "RETURN REQUESTED",
-            "CANCELLED",
-            "RETURNED",
+            'PROCESSING',
+            'PACKED',
+            'SHIPPED',
+            'CANCELLATION REQUESTED',
+            'DELIVERED',
+            'RETURN REQUESTED',
+            'CANCELLED',
+            'RETURNED',
           ],
-          default: "PROCESSING",
+          default: 'PROCESSING',
         },
         previousStatus: {type: String},       
         statusHistory: [
@@ -95,8 +95,8 @@ const orderSchema = new mongoose.Schema(
         returnRequest: {
           status: {
             type: String,
-            enum: ["NONE", "REQUESTED", "APPROVED", "REJECTED", "COMPLETED"],
-            default: "NONE",
+            enum: ['NONE', 'REQUESTED', 'APPROVED', 'REJECTED', 'COMPLETED'],
+            default: 'NONE',
           },
           reason: String,
           requestedAt: Date,
@@ -106,8 +106,8 @@ const orderSchema = new mongoose.Schema(
         cancellationRequest: {
           status: {
             type: String,
-            enum: ["NONE", "REQUESTED", "APPROVED", "REJECTED"],
-            default: "NONE",
+            enum: ['NONE', 'REQUESTED', 'APPROVED', 'REJECTED'],
+            default: 'NONE',
           },
           reason: String,
           requestedAt: Date,
@@ -120,7 +120,7 @@ const orderSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-orderSchema.pre("save", async function (next) {
+orderSchema.pre('save', async function (next) {
   if (!this.orderNumber) {
     const randomPart = Math.random().toString(36).substring(2, 7).toUpperCase(); // 5-char alphanumeric
     const timePart = Date.now().toString().slice(-4); // last 4 digits of timestamp
@@ -129,44 +129,44 @@ orderSchema.pre("save", async function (next) {
   next()
 })
 
-orderSchema.pre("save", function (next) {
+orderSchema.pre('save', function (next) {
   if(this.items.length === 0) return next()
     
   const allStatus = this.items.map((item) => item.status)
 
-  if (this.paymentStatus === "FAILED") return next()
+  if (this.paymentStatus === 'FAILED') return next()
 
-  const isAllReturned = allStatus.every(s => s === "RETURNED")
+  const isAllReturned = allStatus.every(s => s === 'RETURNED')
   if (isAllReturned) {
-    this.paymentStatus = "REFUNDED"
+    this.paymentStatus = 'REFUNDED'
     return next()
   }
 
-  if (!["CARD", "WALLET"].includes(this.paymentMethod)) {
-    const isAllCancelled = allStatus.every(s => s === "CANCELLED")
+  if (!['CARD', 'WALLET'].includes(this.paymentMethod)) {
+    const isAllCancelled = allStatus.every(s => s === 'CANCELLED')
     if (isAllCancelled) {
-      this.paymentStatus = "FAILED"
+      this.paymentStatus = 'FAILED'
       return next()
     }
   }
   
-  const isAllDelivered = allStatus.every(s => s === "DELIVERED")
-  if (this.paymentMethod === "COD" && isAllDelivered) {
-    this.paymentStatus = "COMPLETED"
+  const isAllDelivered = allStatus.every(s => s === 'DELIVERED')
+  if (this.paymentMethod === 'COD' && isAllDelivered) {
+    this.paymentStatus = 'COMPLETED'
     return next()
   }
 
   if (
-    this.paymentMethod === "COD" &&
+    this.paymentMethod === 'COD' &&
     allStatus.some(s =>
-      ["PROCESSING", "PACKED", "SHIPPED", "RETURN REQUESTED", "CANCELLATION REQUESTED"].includes(s)
+      ['PROCESSING', 'PACKED', 'SHIPPED', 'RETURN REQUESTED', 'CANCELLATION REQUESTED'].includes(s)
     )
   ) {
-    this.paymentStatus = "PENDING"
+    this.paymentStatus = 'PENDING'
     return next()
   }
 
   next()
 });
 
-module.exports = mongoose.model("Order", orderSchema);
+module.exports = mongoose.model('Order', orderSchema);

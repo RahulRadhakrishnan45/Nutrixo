@@ -63,24 +63,24 @@ const downloadExcel = asyncHandler( async( req,res) => {
     const sheet = workbook.addWorksheet('Sales Report')
 
     sheet.columns = [
-      { header: "Order No", key: "orderNumber", width: 15 },
-      { header: "User", key: "userName", width: 20 },
-      { header: "Date", key: "date", width: 20 },
-      { header: "Subtotal (₹)", key: "subtotal", width: 15 },
-      { header: "Discount (₹)", key: "discount", width: 15 },
-      { header: "Total Amount (₹)", key: "totalAmount", width: 18 },
-      { header: "Payment Method", key: "paymentMethod", width: 15 },
+      { header: 'Order No', key: 'orderNumber', width: 15 },
+      { header: 'User', key: 'userName', width: 20 },
+      { header: 'Date', key: 'date', width: 20 },
+      { header: 'Subtotal (₹)', key: 'subtotal', width: 15 },
+      { header: 'Discount (₹)', key: 'discount', width: 15 },
+      { header: 'Total Amount (₹)', key: 'totalAmount', width: 18 },
+      { header: 'Payment Method', key: 'paymentMethod', width: 15 },
     ]
 
     rows.forEach(r => {
         sheet.addRow({
             orderNumber:r.orderNumber,
-            userName: r.user?.name || "Unknown",
-            date: new Date(r.createdAt).toLocaleString("en-IN"),
+            userName: r.user?.name || 'Unknown',
+            date: new Date(r.createdAt).toLocaleString('en-IN'),
             subtotal: r.subtotal || 0,
             discount: r.totalDiscount || 0,
             totalAmount: r.totalAmount || 0,
-            paymentMethod: r.paymentMethod || "",
+            paymentMethod: r.paymentMethod || '',
         })
     })
 
@@ -91,7 +91,7 @@ const downloadExcel = asyncHandler( async( req,res) => {
     const grandTotal = rows.reduce((a, b) => a + (b.totalAmount || 0), 0)
 
     const totalRow = sheet.addRow({
-        orderNumber: "TOTAL",
+        orderNumber: 'TOTAL',
         subtotal: totalSubtotal,
         discount: totalDiscount,
         totalAmount: grandTotal,
@@ -100,7 +100,7 @@ const downloadExcel = asyncHandler( async( req,res) => {
     totalRow.font = { bold: true }
 
     res.setHeader(
-        "Content-Disposition",
+        'Content-Disposition',
         `attachment; filename="sales-report-${Date.now()}.xlsx"`
     )
 

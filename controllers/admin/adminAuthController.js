@@ -100,7 +100,7 @@ const dashboardDetails = asyncHandler( async (req,res) => {
             {$sort:{_id:1}}
         ])
 
-        labels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+        labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
         data = labels.map((_, i) => weeklySeries.find(x => x._id === i + 1)?.total || 0)
 
     }else if (period === 'monthly') {
@@ -127,7 +127,7 @@ const dashboardDetails = asyncHandler( async (req,res) => {
             {$sort:{_id:1}}
         ])
 
-        labels = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+        labels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
         data = labels.map((_, i) => yearlySeries.find(x => x._id === i + 1)?.total || 0)
     }
 

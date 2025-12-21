@@ -230,10 +230,10 @@ const placeOrder = asyncHandler( async( req,res) => {
             tax: Number((offerPrice * 0.02).toFixed(2)),
             discount: actualPrice - offerPrice,
             offerApplied: actualPrice - offerPrice,
-            status: "PROCESSING",
+            status: 'PROCESSING',
             previousStatus: null,
             statusHistory: [
-                { status: "PROCESSING", note: "Order Created" }
+                { status: 'PROCESSING', note: 'Order Created' }
             ],
         }
     }))
@@ -314,13 +314,13 @@ const verifyRazorpay = asyncHandler(async (req, res) => {
     const userId = req.session.user._id;
     const {razorpay_order_id,razorpay_payment_id,razorpay_signature,orderId,retryOrderId} = req.body
 
-    const body = razorpay_order_id + "|" + razorpay_payment_id
+    const body = razorpay_order_id + '|' + razorpay_payment_id
 
-    const expectSign = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET).update(body).digest("hex")
+    const expectSign = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET).update(body).digest('hex')
 
     if (expectSign !== razorpay_signature) {
         if (orderId) {
-            await Order.findByIdAndUpdate(orderId, {paymentStatus: "FAILED",orderStatus: "PAYMENT FAILED",showInOrders:false})
+            await Order.findByIdAndUpdate(orderId, {paymentStatus: 'FAILED',orderStatus: 'PAYMENT FAILED',showInOrders:false})
             req.session.lastFailedOrderId = orderId
         }
         return res.json({success: false,message: messages.AUTH.INVALID_SIGN})
@@ -341,7 +341,7 @@ const verifyRazorpay = asyncHandler(async (req, res) => {
         await finalizeOrder({
             orderId: targetOrder._id,
             userId,
-            paymentMethod: "CARD",
+            paymentMethod: 'CARD',
             paymentDetails: {transactionId: razorpay_payment_id,paidAt: new Date() }
         })
 
@@ -353,12 +353,12 @@ const verifyRazorpay = asyncHandler(async (req, res) => {
         return res.json({success: true,orderId: targetOrder._id})
 
     } catch (err) {
-        console.error("Finalize after verify failed", err);
-        await Order.findByIdAndUpdate(targetOrder._id, {paymentStatus: "FAILED", orderStatus: "PAYMENT FAILED",showInOrders:false})
+        console.error('Finalize after verify failed', err);
+        await Order.findByIdAndUpdate(targetOrder._id, {paymentStatus: 'FAILED', orderStatus: 'PAYMENT FAILED',showInOrders:false})
 
         req.session.lastFailedOrderId = targetOrder._id;
 
-        return res.json({success: false, message: "Failed to finalize order after payment"})
+        return res.json({success: false, message: 'Failed to finalize order after payment'})
     }
 })
 

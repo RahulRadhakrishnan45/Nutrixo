@@ -144,7 +144,7 @@ const editProduct = asyncHandler(async (req, res) => {
 
   const seen = new Set()
   for(let i=0;i<size.length;i++ ) {
-    const key = flavour[i].toLowerCase() + "-" + size[i]
+    const key = flavour[i].toLowerCase() + '-' + size[i]
     if(seen.has(key)) {
         return res.status(httpStatus.bad_request).json({success:false,field:'variants',message:messages.VARIANT.VARIANT_EXISTS})
     }
@@ -197,8 +197,8 @@ const editProduct = asyncHandler(async (req, res) => {
 const deleteProduct = asyncHandler( async( req,res) => {
     const {productId,variantId} = req.params
 
-    const product = await Product.findOneAndUpdate({_id:productId,"variants._id":variantId},
-        {$set:{"variants.$.is_active":false}},
+    const product = await Product.findOneAndUpdate({_id:productId,'variants._id':variantId},
+        {$set:{'variants.$.is_active':false}},
         {new:true}
     )
 
@@ -213,8 +213,8 @@ const restoreVariant = asyncHandler( async( req,res) => {
     const {productId,variantId} = req.params
 
     const product = await Product.findOneAndUpdate(
-        {_id:productId,"variants._id":variantId},
-        {$set:{"variants.$.is_active":true}},
+        {_id:productId,'variants._id':variantId},
+        {$set:{'variants.$.is_active':true}},
         {new:true}
     )
 
@@ -231,24 +231,24 @@ const searchProducts = asyncHandler( async( req,res) => {
 
     if(!q) {
         products = await Product.find()
-            .populate("category_id")
-            .populate("brand_id")
+            .populate('category_id')
+            .populate('brand_id')
     }else{
 
-    const regex = new RegExp(q,"i")
+    const regex = new RegExp(q,'i')
 
      products = await Product.find({
         $or:[
             {title: regex},
-            {"variants.flavour":regex},
-            {"variants.size":regex}
+            {'variants.flavour':regex},
+            {'variants.size':regex}
         ]
     })
-        .populate("category_id")
-        .populate("brand_id")
+        .populate('category_id')
+        .populate('brand_id')
 
-        const brandMatches = await Brand.find({name:regex}).select("_id")
-        const categoryMatches = await Category.find({name:regex}).select("_id")
+        const brandMatches = await Brand.find({name:regex}).select('_id')
+        const categoryMatches = await Category.find({name:regex}).select('_id')
 
         if(brandMatches.length || categoryMatches.length) {
             const moreProducts = await Product.find({
@@ -257,8 +257,8 @@ const searchProducts = asyncHandler( async( req,res) => {
                     {category_id:{$in:categoryMatches.map(c => c._id)}}
                 ]
             })
-            .populate("category_id")
-            .populate("brand_id")
+            .populate('category_id')
+            .populate('brand_id')
 
             const ids = new Set(products.map(p =>p._id.toString()))
             moreProducts.forEach(p => {

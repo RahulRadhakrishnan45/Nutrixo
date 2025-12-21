@@ -42,7 +42,7 @@ const searchCustomers = asyncHandler(async (req, res) => {
 
   let queryObj = {};
   if (q) {
-    const regex = new RegExp(q, "i");
+    const regex = new RegExp(q, 'i');
     queryObj = { $or: [{ name: regex }, { email: regex }, { mobile: regex }] };
   }
 

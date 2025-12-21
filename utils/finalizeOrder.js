@@ -11,24 +11,24 @@ async function finalizeOrder({ orderId, userId, paymentMethod, paymentDetails = 
 
   try {
     const order = await Order.findById(orderId).session(session)
-    if (!order) throw new Error("Order not found")
+    if (!order) throw new Error('Order not found')
 
-    if (order.orderStatus === "PLACED") {
+    if (order.orderStatus === 'PLACED') {
       await session.commitTransaction()
       session.endSession()
       return order
     }
 
-    if (paymentMethod === "WALLET") {
+    if (paymentMethod === 'WALLET') {
       const wallet = await Wallet.findOne({ user_id: userId }).session(session)
-      if (!wallet) throw new Error("Wallet not found")
-      if (wallet.balance < order.totalAmount) throw new Error("Insufficient balance")
+      if (!wallet) throw new Error('Wallet not found')
+      if (wallet.balance < order.totalAmount) throw new Error('Insufficient balance')
 
       wallet.balance -= order.totalAmount
 
       wallet.transactions.push({
         amount: order.totalAmount,
-        type: "DEBIT",
+        type: 'DEBIT',
         description: `Order Payment for #${order._id}`,
         orderId: order._id.toString(),
         createdAt: new Date(),
@@ -42,15 +42,15 @@ async function finalizeOrder({ orderId, userId, paymentMethod, paymentDetails = 
       const productId = new mongoose.Types.ObjectId(String(item.product))
       const variantId = new mongoose.Types.ObjectId(String(item.variantId))
 
-      const updated = await Product.updateOne({_id: productId,"variants._id": variantId},{$inc: { "variants.$.stock": -item.quantity }},{ session })
+      const updated = await Product.updateOne({_id: productId,'variants._id': variantId},{$inc: { 'variants.$.stock': -item.quantity }},{ session })
 
       if (updated.modifiedCount === 0) {
         throw new Error(`FAILED to reduce stock for product ${item.product}, variant ${item.variantId}`);
       }
     }
 
-    order.paymentStatus = "COMPLETED"
-    order.orderStatus = "PLACED"
+    order.paymentStatus = 'COMPLETED'
+    order.orderStatus = 'PLACED'
     order.paymentMethod = paymentMethod
     order.paymentDetails = paymentDetails
 
@@ -75,7 +75,7 @@ async function finalizeOrder({ orderId, userId, paymentMethod, paymentDetails = 
     return order
 
   } catch (err) {
-    console.error("FINALIZE ERROR:", err)
+    console.error('FINALIZE ERROR:', err)
     await session.abortTransaction()
     session.endSession()
     throw err

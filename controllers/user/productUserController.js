@@ -46,11 +46,11 @@ const loadHome = asyncHandler(async (req,res) =>{
     const brands = await Brand.find({is_active:true,is_delete:false}).select('name -_id')
 
     const bestSellingRaw = await Order.aggregate([
-    { $unwind: "$items" },
+    { $unwind: '$items' },
     {$group: {
-        _id: "$items.variantId",
-        totalSold: { $sum: "$items.quantity" },
-        productId: { $first: "$items.product" }
+        _id: '$items.variantId',
+        totalSold: { $sum: '$items.quantity' },
+        productId: { $first: '$items.product' }
         }
     },
     { $sort: { totalSold: -1 } },
@@ -150,9 +150,9 @@ const loadProducts = asyncHandler( async( req,res) => {
         for(const v of activeVariants) {
             const basePrice = Number(v.calculated_price || v.price)
             if(basePrice < min || basePrice > max) continue
-            if (flavour && flavour !== "All" && v.flavour !== flavour) continue
-            if (brand && brand !== "All" && p.brand_id?.name !== brand) continue
-            if (size && size !== "All" && v.size !== size) continue
+            if (flavour && flavour !== 'All' && v.flavour !== flavour) continue
+            if (brand && brand !== 'All' && p.brand_id?.name !== brand) continue
+            if (size && size !== 'All' && v.size !== size) continue
             if (
                 q &&
                 !p.title.toLowerCase().includes(q.toLowerCase()) &&
@@ -177,13 +177,13 @@ const loadProducts = asyncHandler( async( req,res) => {
     }
 
     if(sort) {
-        if (sort === "priceLowHigh") {
+        if (sort === 'priceLowHigh') {
             products.sort((a, b) => a.calculated_price - b.calculated_price);
-        } else if (sort === "priceHighLow") {
+        } else if (sort === 'priceHighLow') {
             products.sort((a, b) => b.calculated_price - a.calculated_price);
-        } else if (sort === "nameAZ") {
+        } else if (sort === 'nameAZ') {
             products.sort((a, b) => a.name.localeCompare(b.name));
-        } else if (sort === "nameZA") {
+        } else if (sort === 'nameZA') {
             products.sort((a, b) => b.name.localeCompare(a.name));
         }
     }
@@ -197,7 +197,7 @@ const loadProducts = asyncHandler( async( req,res) => {
 
     const brands = await Brand.find({is_active:true,is_delete:false}).select('name -_id')
     const flavours = await Product.distinct('variants.flavour', {'variants.is_active':true})
-    const sizes = await Product.distinct("variants.size", { "variants.is_active": true })
+    const sizes = await Product.distinct('variants.size', { 'variants.is_active': true })
     const categories = await Category.find({is_active:true,is_deleted:false}).select('name -_id')
 
     let userWishlist = []
@@ -206,7 +206,7 @@ const loadProducts = asyncHandler( async( req,res) => {
         userWishlist = wishlist?.items?.map((i) => i.variant_id.toString()) || []
     }
 
-    res.render('user/product',{layout:'layouts/user_main',products:paginatedVariants,currentPage:page,totalPages,brands:brands.map(b =>b.name),flavours,sizes,categories:categories.map(c => c.name),selectedFilters:{brand:brand && brand !== "All" ? brand: null,flavour: flavour && flavour !== "All" ? flavour: null,size: size && size !== "All" ? size: null,minPrice,maxPrice,category: category && category !== "All" ? category : null,sort:sort || null,q:q || null,},query:req.query,userWishlist})
+    res.render('user/product',{layout:'layouts/user_main',products:paginatedVariants,currentPage:page,totalPages,brands:brands.map(b =>b.name),flavours,sizes,categories:categories.map(c => c.name),selectedFilters:{brand:brand && brand !== 'All' ? brand: null,flavour: flavour && flavour !== 'All' ? flavour: null,size: size && size !== 'All' ? size: null,minPrice,maxPrice,category: category && category !== 'All' ? category : null,sort:sort || null,q:q || null,},query:req.query,userWishlist})
 })
 
 const loadSingleProduct = asyncHandler( async( req,res) => {

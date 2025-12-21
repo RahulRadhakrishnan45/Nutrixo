@@ -7,23 +7,23 @@ function buildDateRange(filterType, fromStr, toStr) {
   let startDate = null;
   let endDate = null;
 
-  if (filterType === "daily") {
+  if (filterType === 'daily') {
     startDate = startOfDay(new Date(today));
     endDate = endOfDay(new Date(today));
   } 
-  else if (filterType === "weekly") {
+  else if (filterType === 'weekly') {
     const weekStart = new Date(today);
     weekStart.setDate(today.getDate() - 6);
     startDate = startOfDay(weekStart);
     endDate = endOfDay(today);
   } 
-  else if (filterType === "monthly") {
+  else if (filterType === 'monthly') {
     const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
     const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
     startDate = startOfDay(monthStart);
     endDate = endOfDay(monthEnd);
   } 
-  else if (filterType === "custom") {
+  else if (filterType === 'custom') {
     if (!fromStr || !toStr) return { startDate: null, endDate: null };
 
     const fromDate = new Date(fromStr);

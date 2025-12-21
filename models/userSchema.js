@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema({
     referralClaimed: { type:Boolean,default:false},
 }, { timestamps: true })
 
-userSchema.pre("save", async function (next) {
+userSchema.pre('save', async function (next) {
     if (this.referralCode) return next()
 
     let code

@@ -57,8 +57,8 @@ const applyReferralCode = asyncHandler( async( req,res) => {
         return res.status(httpStatus.not_found).json({success:false,message:messages.REFERRAL.INVALID_REFERRAL})
     }
 
-    await creditToWallet(userId,50,"Referral applied! ₹50 added to your wallet.")
-    await creditToWallet(referrer._id,100,"Referral bonus credited. ₹100 added to your wallet")
+    await creditToWallet(userId,50,'Referral applied! ₹50 added to your wallet.')
+    await creditToWallet(referrer._id,100,'Referral bonus credited. ₹100 added to your wallet')
 
     user.referralClaimed = true
     user.referredBy = referrer._id

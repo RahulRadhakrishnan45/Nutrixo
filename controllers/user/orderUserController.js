@@ -34,7 +34,7 @@ const loadOrders = asyncHandler( async( req,res) => {
             order.showRetry = false
         }
 
-        const activeStatuses = ["PROCESSING", "PACKED", "SHIPPED", "DELIVERED"]
+        const activeStatuses = ['PROCESSING', 'PACKED', 'SHIPPED', 'DELIVERED']
         const anyActive = order.items.some(i => activeStatuses.includes(i.status))
         if(anyActive && order.paymentStatus !== 'FAILED') {
             order.showRetry = false
@@ -88,9 +88,9 @@ const cancelSingleOrder = asyncHandler( async( req,res) => {
     }
 
     item.previousStatus = item.status
-    item.status = "CANCELLATION REQUESTED"
-    item.cancellationRequest.status = "REQUESTED"
-    item.cancellationRequest.reason = reason || "No reason provided"
+    item.status = 'CANCELLATION REQUESTED'
+    item.cancellationRequest.status = 'REQUESTED'
+    item.cancellationRequest.reason = reason || 'No reason provided'
     item.cancellationRequest.requestedAt = new Date()
 
     item.statusHistory = item.statusHistory || []
@@ -164,16 +164,16 @@ const downloadInvoice = asyncHandler(async (req, res) => {
   doc.pipe(res)
 
   function splitTitleBalanced(title) {
-    const words = title.split(" ")
+    const words = title.split(' ')
     const total = words.length
 
     const perLine = Math.ceil(total / 3)
 
-    const line1 = words.slice(0, perLine).join(" ")
-    const line2 = words.slice(perLine, perLine * 2).join(" ")
-    const line3 = words.slice(perLine * 2).join(" ")
+    const line1 = words.slice(0, perLine).join(' ')
+    const line2 = words.slice(perLine, perLine * 2).join(' ')
+    const line3 = words.slice(perLine * 2).join(' ')
 
-    return [line1, line2, line3].filter(Boolean).join("\n")
+    return [line1, line2, line3].filter(Boolean).join('\n')
   }
 
   doc.fontSize(18).font('Helvetica-Bold').text('Tax Invoice', { align: 'center' })
@@ -370,7 +370,7 @@ const returnEntireOrder = asyncHandler( async( req,res) => {
 
     for(const item of order.items) {
         item.previousStatus = item.status
-        item.status = "RETURN REQUESTED"
+        item.status = 'RETURN REQUESTED'
         item.returnRequest = {
             status:'REQUESTED',
             reason:reason,
