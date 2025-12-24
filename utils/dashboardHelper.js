@@ -14,8 +14,7 @@ async function buildDashboardResponse(startDate) {
     ]);
 
     const totalSales = salesAgg[0]?.total || 0;
-    const filteredCustomerIds = await Order.distinct('user',{createdAt:{$gte:startDate},showInOrders:true,'items.status':{$nin:['CANCELLED','RETURNED']}})
-    const customers = filteredCustomerIds.length
+    const customers = await User.countDocuments({createdAt:{$gte:startDate}})
     const totalOrders = await Order.countDocuments({createdAt:{$gte:startDate},showInOrders:true,'items.status':{$nin:['CANCELLED','RETURNED']}});
 
     const topProducts = await Order.aggregate([
