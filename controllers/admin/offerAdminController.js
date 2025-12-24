@@ -5,8 +5,6 @@ const Product = require('../../models/productSchema')
 const Brand = require('../../models/brandSchema')
 const httpStatus = require('../../constants/httpStatus')
 const messages = require('../../constants/messages')
-const category = require('../../models/categorySchema')
-const product = require('../../models/productSchema')
 const normalizeIds = require('../../utils/normalizeIds')
 
 const loadOffers = asyncHandler( async( req,res) => {

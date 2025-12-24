@@ -4,7 +4,6 @@ const {buildDateRange, buildMatch} = require('../../utils/dateFilter')
 const path = require('path')
 const ejs = require('ejs')
 const ExcelJS = require('exceljs')
-const puppeteer = require('puppeteer')
 const PDFDocument = require('pdfkit')
 const mongoose = require('mongoose')
 

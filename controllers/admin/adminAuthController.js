@@ -14,7 +14,7 @@ const {buildDashboardResponse} = require('../../utils/dashboardHelper')
 const loadLogin = asyncHandler(async (req,res) => {
     let message = req.session.message
     delete req.session.message
-
+ 
     if(req.query.logout ==='1'){
         message = {type:'success',text:messages.AUTH.LOGOUT_SUCCESS}
     }

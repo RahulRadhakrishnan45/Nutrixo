@@ -1,3 +1,4 @@
+<!-- Breadcrumb -->
 <nav class="text-sm mb-6 text-gray-500">
   <ol class="flex items-center space-x-2">
     <li>
@@ -11,15 +12,18 @@
 <!-- Top Bar -->
 <div class="flex justify-between items-center mb-8 mt-10">
   <h1 class="text-xl font-semibold">Brand Management</h1>
-  <button id="openModalBtn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+  <button id="openModalBtn"
+    class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
     + Add Brand
   </button>
 </div>
 
 <!-- Modal -->
-<div id="brandModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+<div id="brandModal"
+  class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
   <div class="bg-white p-6 rounded-lg w-1/3">
     <h2 class="text-lg font-semibold mb-4">Add New Brand</h2>
+
     <form id="addBrandForm" enctype="multipart/form-data">
       <label class="block mb-2">Brand Name</label>
       <input type="text" name="name" class="border p-2 w-full mb-4" required>
@@ -28,8 +32,14 @@
       <input type="file" name="logo_url" class="mb-4">
 
       <div class="flex justify-end">
-        <button type="button" id="closeModalBtn" class="mr-2 px-4 py-2 border rounded">Cancel</button>
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Add</button>
+        <button type="button" id="closeModalBtn"
+          class="mr-2 px-4 py-2 border rounded">
+          Cancel
+        </button>
+        <button type="submit"
+          class="bg-blue-600 text-white px-4 py-2 rounded">
+          Add
+        </button>
       </div>
     </form>
   </div>
@@ -47,114 +57,208 @@
         <th class="py-3 px-4">Actions</th>
       </tr>
     </thead>
+
     <tbody>
-  <% brands.forEach((brand, index)=> { %>
-    <tr class="border-b <%= brand.is_deleted ? 'opacity-50' : '' %>">
-      <td class="py-3 px-4"><%= index + 1 %></td>
-      <td class="py-3 px-4"><%= brand.name %></td>
-      <td class="py-3 px-4">
-        <% if (brand.logo_url) { %>
-          <img src="<%= brand.logo_url %>" class="w-12 h-12 object-contain">
-        <% } else { %>
-          <span class="text-gray-400 italic">No Logo</span>
-        <% } %>
-      </td>
-      <td class="py-3 px-4">
-        <button disabled
-          class="px-4 py-1 rounded-full text-white text-sm font-medium cursor-default 
-            <%= brand.is_active ? 'bg-green-500' : 'bg-gray-400' %>">
-          <%= brand.is_active ? 'Active' : 'Inactive' %>
-        </button>
-      </td>
-      <td class="py-3 px-4">
-        <button onclick="toggleBrand('<%= brand._id %>')" 
-                class="bg-orange-400 text-white px-3 py-1 rounded hover:bg-orange-500">
-          <%= brand.is_active ? 'Block' : 'Unblock' %>
-        </button>
+      <% brands.forEach((brand, index) => { %>
+        <tr id="brand-row-<%= brand._id %>"
+          class="border-b <%= brand.is_deleted ? 'opacity-50' : '' %>">
 
-        <% if (brand.is_delete) { %>
-          <button onclick="restoreBrand('<%= brand._id %>')" 
-                  class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">
-            Restore
-          </button>
-        <% } else { %>
-          <button onclick="deleteBrand('<%= brand._id %>')" 
-                  class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
-            Delete
-          </button>
-        <% } %>
-      </td>
-    </tr>
-  <% }) %>
-</tbody>
+          <td class="py-3 px-4"><%= index + 1 %></td>
 
+          <td class="py-3 px-4"><%= brand.name %></td>
+
+          <td class="py-3 px-4">
+            <% if (brand.logo_url) { %>
+              <img src="<%= brand.logo_url %>"
+                class="w-12 h-12 object-contain">
+            <% } else { %>
+              <span class="text-gray-400 italic">No Logo</span>
+            <% } %>
+          </td>
+
+          <!-- Status -->
+          <td class="py-3 px-4">
+            <button id="status-<%= brand._id %>" disabled
+              class="px-4 py-1 rounded-full text-white text-sm font-medium
+              <%= brand.is_active ? 'bg-green-500' : 'bg-gray-400' %>">
+              <%= brand.is_active ? 'Active' : 'Inactive' %>
+            </button>
+          </td>
+
+          <!-- Actions -->
+          <td class="py-3 px-4 space-x-2">
+            <button id="toggle-<%= brand._id %>"
+              onclick="toggleBrand('<%= brand._id %>')"
+              class="bg-orange-400 text-white px-3 py-1 rounded hover:bg-orange-500">
+              <%= brand.is_active ? 'Block' : 'Unblock' %>
+            </button>
+
+            <button id="delete-<%= brand._id %>"
+              onclick="deleteBrand('<%= brand._id %>')"
+              class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600
+              <%= brand.is_deleted ? 'hidden' : '' %>">
+              Delete
+            </button>
+
+            <button id="restore-<%= brand._id %>"
+              onclick="restoreBrand('<%= brand._id %>')"
+              class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600
+              <%= brand.is_deleted ? '' : 'hidden' %>">
+              Restore
+            </button>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
   </table>
 </div>
 
+<!-- Scripts -->
 <script>
   const modal = document.getElementById('brandModal')
-  document.getElementById('openModalBtn').onclick = () => modal.classList.remove('hidden')
-  document.getElementById('closeModalBtn').onclick = () => modal.classList.add('hidden')
 
-  // AJAX Submit
+  document.getElementById('openModalBtn').onclick =
+    () => modal.classList.remove('hidden')
+
+  document.getElementById('closeModalBtn').onclick =
+    () => modal.classList.add('hidden')
+
+  // ADD BRAND (NO RELOAD)
   document.getElementById('addBrandForm').onsubmit = async (e) => {
     e.preventDefault()
     const formData = new FormData(e.target)
-    const res = await fetch('/admin/brands', { method: 'POST', body: formData })
+
+    const res = await fetch('/admin/brands', {
+      method: 'POST',
+      body: formData
+    })
     const data = await res.json()
 
-    if(data.success){
-      Swal.fire({ icon:'success', title:'Brand Added', text:data.message, timer:1500, showConfirmButton:false })
-        .then(()=> location.reload())
+    if (data.success) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Brand Added',
+        timer: 1500,
+        showConfirmButton: false
+      }).then(() => location.reload()) // only here is OK
     } else {
-      Swal.fire({ icon:'error', title:'Error', text:data.message })
+      Swal.fire({ icon: 'error', text: data.message })
     }
   }
 
-  // Toggle Brand (Activate/Block)
+  // TOGGLE BRAND
   async function toggleBrand(id) {
-    try {
-      const res = await fetch(`/admin/brands/${id}/status`, { method: 'PATCH' })
-      const data = await res.json()
-      if(data.success){
-        Swal.fire({ icon:'success', title:data.message, timer:1500, showConfirmButton:false })
-          .then(()=> location.reload())
-      } else {
-        Swal.fire({ icon:'error', title:'Error', text:data.message })
-      }
-    } catch {
-      Swal.fire({ icon:'error', title:'Server Error' })
+    const res = await fetch(`/admin/brands/${id}/status`, { method: 'PATCH' })
+    const data = await res.json()
+
+    if (!data.success) {
+      return Swal.fire({ icon: 'error', text: data.message })
     }
+
+    const statusBtn = document.getElementById(`status-${id}`)
+    const toggleBtn = document.getElementById(`toggle-${id}`)
+
+    if (data.is_active) {
+      statusBtn.textContent = 'Active'
+      statusBtn.className =
+        'px-4 py-1 rounded-full bg-green-500 text-white text-sm'
+      toggleBtn.textContent = 'Block'
+    } else {
+      statusBtn.textContent = 'Inactive'
+      statusBtn.className =
+        'px-4 py-1 rounded-full bg-gray-400 text-white text-sm'
+      toggleBtn.textContent = 'Unblock'
+    }
+
+    Swal.fire({
+      icon: 'success',
+      title: data.message,
+      timer: 1200,
+      showConfirmButton: false
+    })
   }
 
+  // DELETE BRAND
   async function deleteBrand(id) {
-  Swal.fire({
-    title: 'Are you sure?',
-    text: 'This will delete the brand!',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#3085d6',
-    confirmButtonText: 'Yes, delete it!'
-  }).then(async (result) => {
-    if (result.isConfirmed) {
-      const res = await fetch(`/admin/brands/${id}`, { method: 'DELETE' })
-      const data = await res.json()
-      if (data.success) {
-        Swal.fire({ icon: 'success', title: data.message, timer: 1500, showConfirmButton: false })
-          .then(() => location.reload())
-      }
-    }
-  })
-}
+    const confirm = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'This will delete the brand!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33'
+    })
 
-async function restoreBrand(id) {
-  const res = await fetch(`/admin/brands/${id}/restore`, { method: 'PATCH' })
-  const data = await res.json()
-  if (data.success) {
-    Swal.fire({ icon: 'success', title: data.message, timer: 1500, showConfirmButton: false })
-      .then(() => location.reload())
+    if (!confirm.isConfirmed) return
+
+    const res = await fetch(`/admin/brands/${id}`, { method: 'DELETE' })
+    const data = await res.json()
+
+    if (!data.success) {
+      return Swal.fire({ icon: 'error', text: data.message })
+    }
+
+    // ROW
+    const row = document.getElementById(`brand-row-${id}`)
+    row.classList.add('opacity-50')
+
+    // STATUS → Inactive
+    const statusBtn = document.getElementById(`status-${id}`)
+    statusBtn.textContent = 'Inactive'
+    statusBtn.classList.remove('bg-green-500')
+    statusBtn.classList.add('bg-gray-400')
+
+    // DISABLE TOGGLE
+    const toggleBtn = document.getElementById(`toggle-${id}`)
+    toggleBtn.disabled = true
+    toggleBtn.classList.add('opacity-50', 'cursor-not-allowed')
+
+    // ACTION BUTTONS
+    document.getElementById(`delete-${id}`).classList.add('hidden')
+    document.getElementById(`restore-${id}`).classList.remove('hidden')
+
+    Swal.fire({
+      icon: 'success',
+      title: data.message,
+      timer: 1200,
+      showConfirmButton: false
+    })
   }
-}
+
+
+  // RESTORE BRAND
+  async function restoreBrand(id) {
+    const res = await fetch(`/admin/brands/${id}/restore`, { method: 'PATCH' })
+    const data = await res.json()
+
+    if (!data.success) {
+      return Swal.fire({ icon: 'error', text: data.message })
+    }
+
+    const row = document.getElementById(`brand-row-${id}`)
+    row.classList.remove('opacity-50')
+
+    // STATUS → Active
+    const statusBtn = document.getElementById(`status-${id}`)
+    statusBtn.textContent = 'Active'
+    statusBtn.classList.remove('bg-gray-400')
+    statusBtn.classList.add('bg-green-500')
+
+    // ENABLE TOGGLE
+    const toggleBtn = document.getElementById(`toggle-${id}`)
+    toggleBtn.disabled = false
+    toggleBtn.classList.remove('opacity-50', 'cursor-not-allowed')
+    toggleBtn.textContent = 'Block'
+
+    // ACTION BUTTONS
+    document.getElementById(`restore-${id}`).classList.add('hidden')
+    document.getElementById(`delete-${id}`).classList.remove('hidden')
+
+    Swal.fire({
+      icon: 'success',
+      title: data.message,
+      timer: 1200,
+      showConfirmButton: false
+    })
+  }
 
 </script>

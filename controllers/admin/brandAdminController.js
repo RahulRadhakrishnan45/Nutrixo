@@ -40,7 +40,7 @@ const toggleBrand = asyncHandler( async( req,res) => {
 
     const msg = brand.is_active ? messages.BRAND.BRAND_ACTIVATED : messages.BRAND.BRAND_BLOCKED
 
-    res.json({success:true,message:msg})
+    res.json({success:true,message:msg,is_active:brand.is_active})
 })
 
 const deleteBrand = asyncHandler( async( req,res) => {
@@ -70,9 +70,6 @@ const restoreBrand = asyncHandler( async( req,res) => {
 
     res.json({success:true,message:messages.BRAND.BRAND_RESTORED})
 })
-
-
-
 
 
 module.exports = {loadBrands,addBrand,toggleBrand,deleteBrand,restoreBrand}

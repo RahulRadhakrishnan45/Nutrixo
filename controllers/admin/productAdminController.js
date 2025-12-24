@@ -5,8 +5,6 @@ const asyncHandler = require('express-async-handler')
 const Category = require('../../models/categorySchema')
 const Brand = require('../../models/brandSchema')
 const {FLAVOURS,SIZES} = require('../../constants/productOptions')
-const category = require('../../models/categorySchema')
-const product = require('../../models/productSchema')
 
 
 const loadProducts = asyncHandler( async( req,res) => {
