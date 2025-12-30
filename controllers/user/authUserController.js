@@ -1,13 +1,7 @@
-
-const User = require('../../models/userSchema')
 const asyncHandler = require('express-async-handler')
-const bcrypt = require('bcrypt')
-const env = require('dotenv').config()
-const { generateOtp, sendVerificationEmail} = require('../../utils/generator')
-const user = require('../../models/userSchema')
-const httpStatus = require('../../constants/httpStatus')
 const messages = require('../../constants/messages')
-const {apiLog} = require('../../config/logger')
+const {loginUserService, signupOtpService, verifyOtpService, 
+    sendResetOtpService, resetPasswordService, resendOtpService } = require('../../services/authServices')
 
 
 const loadLogin = asyncHandler(async (req,res) =>{
@@ -17,23 +11,12 @@ const loadLogin = asyncHandler(async (req,res) =>{
 })
 
 const loginUser = asyncHandler(async (req,res) => {
-    const {email,password} = req.body
-    console.log(email)
-    const user = await User.findOne({email})
-    if(!user) {
-        return res.status(httpStatus.bad_request).json({success:false,message:messages.AUTH.USER_NOT_FOUND})
+    const result = await loginUserService(req.body)
+    if(result.error) {
+        return res.status(result.status).json({success:false,message:result.message})
     }
 
-    if(!user.is_active) {
-        return res.status(httpStatus.forbidden).json({success:false,message:messages.AUTH.ACCOUNT_BLOCKED})
-    }
-
-    const isMatch = await bcrypt.compare(password,user.password)
-    if(!isMatch) {
-        return res.status(httpStatus.bad_request).json({success:false, message:messages.AUTH.PASSWORD_INVALID})
-    }
-
-    req.session.user = {_id:user._id}
+    req.session.user = {_id:result.user._id}
 
     return res.json({success:true, message:messages.AUTH.LOGIN_SUCCESS,redirect:'/'})
 })
@@ -53,42 +36,11 @@ const signupUser = asyncHandler( async (req,res) =>{
         return res.redirect('/auth/signup')
     }
 
-    const emailExists = await User.findOne({email})
-    if(emailExists) {
-        return res.status(httpStatus.bad_request).json({success:false,message:messages.USER.USER_EXISTS})
+    const result = await signupOtpService({name,email,password,mobile,session:req.session})
+
+    if(result.error) {
+        return res.status(result.status).json({success:false,message:result.message})
     }
-
-    const mobileExists = await User.findOne({mobile})
-    
-    if(mobileExists) {
-        return res.status(httpStatus.bad_request).json({success:false,message:messages.USER.USER_MOB_EXISTS})
-    }
-
-    const now = Date.now()
-    const lastOtpTime = req.session.lastOtpTime || 0
-
-    if(now - lastOtpTime < 6000) {
-        const wait = Math.ceil((60000 - (now - lastOtpTime)) / 1000)
-
-        return res.json({success:false,message:`OTP already sent. Try again in ${wait} seconds.`,})
-    }
-
-    const otp = generateOtp()
-    const otpExpiry = Date.now() + 2*60*1000
-
-    const emailSent = await sendVerificationEmail(email,otp)
-
-    if(!emailSent) {
-        return res.status(httpStatus.internal_server_error).json({success:false,message:messages.OTP.FAILED})
-    }
-
-    req.session.userOtp = otp
-    req.session.otpExpiry = otpExpiry
-    req.session.userData = {name,email,password,mobile}
-    req.session.purpose = 'signup'
-    req.session.lastOtpTime = now
-
-    apiLog.info(`OTP sent successfully to ${email}: ${otp}`)
 
     return res.json({success:true,message:messages.OTP.SENT,redirect:'/auth/otp'})
 })
@@ -98,30 +50,15 @@ const forgotPassword = asyncHandler(async (req,res) =>{
 })
 
 const sendResetMail = asyncHandler( async(req,res) =>{
-    const {email} = req.body
-    apiLog.info(`Password reset requested for ${email}`)
-    const findUser = await User.findOne({email})
-    
-    if(findUser){
-        const otp = generateOtp()
-        const emailSent = await sendVerificationEmail(email,otp)
+    const result = await sendResetOtpService({
+        email:req.body.email,session:req.session
+    })
 
-        if(!emailSent) {
-        return res.status(httpStatus.internal_server_error).json({success:false,message:messages.OTP.FAILED})
-        }
-
-        req.session.userOtp = otp
-        req.session.otpExpiry = Date.now() + 2*60*1000
-        req.session.email = email
-        req.session.purpose = 'forgot-password'
-
-        
-        apiLog.info(`Password reset OTP sent successfully to ${email}: ${otp}`)
-
-        return res.json({success:true, message:messages.OTP.SENT,redirect:'/auth/otp'})
-    }else{
-        return res.status(httpStatus.not_found).json({success:false,message:messages.AUTH.USER_NOT_FOUND,redirect:'/auth/signup'})
+    if(result.error) {
+        return res.status(result.status).json({success:false,message:result.message,redirect:result.redirect})
     }
+
+    res.json({success:true,message:result.message,redirect:result.redirect})
 })
 
 const resetPassword = asyncHandler(async (req,res) =>{
@@ -129,28 +66,15 @@ const resetPassword = asyncHandler(async (req,res) =>{
 })
 
 const postResetPassword = asyncHandler(async (req,res) =>{
-    const {newPass,confirmPass} = req.body
-    const email = req.session.verifiedEmail
+    const result = await resetPasswordService({
+        newPass:req.body.newPass,confirmPass:req.body.confirmPass,session:req.session
+    })
 
-    if(!email){
-        return res.status(httpStatus.bad_request).json({success:false,message:messages.AUTH.SESSION_EXPIRED})
+    if(result.error) {
+        return res.status(result.status).json({success:false,message:result.message})
     }
 
-    if(newPass !== confirmPass){
-        return res.status(httpStatus.bad_request).json({success:false,message:messages.AUTH.PASSWORD_MISMATCH})
-    }
-
-    const passwordHash = await securePassword(newPass)
-
-    const updateUser = await User.findOneAndUpdate({email},{password:passwordHash},{new:true})
-
-    if(!updateUser){
-        return res.status(httpStatus.not_found).json({success:false,message:messages.AUTH.USER_NOT_FOUND})
-    }
-
-    req.session.verifiedEmail = null
-
-    return res.json({success:true,message:messages.AUTH.PASSWORD_RESET_SUCCESS,redirect:'/auth/login'})
+    res.json({success:true,message:result.message,redirect:result.redirect})
 })
 
 const loadOtpPage = asyncHandler(async (req,res)=>{
@@ -162,119 +86,31 @@ const loadOtpPage = asyncHandler(async (req,res)=>{
     res.render('auth/otp',{layout:'layouts/userLogin',expiry})
 })
 
-const securePassword = async (password) =>{
-    const passwordHash = await bcrypt.hash(password,10)
-    return passwordHash
-}
-
 const verifyOtp = asyncHandler(async (req,res) =>{
-    const {otp} =req.body
-    apiLog.info(`OTP entered by user: ${otp}`)
+    const result = await verifyOtpService({
+        otp:req.body.otp,session:req.session
+    })
 
-    if(Date.now() > req.session.otpExpiry) {
-        return res.status(httpStatus.bad_request).json({success:false, message:messages.OTP.EXPIRED})
+    if(result.error) {
+        return res.status(result.status).json({success:false,message:result.message})
     }
 
-   if(parseInt(otp) === parseInt(req.session.userOtp)) {
-        if (req.session.purpose === 'signup') {
-            
-            const user = req.session.userData
-            const passwordHash = await securePassword(user.password)
+    req.session.userOtp = null
+    req.session.otpExpiry = null
+    req.session.userData = null
+    req.session.purpose = null
 
-            const saveUserData = new User({
-                name:user.name,
-                email:user.email,
-                mobile:user.mobile,
-                password:passwordHash
-            })
-            await saveUserData.save()
-
-            
-            req.session.userOtp = null
-            req.session.userData = null
-            req.session.otpExpiry = null
-            req.session.purpose = null
-
-            return res.json({
-                success:true,
-                message:messages.AUTH.SIGNUP_SUCCESS,
-                redirect:'/auth/login'
-            })
-
-        } else if (req.session.purpose === 'forgot-password') {
-            
-            req.session.verifiedEmail = req.session.email
-
-            
-            req.session.userOtp = null
-            req.session.otpExpiry = null
-            req.session.purpose = null
-
-            return res.json({
-                success:true,
-                message:messages.OTP.VERIFIED,
-                redirect:'/auth/reset-password'
-            })
-
-        } else if(req.session.purpose === 'email-change') {
-            const userId = req.session.userId
-            const newEmail = req.session.newEmail
-
-            if(!userId || !newEmail) {
-                return res.status(httpStatus.bad_request).json({success:false,message:messages.AUTH.SESSION_EXPIRED})
-            }
-
-            await User.findByIdAndUpdate(userId,{email:newEmail})
-
-            req.session.userOtp = null
-            req.session.newEmail = null
-            req.session.userId = null
-            req.session.otpExpiry = null
-            req.session.purpose = null
-
-            return res.json({success:true,message:messages.PROFILE.PROFILE_UPDATED,redirect:'/profile'})
-        }else {
-            
-            return res.status(httpStatus.bad_request).json({
-                success:false,
-                message:messages.OTP.INVALID_PURPOSE
-            })
-        }
-
-    } else {
-        return res.status(httpStatus.bad_request).json({
-            success:false, 
-            message:messages.OTP.VERIFICATION_FAILED
-        })
-    }
+    res.json({success:true,message:result.message,redirect:result.redirect})
 })
 
 const resendOtp = asyncHandler(async (req,res)=>{
+    const result = await resendOtpService({session:req.session})
 
-        let email = null;
+    if(result.error) {
+        return res.status(result.status).json({success:false,message:result.message})
+    }
 
-        if (req.session.purpose === 'signup' && req.session.userData) {
-        email = req.session.userData.email
-        }else if (req.session.purpose === 'forgot-password' && req.session.email) {
-        email = req.session.email
-        }
-        apiLog.info(`Resend OTP requested for ${email}`)
-        if(!email){
-            return res.status(httpStatus.bad_request).json({success:false, message:messages.OTP.EMAIL_NOT_FOUND})
-        }
-        
-        const otp = generateOtp()
-        req.session.otpExpiry = Date.now() + 2 *60 *1000
-        req.session.userOtp = otp
-
-        const emailSent = await sendVerificationEmail(email,otp)
-        if(emailSent){
-            apiLog.info(`Resent OTP to ${email}: ${otp}`)
-            res.status(httpStatus.ok).json({success:true,message:messages.OTP.RESENT,expiry:req.session.otpExpiry})
-        }else{
-            apiLog.error(`Failed to resend OTP to ${email}`)
-            res.status(httpStatus.internal_server_error).json({success:false,message:messages.OTP.RESEND_FAILED})
-        }
+    res.json({success:true,message:result.message,expiry:result.expiry})
 })
 
 module.exports = {loadSignup,loadLogin,loginUser,forgotPassword,resetPassword,signupUser,verifyOtp,loadOtpPage,resendOtp,sendResetMail,postResetPassword}
