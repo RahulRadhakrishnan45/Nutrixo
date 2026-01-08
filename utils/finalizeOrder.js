@@ -29,7 +29,7 @@ async function finalizeOrder({ orderId, userId, paymentMethod, paymentDetails = 
       wallet.transactions.push({
         amount: order.totalAmount,
         type: 'DEBIT',
-        description: `Order Payment for #${order._id}`,
+        description: `Order Payment for ${order.orderNumber}`,
         orderId: order._id.toString(),
         createdAt: new Date(),
       })

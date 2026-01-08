@@ -15,8 +15,8 @@ const transactionSchema = new mongoose.Schema({
         required: true 
     },
     orderId: { 
-        type: String 
-    }
+        type: String, default:null
+    },
 }, {
     timestamps: true 
 });

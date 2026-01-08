@@ -1,11 +1,11 @@
 const Category = require('../models/categorySchema');
 const Brand = require('../models/brandSchema');
 const Cart = require('../models/cartSchema');
-const Wishlist = require('../models/wishlistSchema'); // ✅ import wishlist
+const Wishlist = require('../models/wishlistSchema'); 
 
 async function headerData(req, res, next) {
   try {
-    
+    res.locals.searchQuery = typeof req.query.q === 'string' ? req.query.q : ''
     const categories = await Category.find({ is_active: true, is_deleted: false }).select('name -_id')
     res.locals.categories = categories.length ? categories.map(c => c.name) : []
 

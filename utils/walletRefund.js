@@ -16,7 +16,7 @@ async function creditToWallet(userId,amount,description,orderId=null) {
         amount:amount,
         type:'REFUND',
         description,
-        orderId
+        orderId,
     })
 
     await wallet.save()
