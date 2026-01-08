@@ -154,17 +154,16 @@ const loadProducts = asyncHandler( async( req,res) => {
             if (brand && brand !== 'All' && p.brand_id?.name !== brand) continue
             if (size && size !== 'All' && v.size !== size) continue
             if (q) {
-  const keywords = q.toLowerCase().split(/\s+/)
+                    const keywords = q.toLowerCase().split(/\s+/)
 
-  const matches = keywords.every(word =>
-  p.title.toLowerCase().includes(word) ||
-  (v.flavour && v.flavour.toLowerCase().includes(word)) ||
-  (v.size && v.size.toLowerCase().includes(word))
-)
+                    const matches = keywords.every(word =>
+                    p.title.toLowerCase().includes(word) ||
+                    (v.flavour && v.flavour.toLowerCase().includes(word)) ||
+                    (v.size && v.size.toLowerCase().includes(word))
+                    )
 
-
-  if (!matches) continue
-}
+                    if (!matches) continue
+                }
 
 
             products.push({
